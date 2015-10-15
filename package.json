@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Analyze and debug space usage through source maps",
   "main": "index.js",
+  "files": ["tree-viz.html"],
+  "bin": {
+    "source-map-explorer": "index.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
