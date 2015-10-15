@@ -1,0 +1,84 @@
+<!doctype html>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://cdn.rawgit.com/martine/webtreemap/a2fa353833eca1a4821ba4c93fb6a7d546aed02a/webtreemap.css">
+
+<style>
+html, body {
+    height: 100%;
+}
+body {
+  font-family: sans-serif;
+  font-size: 0.8em;
+  margin: 2ex 4ex;
+}
+h1 {
+  font-weight: normal;
+}
+#map {
+  top: 10px;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  position: absolute;
+  cursor: pointer;
+  -webkit-user-select: none;
+}
+</style>
+
+<div id='map'></div>
+
+
+<script>
+var tree = INSERT TREE HERE;
+</script>
+
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+<script src="https://cdn.rawgit.com/martine/webtreemap/a2fa353833eca1a4821ba4c93fb6a7d546aed02a/webtreemap.js"></script>
+
+<script>
+
+function newNode(name) {
+  return {
+    name: name,
+    data: {
+      '$area': 0
+    },
+    children: []
+  };
+}
+
+var treeData = newNode('/');
+
+function addNode(path, size) {
+  var parts = path.split('/');
+  var node = treeData;
+  node.data['$area'] += size;
+
+  parts.forEach(part => {
+    var child = _.find(node.children, child => child.name == part);
+    if (!child) {
+      var child = newNode(part);
+      node.children.push(child);
+    }
+
+    node = child;
+    node.data['$area'] += size;
+  });
+}
+
+function addSizeToTitle(node, total) {
+  var size = node.data['$area'],
+      pct = 100.0 * size / total;
+  node.name += ' • ' + size.toLocaleString() + ' • ' + pct.toFixed(2) + '%';
+  node.children.forEach(x => addSizeToTitle(x, total));
+}
+
+for (var source in tree) {
+  addNode(source, tree[source]);
+}
+addSizeToTitle(treeData, treeData.data['$area']);
+
+var map = document.getElementById('map');
+appendTreemap(map, treeData);
+
+</script>

@@ -1,0 +1,29 @@
+{
+  "name": "source-map-explorer",
+  "version": "1.0.0",
+  "description": "Analyze and debug space usage through source maps",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danvk/source-map-explorer.git"
+  },
+  "keywords": [
+    "source-map",
+    "browser",
+    "minification"
+  ],
+  "author": "Dan Vanderkam (danvdk@gmail.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/danvk/source-map-explorer/issues"
+  },
+  "homepage": "https://github.com/danvk/source-map-explorer#readme",
+  "dependencies": {
+    "convert-source-map": "^1.1.1",
+    "source-map": "^0.5.1",
+    "underscore": "^1.8.3"
+  }
+}
