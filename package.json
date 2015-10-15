@@ -26,7 +26,9 @@
   "homepage": "https://github.com/danvk/source-map-explorer#readme",
   "dependencies": {
     "convert-source-map": "^1.1.1",
+    "open": "0.0.5",
     "source-map": "^0.5.1",
+    "temp": "^0.8.3",
     "underscore": "^1.8.3"
   }
 }

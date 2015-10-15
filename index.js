@@ -3,6 +3,8 @@ var fs = require('fs'),
     path = require('path'),
     sourcemap = require('source-map'),
     convert = require('convert-source-map'),
+    temp = require('temp'),
+    open = require('open'),
     _ = require('underscore');
 
 var sourcemapFile = process.argv[2],
@@ -49,4 +51,6 @@ var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
 
 html = html.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '));
 
-console.log(html);
+var tempName = temp.path({suffix: '.html'});
+fs.writeFileSync(tempName, html);
+open(tempName);
