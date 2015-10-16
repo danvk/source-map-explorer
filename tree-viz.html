@@ -1,6 +1,8 @@
 <!doctype html>
+<head>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="https://cdn.rawgit.com/martine/webtreemap/a2fa353833eca1a4821ba4c93fb6a7d546aed02a/webtreemap.css">
+<title>INSERT TITLE HERE - Source Map Explorer</title>
 
 <style>
 html, body {
@@ -21,8 +23,10 @@ body {
   -webkit-user-select: none;
 }
 </style>
-
+</head>
+<body>
 <div id='map'></div>
+</body>
 
 
 <script>
@@ -77,5 +81,9 @@ addSizeToTitle(treeData, treeData.data['$area']);
 
 var map = document.getElementById('map');
 appendTreemap(map, treeData);
+
+window.addEventListener('resize', function() {
+  appendTreemap(map, treeData);
+});
 
 </script>

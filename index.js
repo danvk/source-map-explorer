@@ -186,7 +186,9 @@ if (args['--json']) {
 
 var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
 
-html = html.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '));
+html = html.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '))
+           .replace('INSERT TITLE HERE', args['<script.js>'])
+
 
 if (args['--html']) {
   console.log(html);
