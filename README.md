@@ -20,12 +20,14 @@ Here's a [demo][] with a more complex bundle.
 
 * `--json`: output JSON instead of displaying a visualization:
 
+    ```
     source-map-explorer --json foo.min.js{,.map}
     {
       "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
       "bar.js": 62,
       "foo.js": 137
     }
+    ```
 
 
 ## Generating source maps
