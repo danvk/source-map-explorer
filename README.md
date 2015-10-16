@@ -1,4 +1,5 @@
-# source-map-explorer
+[![Build Status](https://travis-ci.org/danvk/source-map-explorer.svg?branch=v1.1.0)](https://travis-ci.org/danvk/source-map-explorer)
+# source-map-explorer 
 Analyze and debug JavaScript code bloat through source maps.
 
 The source map explorer determines which file each byte in your minified JS came from. It shows you a [treemap][] visualization to help you debug where all the code is coming from.
@@ -23,7 +24,7 @@ Here's a [demo][] with a more complex bundle.
 * `--json`: output JSON instead of displaying a visualization:
 
     ```
-    source-map-explorer --json foo.min.js{,.map}
+    source-map-explorer --json foo.min.js
     {
       "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
       "bar.js": 62,
@@ -31,6 +32,21 @@ Here's a [demo][] with a more complex bundle.
     }
     ```
 
+* `--html`: output HTML to stdout. By default, source-map-explorer writes HTML to a temporary file and opens it in your default browser. If you want to save the output (e.g. to share), pipe it to a file:
+
+    ```
+    source-map-explorer --html foo.min.js > tree.html
+    ```
+    
+* `--replace`, `--with`: The paths in source maps sometimes have artifacts that are difficult to get rid of. These flags let you do simple find & replaces on the paths. For example:
+
+    ```
+    source-map-explorer foo.min.js --replace 'dist/' --with ''
+    ```
+    
+    You can specify these flags multiple times. Be aware that the find/replace is done _after_ eliminating shared prefixes between paths.
+
+* `--noroot`: By default, source-map-explorer finds common prefixes between all source files and eliminates them, since they add complexity to the visualization with no real benefit. But if you want to disable this behavior, set the `--noroot` flag.
 
 ## Generating source maps
 
