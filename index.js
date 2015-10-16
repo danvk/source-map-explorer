@@ -1,17 +1,17 @@
-#!/usr/bin/env node --harmony
+#!/usr/bin/env node
 
-var doc = `
-Usage:
-  source-map-explorer [--json] <script.js> [<script.js.map>]
-
-  If the script file has an inline source map, you may omit the map parameter.
-
-Options:
-  --json     Output JSON (on stdout) instead of generating HTML
-             and opening the browser.
-  -h --help  Show this screen.
-  --version  Show version.
-`;
+var doc = [
+'Usage:',
+'  source-map-explorer [--json] <script.js> [<script.js.map>]',
+'',
+'  If the script file has an inline source map, you may omit the map parameter.',
+'',
+'Options:',
+'  --json     Output JSON (on stdout) instead of generating HTML',
+'             and opening the browser.',
+'  -h --help  Show this screen.',
+'  --version  Show version.',
+].join('\n');
 
 
 var fs = require('fs'),
@@ -51,7 +51,9 @@ function computeGeneratedFileSizes(mapConsumer, generatedJs) {
       }
     }
   }
-  return _.mapObject(sourceExtrema, v => v.max - v.min + 1);
+  return _.mapObject(sourceExtrema, function(v) {
+    return v.max - v.min + 1
+  });
 }
 
 function loadSourceMap(jsFile, mapFile) {
@@ -79,7 +81,10 @@ function loadSourceMap(jsFile, mapFile) {
     return null;
   }
 
-  return {mapConsumer, jsData};
+  return {
+    mapConsumer: mapConsumer,
+    jsData: jsData
+  };
 }
 
 var args = docopt(doc, {version: '0.1'});
