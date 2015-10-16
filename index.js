@@ -23,7 +23,7 @@ var fs = require('fs'),
     _ = require('underscore'),
     docopt = require('docopt').docopt;
 
-function computeGeneratedFileSizes(sourcemap, generatedJs) {
+function computeGeneratedFileSizes(mapConsumer, generatedJs) {
   var lines = generatedJs.split('\n');
   var sourceExtrema = {};  // source -> {min: num, max: num}
   var numChars = 0;
@@ -32,7 +32,7 @@ function computeGeneratedFileSizes(sourcemap, generatedJs) {
     var lineText = lines[line - 1];
     var numCols = lineText.length;
     for (var column = 0; column < numCols; column++, numChars++) {
-      var pos = sourcemap.originalPositionFor({line:line, column:column});
+      var pos = mapConsumer.originalPositionFor({line:line, column:column});
       var source = pos.source;
       if (source == null) {
         // Often this is from the '// #sourceMap' comment itself.
@@ -55,17 +55,39 @@ function computeGeneratedFileSizes(sourcemap, generatedJs) {
 }
 
 function loadSourceMap(jsFile, mapFile) {
-  var sourcemapData = fs.readFileSync(mapFile).toString();
   var jsData = fs.readFileSync(jsFile).toString();
 
-  var mapConsumer = new sourcemap.SourceMapConsumer(sourcemapData);
+  var mapConsumer;
+  if (mapFile) {
+    var sourcemapData = fs.readFileSync(mapFile).toString();
+    mapConsumer = new sourcemap.SourceMapConsumer(sourcemapData);
+  } else {
+    // Try to read a source map from a 'sourceMappingURL' comment.
+    var converter = convert.fromSource(jsData);
+    if (!converter) {
+      converter = convert.fromMapFileSource(jsData, '.');
+    }
+    if (!converter) {
+      console.error('Unable to find a source map.');
+      return null;
+    }
+    mapConsumer = new sourcemap.SourceMapConsumer(converter.toJSON());
+  }
+
+  if (!mapConsumer) {
+    console.error('Unable to find a source map.');
+    return null;
+  }
 
   return {mapConsumer, jsData};
 }
 
 var args = docopt(doc, {version: '0.1'});
-var data = loadSourceMap(args['<script.js>'], args['<script.js.map>']),
-    mapConsumer = data.mapConsumer,
+var data = loadSourceMap(args['<script.js>'], args['<script.js.map>']);
+if (!data) {
+  process.exit(1);
+}
+var mapConsumer = data.mapConsumer,
     jsData = data.jsData;
 
 var sizes = computeGeneratedFileSizes(mapConsumer, jsData);
