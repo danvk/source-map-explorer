@@ -1,27 +1,32 @@
 #!/usr/bin/env node
 
 var doc = [
-'Usage:',
-'  source-map-explorer [--json] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
+'Analyze and debug space usage through source maps.',
 '',
-'  If the script file has an inline source map, you may omit the map parameter.',
+'Usage:',
+'  source-map-explorer <script.js> [<script.js.map>]',
+'  source-map-explorer [--json | --html] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
+'  source-map-explorer -h | --help | --version',
+'',
+'If the script file has an inline source map, you may omit the map parameter.',
 '',
 'Options:',
-'  -h --help Show this screen.',
-'  --version Show version.',
+'  -h --help  Show this screen.',
+'  --version  Show version.',
 '',
-'  --json    Output JSON (on stdout) instead of generating HTML',
-'            and opening the browser.',
+'     --json  Output JSON (on stdout) instead of generating HTML',
+'             and opening the browser.',
+'     --html  Output HTML (on stdout) rather than opening a browser.',
 '',
-'  --noroot  To simplify the visualization, source-map-explorer',
-'            will remove any prefix shared by all sources. If you',
-'            wish to disable this behavior, set --noroot.',
+'   --noroot  To simplify the visualization, source-map-explorer',
+'             will remove any prefix shared by all sources. If you',
+'             wish to disable this behavior, set --noroot.',
 '',
-'  --replace=BEFORE Apply a simple find/replace on source file',
-'                   names. This can be used to fix some oddities',
-'                   with paths which appear in the source map',
-'                   generation process.',
-'  --with=AFTER     See --replace.',
+'  --replace=BEFORE  Apply a simple find/replace on source file',
+'                    names. This can be used to fix some oddities',
+'                    with paths which appear in the source map',
+'                    generation process.',
+'      --with=AFTER  See --replace.',
 ].join('\n');
 
 
@@ -182,6 +187,11 @@ if (args['--json']) {
 var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
 
 html = html.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '));
+
+if (args['--html']) {
+  console.log(html);
+  process.exit(0);
+}
 
 var tempName = temp.path({suffix: '.html'});
 fs.writeFileSync(tempName, html);
