@@ -19,6 +19,9 @@ This will open up a visualization of how the space is used in your minified bund
 
 Here's a [demo][] with a more complex bundle.
 
+Here's [another demo][] where you can see a bug: there are two copies of React
+in the bundle (perhaps because of out-of-date dependencies).
+
 ## Options
 
 * `--json`: output JSON instead of displaying a visualization:
@@ -110,6 +113,7 @@ source-map-explorer path/to/foo.min.js{,.map}
 
 
 [demo]: https://cdn.rawgit.com/danvk/source-map-explorer/1f02ba07a2d05c7c7dc0027d31c257b12ffe3c8f/demo.html
+[another demo]: https://cdn.rawgit.com/danvk/source-map-explorer/1f02ba07a2d05c7c7dc0027d31c257b12ffe3c8f/demo-bug.html
 [browserify]: http://browserify.org/
 [uglify]: https://github.com/mishoo/UglifyJS2
 [exorcist]: https://github.com/thlorenz/exorcist
