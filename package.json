@@ -7,7 +7,7 @@
     "source-map-explorer": "index.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -31,5 +31,9 @@
     "source-map": "^0.5.1",
     "temp": "^0.8.3",
     "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "chai": "^3.3.0",
+    "mocha": "^2.3.3"
   }
 }
