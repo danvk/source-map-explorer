@@ -51,8 +51,8 @@ function addNode(path, size) {
   var node = treeData;
   node.data['$area'] += size;
 
-  parts.forEach(part => {
-    var child = _.find(node.children, child => child.name == part);
+  parts.forEach(function(part) {
+    var child = _.find(node.children, function(child) { return child.name == part; });
     if (!child) {
       var child = newNode(part);
       node.children.push(child);
@@ -67,7 +67,7 @@ function addSizeToTitle(node, total) {
   var size = node.data['$area'],
       pct = 100.0 * size / total;
   node.name += ' • ' + size.toLocaleString() + ' • ' + pct.toFixed(2) + '%';
-  node.children.forEach(x => addSizeToTitle(x, total));
+  node.children.forEach(function(x) { addSizeToTitle(x, total) });
 }
 
 for (var source in tree) {
