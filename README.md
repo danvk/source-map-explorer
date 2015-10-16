@@ -1,5 +1,7 @@
 # source-map-explorer
-Analyze and debug space usage through source maps
+Analyze and debug JavaScript code bloat through source maps.
+
+The source map explorer determines which file each byte in your minified JS came from. It shows you a [treemap][] visualization to help you debug where all the code is coming from.
 
 Install:
 
@@ -96,3 +98,4 @@ source-map-explorer path/to/foo.min.js{,.map}
 [uglify]: https://github.com/mishoo/UglifyJS2
 [exorcist]: https://github.com/thlorenz/exorcist
 [inline]: /README.md#types-of-source-maps
+[treemap]: https://github.com/martine/webtreemap
