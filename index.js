@@ -56,6 +56,8 @@ function computeGeneratedFileSizes(mapConsumer, generatedJs) {
   });
 }
 
+var SOURCE_MAP_INFO_URL = 'https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps';
+
 function loadSourceMap(jsFile, mapFile) {
   var jsData = fs.readFileSync(jsFile).toString();
 
@@ -71,6 +73,7 @@ function loadSourceMap(jsFile, mapFile) {
     }
     if (!converter) {
       console.error('Unable to find a source map.');
+      console.error('See ', SOURCE_MAP_INFO_URL);
       return null;
     }
     mapConsumer = new sourcemap.SourceMapConsumer(converter.toJSON());
@@ -78,6 +81,7 @@ function loadSourceMap(jsFile, mapFile) {
 
   if (!mapConsumer) {
     console.error('Unable to find a source map.');
+    console.error('See ', SOURCE_MAP_INFO_URL);
     return null;
   }
 
@@ -96,6 +100,15 @@ var mapConsumer = data.mapConsumer,
     jsData = data.jsData;
 
 var sizes = computeGeneratedFileSizes(mapConsumer, jsData);
+
+if (_.size(sizes) == 1) {
+  console.error('Your source map only contains one source (',
+                _.keys(sizes)[0], ')');
+  console.error("This typically means that your source map doesn't map all the way back to the original sources.");
+  console.error("This can happen if you use browserify+uglifyjs, for example, and don't set the --in-source-map flag to uglify.");
+  console.error('See ', SOURCE_MAP_INFO_URL);
+  process.exit(1);
+}
 
 if (args['--json']) {
   console.log(JSON.stringify(sizes, null, '  '));
