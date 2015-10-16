@@ -2,15 +2,26 @@
 
 var doc = [
 'Usage:',
-'  source-map-explorer [--json] <script.js> [<script.js.map>]',
+'  source-map-explorer [--json] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
 '',
 '  If the script file has an inline source map, you may omit the map parameter.',
 '',
 'Options:',
-'  --json     Output JSON (on stdout) instead of generating HTML',
-'             and opening the browser.',
-'  -h --help  Show this screen.',
-'  --version  Show version.',
+'  -h --help Show this screen.',
+'  --version Show version.',
+'',
+'  --json    Output JSON (on stdout) instead of generating HTML',
+'            and opening the browser.',
+'',
+'  --noroot  To simplify the visualization, source-map-explorer',
+'            will remove any prefix shared by all sources. If you',
+'            wish to disable this behavior, set --noroot.',
+'',
+'  --replace=BEFORE Apply a simple find/replace on source file',
+'                   names. This can be used to fix some oddities',
+'                   with paths which appear in the source map',
+'                   generation process.',
+'  --with=AFTER     See --replace.',
 ].join('\n');
 
 
@@ -91,7 +102,58 @@ function loadSourceMap(jsFile, mapFile) {
   };
 }
 
+// See http://stackoverflow.com/a/1917041/388951
+function commonPathPrefix(array){
+  if (array.length == 0) return '';
+  var A= array.concat().sort(), 
+  a1= A[0].split(/(\/)/), a2= A[A.length-1].split(/(\/)/), L= a1.length, i= 0;
+  while(i<L && a1[i] === a2[i]) i++;
+  return a1.slice(0, i).join('');
+}
+
+// Apply a transform to the keys of an object, leaving the values unaffected.
+function mapKeys(obj, fn) {
+  return _.object(_.map(obj, function(v, k) { return [fn(k), v]; }));
+}
+
+function adjustSourcePaths(sizes, findRoot, finds, replaces) {
+  if (findRoot) {
+    var prefix = commonPathPrefix(_.keys(sizes));
+    var len = prefix.length;
+    if (len) {
+      sizes = mapKeys(sizes, function(source) { return source.slice(len); })
+    }
+  }
+
+  for (var i = 0; i < finds.length; i++) {
+    var before = finds[i],
+        after = replaces[i];
+    sizes = mapKeys(sizes, function(source) {
+      return source.replace(before, after);
+    });
+  }
+
+  return sizes;
+}
+
+function validateArgs(args) {
+  if (args['--replace'].length != args['--with'].length) {
+    console.error('--replace flags must be paired with --with flags.');
+    process.exit(1);
+  }
+}
+
+
+// Exports are here mostly for testing.
+module.exports = {
+  adjustSourcePaths: adjustSourcePaths,
+  mapKeys: mapKeys,
+  commonPathPrefix: commonPathPrefix
+};
+
+if (require.main === module) {
 var args = docopt(doc, {version: '0.1'});
+validateArgs(args);
 var data = loadSourceMap(args['<script.js>'], args['<script.js.map>']);
 if (!data) {
   process.exit(1);
@@ -110,6 +172,8 @@ if (_.size(sizes) == 1) {
   process.exit(1);
 }
 
+sizes = adjustSourcePaths(sizes, !args['--noroot'], args['--replace'], args['--with']);
+
 if (args['--json']) {
   console.log(JSON.stringify(sizes, null, '  '));
   process.exit(0);
@@ -122,3 +186,4 @@ html = html.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '));
 var tempName = temp.path({suffix: '.html'});
 fs.writeFileSync(tempName, html);
 open(tempName);
+}
