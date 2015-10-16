@@ -157,7 +157,7 @@ module.exports = {
 };
 
 if (require.main === module) {
-var args = docopt(doc, {version: '0.1'});
+var args = docopt(doc, {version: '1.1.0'});
 validateArgs(args);
 var data = loadSourceMap(args['<script.js>'], args['<script.js.map>']);
 if (!data) {
