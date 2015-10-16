@@ -16,6 +16,17 @@ This will open up a visualization of how the space is used in your minified bund
 
 Here's a [demo][] with a more complex bundle.
 
+## Options
+
+* `--json`: output JSON instead of displaying a visualization:
+
+    source-map-explorer --json foo.min.js{,.map}
+    {
+      "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+      "bar.js": 62,
+      "foo.js": 137
+    }
+
 
 ## Generating source maps
 
@@ -33,11 +44,19 @@ If you subsequently minify your JavaScript, you'll need to ensure that the
 final source map goes all the way back to the original files. For example,
 using browserify, [uglify][] and [exorcist][]:
 
-    browserify -r .:foo --debug -o foo.bundle.js
-    cat foo.bundle.js | exorcist foo.bundle.js.map > /dev/null
-    uglify ...
-    source-map-explorer foo.min.js
-
+```bash
+browserify -r .:foo --debug -o foo.bundle.js
+# foo.bundle.js has an inline source map
+cat foo.bundle.js | exorcist foo.bundle.js.map > /dev/null
+# foo.bundle.js.map is an external source map for foo.bundle.js
+uglifyjs -c -m \
+  --in-source-map foo.bundle.js.map \
+  --source-map foo.min.js.map \
+  -o foo.min.js \
+  foo.bundle.js
+# foo.min.js has an external source map in foo.min.js.map
+source-map-explorer foo.min.js
+```
 
 ## Types of source maps
 
