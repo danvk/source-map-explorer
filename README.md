@@ -34,6 +34,17 @@ in the bundle (perhaps because of out-of-date dependencies).
       "foo.js": 137
     }
     ```
+    
+* `--tsv`: output tab-delimited values instead of displaying a visualization:
+
+    ```
+    source-map-explorer --tsv foo.min.js
+    Source	Size
+    dist/bar.js	62
+    dist/foo.js	137
+    ```
+    
+    If you just want a list of files, you can do `source-map-explorer --tsv foo.min.js | sed 1d | cut -f1`.
 
 * `--html`: output HTML to stdout. By default, source-map-explorer writes HTML to a temporary file and opens it in your default browser. If you want to save the output (e.g. to share), pipe it to a file:
 
