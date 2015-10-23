@@ -86,7 +86,7 @@ function loadSourceMap(jsFile, mapFile) {
     // Try to read a source map from a 'sourceMappingURL' comment.
     var converter = convert.fromSource(jsData);
     if (!converter) {
-      converter = convert.fromMapFileSource(jsData, '.');
+      converter = convert.fromMapFileSource(jsData, path.dirname(jsFile));
     }
     if (!converter) {
       console.error('Unable to find a source map.');
