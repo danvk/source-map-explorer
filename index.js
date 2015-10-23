@@ -187,7 +187,7 @@ if (args['--json']) {
 
 if (args['--tsv']) {
   console.log('Source\tSize');
-  _.map(sizes, function(v, k) { console.log(k+'\t'+v); })
+  _.each(sizes, function(source, size) { console.log(size + '\t' + source); })
   process.exit(0);
 }
 
