@@ -5,7 +5,7 @@ var doc = [
 '',
 'Usage:',
 '  source-map-explorer <script.js> [<script.js.map>]',
-'  source-map-explorer [--json | --html] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
+'  source-map-explorer [--json | --html | --tsv] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
 '  source-map-explorer -h | --help | --version',
 '',
 'If the script file has an inline source map, you may omit the map parameter.',
@@ -15,6 +15,8 @@ var doc = [
 '  --version  Show version.',
 '',
 '     --json  Output JSON (on stdout) instead of generating HTML',
+'             and opening the browser.',
+'     --tsv   Output TSV (on stdout) instead of generating HTML',
 '             and opening the browser.',
 '     --html  Output HTML (on stdout) rather than opening a browser.',
 '',
@@ -28,7 +30,6 @@ var doc = [
 '                    generation process.',
 '      --with=AFTER  See --replace.',
 ].join('\n');
-
 
 var fs = require('fs'),
     path = require('path'),
@@ -110,7 +111,7 @@ function loadSourceMap(jsFile, mapFile) {
 // See http://stackoverflow.com/a/1917041/388951
 function commonPathPrefix(array){
   if (array.length == 0) return '';
-  var A= array.concat().sort(), 
+  var A= array.concat().sort(),
   a1= A[0].split(/(\/)/), a2= A[A.length-1].split(/(\/)/), L= a1.length, i= 0;
   while(i<L && a1[i] === a2[i]) i++;
   return a1.slice(0, i).join('');
@@ -181,6 +182,12 @@ sizes = adjustSourcePaths(sizes, !args['--noroot'], args['--replace'], args['--w
 
 if (args['--json']) {
   console.log(JSON.stringify(sizes, null, '  '));
+  process.exit(0);
+}
+
+if (args['--tsv']) {
+  console.log('Source\tSize');
+  _.map(sizes, function(v, k) { console.log(k+'\t'+v); })
   process.exit(0);
 }
 
