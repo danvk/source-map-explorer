@@ -150,14 +150,8 @@ function validateArgs(args) {
 }
 
 
-// Exports are here mostly for testing.
-module.exports = {
-  adjustSourcePaths: adjustSourcePaths,
-  mapKeys: mapKeys,
-  commonPathPrefix: commonPathPrefix
-};
-
 if (require.main === module) {
+
 var args = docopt(doc, {version: '1.1.1'});
 validateArgs(args);
 var data = loadSourceMap(args['<script.js>'], args['<script.js.map>']);
@@ -204,5 +198,18 @@ if (args['--html']) {
 
 var tempName = temp.path({suffix: '.html'});
 fs.writeFileSync(tempName, html);
-open(tempName);
+open(tempName, function(error) {
+  if (!error) return;
+  console.error('Unable to open web browser.');
+  console.error('Either run with --html, --json or --tsv, or view HTML for the visualization at:');
+  console.error(tempName);
+});
+
 }
+
+// Exports are here mostly for testing.
+module.exports = {
+  adjustSourcePaths: adjustSourcePaths,
+  mapKeys: mapKeys,
+  commonPathPrefix: commonPathPrefix
+};
