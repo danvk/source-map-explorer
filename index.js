@@ -38,7 +38,8 @@ var fs = require('fs'),
     temp = require('temp'),
     open = require('open'),
     _ = require('underscore'),
-    docopt = require('docopt').docopt;
+    docopt = require('docopt').docopt,
+    fileURL = require('file-url');
 
 function computeGeneratedFileSizes(mapConsumer, generatedJs) {
   var lines = generatedJs.split('\n');
@@ -189,7 +190,9 @@ var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
 
 html = html.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '))
            .replace('INSERT TITLE HERE', args['<script.js>'])
-
+           .replace('INSERT underscore.js HERE', fileURL(require.resolve('underscore')))
+           .replace('INSERT webtreemap.js HERE', fileURL(require.resolve('./vendor/webtreemap.js')))
+           .replace('INSERT webtreemap.css HERE', fileURL(require.resolve('./vendor/webtreemap.css')));
 
 if (args['--html']) {
   console.log(html);
