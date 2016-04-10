@@ -62,6 +62,12 @@ in the bundle (perhaps because of out-of-date dependencies).
 
 * `--noroot`: By default, source-map-explorer finds common prefixes between all source files and eliminates them, since they add complexity to the visualization with no real benefit. But if you want to disable this behavior, set the `--noroot` flag.
 
+* `--root`: Truncate source file paths to a given root. The specified path is resolved agains the current working directory (CWD):
+
+    ```
+    source-map-explorer dist/foo.min.js --root './dist'
+    ```
+
 ## Generating source maps
 
 For source-map-explorer to be useful, you need to generate a source map which

@@ -5,7 +5,7 @@ var doc = [
 '',
 'Usage:',
 '  source-map-explorer <script.js> [<script.js.map>]',
-'  source-map-explorer [--json | --html | --tsv] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
+'  source-map-explorer [--json | --html | --tsv] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot] [--root=PATH]',
 '  source-map-explorer -h | --help | --version',
 '',
 'If the script file has an inline source map, you may omit the map parameter.',
@@ -23,6 +23,8 @@ var doc = [
 '   --noroot  To simplify the visualization, source-map-explorer',
 '             will remove any prefix shared by all sources. If you',
 '             wish to disable this behavior, set --noroot.',
+'',
+'   --root=PATH  truncate paths to a given root',
 '',
 '  --replace=BEFORE  Apply a simple find/replace on source file',
 '                    names. This can be used to fix some oddities',
@@ -171,6 +173,12 @@ if (_.size(sizes) == 1) {
   console.error("This can happen if you use browserify+uglifyjs, for example, and don't set the --in-source-map flag to uglify.");
   console.error('See ', SOURCE_MAP_INFO_URL);
   process.exit(1);
+}
+
+if (args['--root']) {
+  var basePath = path.resolve(process.cwd(), args['--root'] || '.') + '/';
+  args['--replace'].push(basePath);
+  args['--with'].push('');
 }
 
 sizes = adjustSourcePaths(sizes, !args['--noroot'], args['--replace'], args['--with']);
