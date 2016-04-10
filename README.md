@@ -52,6 +52,12 @@ in the bundle (perhaps because of out-of-date dependencies).
     source-map-explorer --html foo.min.js > tree.html
     ```
     
+* `--directory`: writes HTML to a directory that also includes all assets required to load the visualization in a browser. The specified directory is resolved agains the current working directory (CWD):
+
+    ```
+    source-map-explorer --directory ./bundle-size
+    ```
+
 * `--replace`, `--with`: The paths in source maps sometimes have artifacts that are difficult to get rid of. These flags let you do simple find & replaces on the paths. For example:
 
     ```
