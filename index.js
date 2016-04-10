@@ -5,7 +5,7 @@ var doc = [
 '',
 'Usage:',
 '  source-map-explorer <script.js> [<script.js.map>]',
-'  source-map-explorer [--json | --html | --tsv] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
+'  source-map-explorer [--json | --html | --tsv | --directory=PATH] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
 '  source-map-explorer -h | --help | --version',
 '',
 'If the script file has an inline source map, you may omit the map parameter.',
@@ -24,6 +24,8 @@ var doc = [
 '             will remove any prefix shared by all sources. If you',
 '             wish to disable this behavior, set --noroot.',
 '',
+'   --directory=PATH  write HTML and assets to directory',
+'',
 '  --replace=BEFORE  Apply a simple find/replace on source file',
 '                    names. This can be used to fix some oddities',
 '                    with paths which appear in the source map',
@@ -39,7 +41,8 @@ var fs = require('fs'),
     open = require('open'),
     _ = require('underscore'),
     docopt = require('docopt').docopt,
-    fileURL = require('file-url');
+    fileURL = require('file-url'),
+    fse = require('fs-extra');
 
 function computeGeneratedFileSizes(mapConsumer, generatedJs) {
   var lines = generatedJs.split('\n');
@@ -186,18 +189,36 @@ if (args['--tsv']) {
   process.exit(0);
 }
 
-var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
-
-html = html.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '))
-           .replace('INSERT TITLE HERE', args['<script.js>'])
-           .replace('INSERT underscore.js HERE', fileURL(require.resolve('underscore')))
-           .replace('INSERT webtreemap.js HERE', fileURL(require.resolve('./vendor/webtreemap.js')))
-           .replace('INSERT webtreemap.css HERE', fileURL(require.resolve('./vendor/webtreemap.css')));
+var template = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
+var html = template.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '))
+                   .replace('INSERT TITLE HERE', args['<script.js>'])
+                   .replace('INSERT underscore.js HERE', fileURL(require.resolve('underscore')))
+                   .replace('INSERT webtreemap.js HERE', fileURL(require.resolve('./vendor/webtreemap.js')))
+                   .replace('INSERT webtreemap.css HERE', fileURL(require.resolve('./vendor/webtreemap.css')));
 
 if (args['--html']) {
   console.log(html);
   process.exit(0);
 }
+
+if (args['--directory']) {
+  var directory = path.resolve(process.cwd(), args['--directory']);
+  fse.mkdirsSync(directory);
+
+  fse.copySync(require.resolve('underscore'), path.join(directory, 'underscore.js'));
+  fse.copySync(require.resolve('./vendor/webtreemap.js'), path.join(directory, 'webtreemap.js'));
+  fse.copySync(require.resolve('./vendor/webtreemap.css'), path.join(directory, 'webtreemap.css'));
+
+  html = template.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '))
+                 .replace('INSERT TITLE HERE', args['<script.js>'])
+                 .replace('INSERT underscore.js HERE', './underscore.js')
+                 .replace('INSERT webtreemap.js HERE', './webtreemap.js')
+                 .replace('INSERT webtreemap.css HERE', './webtreemap.css');
+
+  fs.writeFileSync(path.join(directory, 'index.html'), html);
+  process.exit(0);
+}
+
 
 var tempName = temp.path({suffix: '.html'});
 fs.writeFileSync(tempName, html);
