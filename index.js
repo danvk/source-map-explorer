@@ -39,7 +39,8 @@ var fs = require('fs'),
     open = require('open'),
     _ = require('underscore'),
     docopt = require('docopt').docopt,
-    fileURL = require('file-url');
+    fileURL = require('file-url'),
+    btoa = require('btoa');
 
 function computeGeneratedFileSizes(mapConsumer, generatedJs) {
   var lines = generatedJs.split('\n');
@@ -186,13 +187,19 @@ if (args['--tsv']) {
   process.exit(0);
 }
 
+var assets = {
+  underscoreJs: btoa(fs.readFileSync(require.resolve('underscore'))),
+  webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
+  webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
+};
+
 var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
 
 html = html.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '))
            .replace('INSERT TITLE HERE', args['<script.js>'])
-           .replace('INSERT underscore.js HERE', fileURL(require.resolve('underscore')))
-           .replace('INSERT webtreemap.js HERE', fileURL(require.resolve('./vendor/webtreemap.js')))
-           .replace('INSERT webtreemap.css HERE', fileURL(require.resolve('./vendor/webtreemap.css')));
+           .replace('INSERT underscore.js HERE', 'data:application/javascript;base64,' + assets.underscoreJs)
+           .replace('INSERT webtreemap.js HERE', 'data:application/javascript;base64,' + assets.webtreemapJs)
+           .replace('INSERT webtreemap.css HERE', 'data:text/css;base64,' + assets.webtreemapCss);
 
 if (args['--html']) {
   console.log(html);
