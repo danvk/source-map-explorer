@@ -62,6 +62,8 @@ in the bundle (perhaps because of out-of-date dependencies).
 
 * `--noroot`: By default, source-map-explorer finds common prefixes between all source files and eliminates them, since they add complexity to the visualization with no real benefit. But if you want to disable this behavior, set the `--noroot` flag.
 
+* `--inline`: By default the generated HTML will reference assets relative to where they are found at the time of generating files. By using the `--inline` flag source-map-explorer will include all assets in the generated HTML.
+
 ## Generating source maps
 
 For source-map-explorer to be useful, you need to generate a source map which
