@@ -5,7 +5,7 @@ var doc = [
 '',
 'Usage:',
 '  source-map-explorer <script.js> [<script.js.map>]',
-'  source-map-explorer [--json | --html | --tsv] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
+'  source-map-explorer [--json | --html | --tsv] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot] [--inline]',
 '  source-map-explorer -h | --help | --version',
 '',
 'If the script file has an inline source map, you may omit the map parameter.',
@@ -24,6 +24,8 @@ var doc = [
 '             will remove any prefix shared by all sources. If you',
 '             wish to disable this behavior, set --noroot.',
 '',
+'   --inline  To inline required assets into the generated HTML file.',
+'',
 '  --replace=BEFORE  Apply a simple find/replace on source file',
 '                    names. This can be used to fix some oddities',
 '                    with paths which appear in the source map',
@@ -39,7 +41,8 @@ var fs = require('fs'),
     open = require('open'),
     _ = require('underscore'),
     docopt = require('docopt').docopt,
-    fileURL = require('file-url');
+    fileURL = require('file-url'),
+    btoa = require('btoa');
 
 function computeGeneratedFileSizes(mapConsumer, generatedJs) {
   var lines = generatedJs.split('\n');
@@ -186,13 +189,29 @@ if (args['--tsv']) {
   process.exit(0);
 }
 
+var assets = {
+  underscoreJs: require.resolve('underscore'),
+  webtreemapJs: require.resolve('./vendor/webtreemap.js'),
+  webtreemapCss: require.resolve('./vendor/webtreemap.css'),
+};
+
+if (args['--inline']) {
+  assets.underscoreJs = 'data:application/javascript;base64,' + btoa(fs.readFileSync(assets.underscoreJs));
+  assets.webtreemapJs = 'data:application/javascript;base64,' + btoa(fs.readFileSync(assets.webtreemapJs));
+  assets.webtreemapCss = 'data:text/css;base64,' + btoa(fs.readFileSync(assets.webtreemapCss));
+} else {
+  assets.underscoreJs = fileURL(assets.underscoreJs);
+  assets.webtreemapJs = fileURL(assets.webtreemapJs);
+  assets.webtreemapCss = fileURL(assets.webtreemapCss);
+}
+
 var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
 
 html = html.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '))
            .replace('INSERT TITLE HERE', args['<script.js>'])
-           .replace('INSERT underscore.js HERE', fileURL(require.resolve('underscore')))
-           .replace('INSERT webtreemap.js HERE', fileURL(require.resolve('./vendor/webtreemap.js')))
-           .replace('INSERT webtreemap.css HERE', fileURL(require.resolve('./vendor/webtreemap.css')));
+           .replace('INSERT underscore.js HERE', assets.underscoreJs)
+           .replace('INSERT webtreemap.js HERE', assets.webtreemapJs)
+           .replace('INSERT webtreemap.css HERE', assets.webtreemapCss);
 
 if (args['--html']) {
   console.log(html);
