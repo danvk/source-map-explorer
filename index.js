@@ -5,7 +5,7 @@ var doc = [
 '',
 'Usage:',
 '  source-map-explorer <script.js> [<script.js.map>]',
-'  source-map-explorer [--json | --html | --tsv] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
+'  source-map-explorer [--json | --html | --tsv] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot] [--regex]',
 '  source-map-explorer -h | --help | --version',
 '',
 'If the script file has an inline source map, you may omit the map parameter.',
@@ -29,6 +29,7 @@ var doc = [
 '                    with paths which appear in the source map',
 '                    generation process.',
 '      --with=AFTER  See --replace.',
+'  --regex  Consider each replace flag as a regular expression.',
 ].join('\n');
 
 var fs = require('fs'),
@@ -172,6 +173,12 @@ if (_.size(sizes) == 1) {
   console.error("This can happen if you use browserify+uglifyjs, for example, and don't set the --in-source-map flag to uglify.");
   console.error('See ', SOURCE_MAP_INFO_URL);
   process.exit(1);
+}
+
+if (args['--regex']) {
+  args['--replace'] = args['--replace'].map(function(x) {
+    return new RegExp(x)
+  });
 }
 
 sizes = adjustSourcePaths(sizes, !args['--noroot'], args['--replace'], args['--with']);
