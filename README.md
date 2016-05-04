@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/danvk/source-map-explorer.svg?branch=v1.1.0)](https://travis-ci.org/danvk/source-map-explorer) [![NPM version](http://img.shields.io/npm/v/source-map-explorer.svg)](https://www.npmjs.org/package/source-map-explorer)
-# source-map-explorer 
+# source-map-explorer
 Analyze and debug JavaScript code bloat through source maps.
 
 The source map explorer determines which file each byte in your minified JS came from. It shows you a [treemap][] visualization to help you debug where all the code is coming from.
@@ -11,7 +11,7 @@ Install:
 Use:
 
     source-map-explorer bundle.min.js
-    source-map-explorer bundle.min.js bundle.min.js.map 
+    source-map-explorer bundle.min.js bundle.min.js.map
 
 This will open up a visualization of how the space is used in your minified bundle:
 
@@ -34,7 +34,7 @@ in the bundle (perhaps because of out-of-date dependencies).
       "foo.js": 137
     }
     ```
-    
+
 * `--tsv`: output tab-delimited values instead of displaying a visualization:
 
     ```
@@ -43,7 +43,7 @@ in the bundle (perhaps because of out-of-date dependencies).
     dist/bar.js	62
     dist/foo.js	137
     ```
-    
+
     If you just want a list of files, you can do `source-map-explorer --tsv foo.min.js | sed 1d | cut -f1`.
 
 * `--html`: output HTML to stdout. By default, source-map-explorer writes HTML to a temporary file and opens it in your default browser. If you want to save the output (e.g. to share), pipe it to a file:
@@ -51,16 +51,18 @@ in the bundle (perhaps because of out-of-date dependencies).
     ```
     source-map-explorer --html foo.min.js > tree.html
     ```
-    
+
 * `--replace`, `--with`: The paths in source maps sometimes have artifacts that are difficult to get rid of. These flags let you do simple find & replaces on the paths. For example:
 
     ```
     source-map-explorer foo.min.js --replace 'dist/' --with ''
     ```
-    
+
     You can specify these flags multiple times. Be aware that the find/replace is done _after_ eliminating shared prefixes between paths.
 
 * `--noroot`: By default, source-map-explorer finds common prefixes between all source files and eliminates them, since they add complexity to the visualization with no real benefit. But if you want to disable this behavior, set the `--noroot` flag.
+
+* `--noregex`: By default, source-map-explorer treats the `--replace` text as a regular expression. To disable this behavior, set the `--noregex` flag.
 
 ## Generating source maps
 
