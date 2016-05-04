@@ -60,9 +60,9 @@ in the bundle (perhaps because of out-of-date dependencies).
 
     You can specify these flags multiple times. Be aware that the find/replace is done _after_ eliminating shared prefixes between paths.
 
-* `--noroot`: By default, source-map-explorer finds common prefixes between all source files and eliminates them, since they add complexity to the visualization with no real benefit. But if you want to disable this behavior, set the `--noroot` flag.
+    These are regular expressions.
 
-* `--noregex`: By default, source-map-explorer treats the `--replace` text as a regular expression. To disable this behavior, set the `--noregex` flag.
+* `--noroot`: By default, source-map-explorer finds common prefixes between all source files and eliminates them, since they add complexity to the visualization with no real benefit. But if you want to disable this behavior, set the `--noroot` flag.
 
 ## Generating source maps
 

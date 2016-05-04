@@ -5,7 +5,7 @@ var doc = [
 '',
 'Usage:',
 '  source-map-explorer <script.js> [<script.js.map>]',
-'  source-map-explorer [--json | --html | --tsv] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot] [--regex]',
+'  source-map-explorer [--json | --html | --tsv] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
 '  source-map-explorer -h | --help | --version',
 '',
 'If the script file has an inline source map, you may omit the map parameter.',
@@ -29,7 +29,6 @@ var doc = [
 '                    with paths which appear in the source map',
 '                    generation process.  Accepts regular expressions.',
 '      --with=AFTER  See --replace.',
-'  --noregex  Do not consider each replace flag as a regular expression.',
 ].join('\n');
 
 var fs = require('fs'),
@@ -125,7 +124,7 @@ function mapKeys(obj, fn) {
   return _.object(_.map(obj, function(v, k) { return [fn(k), v]; }));
 }
 
-function adjustSourcePaths(sizes, findRoot, finds, replaces, regexp) {
+function adjustSourcePaths(sizes, findRoot, finds, replaces) {
   if (findRoot) {
     var prefix = commonPathPrefix(_.keys(sizes));
     var len = prefix.length;
@@ -135,7 +134,7 @@ function adjustSourcePaths(sizes, findRoot, finds, replaces, regexp) {
   }
 
   for (var i = 0; i < finds.length; i++) {
-    var before = regexp ? new RegExp(finds[i]) : finds[i],
+    var before = new RegExp(finds[i]),
         after = replaces[i];
     sizes = mapKeys(sizes, function(source) {
       return source.replace(before, after);
@@ -175,7 +174,7 @@ if (_.size(sizes) == 1) {
   process.exit(1);
 }
 
-sizes = adjustSourcePaths(sizes, !args['--noroot'], args['--replace'], args['--with'], !args['--regex']);
+sizes = adjustSourcePaths(sizes, !args['--noroot'], args['--replace'], args['--with']);
 
 if (args['--json']) {
   console.log(JSON.stringify(sizes, null, '  '));
