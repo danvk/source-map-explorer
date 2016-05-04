@@ -27,9 +27,9 @@ var doc = [
 '  --replace=BEFORE  Apply a simple find/replace on source file',
 '                    names. This can be used to fix some oddities',
 '                    with paths which appear in the source map',
-'                    generation process.',
+'                    generation process.  Accepts regular expressions.',
 '      --with=AFTER  See --replace.',
-'  --regex  Consider each replace flag as a regular expression.',
+'  --noregex  Do not consider each replace flag as a regular expression.',
 ].join('\n');
 
 var fs = require('fs'),
@@ -125,7 +125,7 @@ function mapKeys(obj, fn) {
   return _.object(_.map(obj, function(v, k) { return [fn(k), v]; }));
 }
 
-function adjustSourcePaths(sizes, findRoot, finds, replaces) {
+function adjustSourcePaths(sizes, findRoot, finds, replaces, regexp) {
   if (findRoot) {
     var prefix = commonPathPrefix(_.keys(sizes));
     var len = prefix.length;
@@ -135,7 +135,7 @@ function adjustSourcePaths(sizes, findRoot, finds, replaces) {
   }
 
   for (var i = 0; i < finds.length; i++) {
-    var before = finds[i],
+    var before = regexp ? new RegExp(finds[i]) : finds[i],
         after = replaces[i];
     sizes = mapKeys(sizes, function(source) {
       return source.replace(before, after);
@@ -175,13 +175,7 @@ if (_.size(sizes) == 1) {
   process.exit(1);
 }
 
-if (args['--regex']) {
-  args['--replace'] = args['--replace'].map(function(x) {
-    return new RegExp(x)
-  });
-}
-
-sizes = adjustSourcePaths(sizes, !args['--noroot'], args['--replace'], args['--with']);
+sizes = adjustSourcePaths(sizes, !args['--noroot'], args['--replace'], args['--with'], !args['--regex']);
 
 if (args['--json']) {
   console.log(JSON.stringify(sizes, null, '  '));

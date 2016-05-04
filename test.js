@@ -37,5 +37,20 @@ describe('source-map-explorer', function() {
       expect(adjustSourcePaths({'/src/foo.js': 10, '/src/foodle.js': 20}, false, ['src'], ['dist']))
           .to.deep.equal({'/dist/foo.js': 10, '/dist/foodle.js': 20});
     });
+
+    it('should find/replace with regexp', function() {
+      expect(adjustSourcePaths({'/src/foo.js': 10, '/src/foodle.js': 20}, false, ['foo.'], ['bar.'], true))
+          .to.deep.equal({'/src/bar.js': 10, '/src/bar.le.js': 20});
+    });
+
+    it('should find/replace without regexp', function() {
+      expect(adjustSourcePaths({'/src/foo.js': 10, '/src/foodle.js': 20}, false, ['foo.'], ['bar.'], false))
+          .to.deep.equal({'/src/bar.js': 10, '/src/foodle.js': 20});
+    });
+
+    it('should find/replace with regexp, can be used to add root', function() {
+      expect(adjustSourcePaths({'/foo/foo.js': 10, '/foo/foodle.js': 20}, false, ['^/foo'], ['/bar'], true))
+          .to.deep.equal({'/bar/foo.js': 10, '/bar/foodle.js': 20});
+    });
   });
 });
