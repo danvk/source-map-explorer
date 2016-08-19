@@ -6,7 +6,7 @@ The source map explorer determines which file each byte in your minified JS came
 
 Install:
 
-    npm install source-map-explorer
+    npm install -g source-map-explorer
 
 Use:
 
