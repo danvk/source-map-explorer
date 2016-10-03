@@ -189,6 +189,7 @@ if (args['--tsv']) {
 
 var assets = {
   underscoreJs: btoa(fs.readFileSync(require.resolve('underscore'))),
+  prettyBytesJs: btoa(fs.readFileSync(require.resolve('./vendor/prettybytes.js'))),
   webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
   webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
 };
@@ -198,6 +199,7 @@ var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
 html = html.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '))
            .replace('INSERT TITLE HERE', args['<script.js>'])
            .replace('INSERT underscore.js HERE', 'data:application/javascript;base64,' + assets.underscoreJs)
+           .replace('INSERT prettybytes.js HERE', 'data:application/javascript;base64,' + assets.prettyBytesJs)
            .replace('INSERT webtreemap.js HERE', 'data:application/javascript;base64,' + assets.webtreemapJs)
            .replace('INSERT webtreemap.css HERE', 'data:text/css;base64,' + assets.webtreemapCss);
 

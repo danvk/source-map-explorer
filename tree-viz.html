@@ -34,6 +34,7 @@ var tree = INSERT TREE HERE;
 </script>
 
 <script src="INSERT underscore.js HERE"></script>
+<script src="INSERT prettybytes.js HERE"></script>
 <script src="INSERT webtreemap.js HERE"></script>
 
 <script>
@@ -70,7 +71,7 @@ function addNode(path, size) {
 function addSizeToTitle(node, total) {
   var size = node.data['$area'],
       pct = 100.0 * size / total;
-  node.name += ' • ' + size.toLocaleString() + ' • ' + pct.toFixed(2) + '%';
+  node.name += ' • ' + prettyBytes(size) + ' • ' + pct.toFixed(1) + '%';
   node.children.forEach(function(x) { addSizeToTitle(x, total) });
 }
 
