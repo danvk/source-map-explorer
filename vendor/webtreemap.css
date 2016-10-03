@@ -1,11 +1,18 @@
 /* Vendored from https://github.com/rmmh/webtreemap/blob/9fa0c066a10ea4402d960b0c6c1a432846ac7fc4/webtreemap.css */
 
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 .webtreemap-node {
   /* Required attributes. */
   position: absolute;
   overflow: hidden;   /* To hide overlong captions. */
   background: white;  /* Nodes must be opaque for zIndex layering. */
-  border: solid 1px black;  /* Calculations assume 1px border. */
+  border: solid 1px transparent;  /* Calculations assume 1px border. */
 
   /* Optional: CSS animation. */
   transition: top    0.3s,
@@ -16,7 +23,7 @@
 
 /* Optional: highlight nodes on mouseover. */
 .webtreemap-node:hover {
-  background: #eee;
+  border-color: #03A9F4;
 }
 
 /* Optional: Different background colors depending on symbol. */
@@ -57,20 +64,30 @@
 
 /* Optional: Different borders depending on level. */
 .webtreemap-level0 {
-  border: solid 1px #444;
+  background-color: #9575CD;
 }
 .webtreemap-level1 {
-  border: solid 1px #666;
+  background-color: #7986CB;
 }
 .webtreemap-level2 {
-  border: solid 1px #888;
+  background-color: #64B5F6;
 }
 .webtreemap-level3 {
-  border: solid 1px #aaa;
+  background-color: #A5D6A7;
 }
 .webtreemap-level4 {
-  border: solid 1px #ccc;
+  background-color: #FFE0B2;
 }
+.webtreemap-level5 {
+  background-color: #D7CCC8;
+}
+.webtreemap-level6 {
+  background-color: #E1F5FE;
+}
+.webtreemap-level7 {
+  background-color: #FFFDE7;
+}
+
 
 /* Optional: styling on node captions. */
 .webtreemap-caption {

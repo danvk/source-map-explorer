@@ -60,7 +60,7 @@ function focus(tree) {
 function makeDom(tree, level) {
   var dom = document.createElement('div');
   dom.style.zIndex = 1;
-  dom.className = 'webtreemap-node webtreemap-level' + Math.min(level, 4);
+  dom.className = 'webtreemap-node webtreemap-level' + level;
   if (tree.data['$symbol']) {
     dom.className += (' webtreemap-symbol-' +
   tree.data['$symbol'].replace(' ', '_'));
