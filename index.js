@@ -221,6 +221,8 @@ open(tempName, function(error) {
 
 // Exports are here mostly for testing.
 module.exports = {
+  loadSourceMap: loadSourceMap,
+  computeGeneratedFileSizes: computeGeneratedFileSizes,
   adjustSourcePaths: adjustSourcePaths,
   mapKeys: mapKeys,
   commonPathPrefix: commonPathPrefix
