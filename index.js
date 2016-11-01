@@ -154,7 +154,7 @@ function validateArgs(args) {
 
 if (require.main === module) {
 
-var args = docopt(doc, {version: '1.1.1'});
+var args = docopt(doc, {version: '1.3.3'});
 validateArgs(args);
 var data = loadSourceMap(args['<script.js>'], args['<script.js.map>']);
 if (!data) {
