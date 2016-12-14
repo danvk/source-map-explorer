@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/danvk/source-map-explorer.svg?branch=v1.1.0)](https://travis-ci.org/danvk/source-map-explorer) [![NPM version](http://img.shields.io/npm/v/source-map-explorer.svg)](https://www.npmjs.org/package/source-map-explorer)
 # source-map-explorer
-Analyze and debug JavaScript, Sass and LESS code bloat through source maps.
+Analyze and debug JavaScript (or Sass or LESS) code bloat through source maps.
 
 The source map explorer determines which file each byte in your minified code came from. It shows you a [treemap][] visualization to help you debug where all the code is coming from.
 
