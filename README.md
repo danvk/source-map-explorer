@@ -2,7 +2,7 @@
 # source-map-explorer
 Analyze and debug JavaScript (or Sass or LESS) code bloat through source maps.
 
-The source map explorer determines which file each byte in your minified code came from. It shows you a [treemap][] visualization to help you debug where all the code is coming from.
+The source map explorer determines which file each byte in your minified code came from. It shows you a [treemap][] visualization to help you debug where all the code is coming from. Check out this [Chrome Developer video][video] (3:25) for a demo of the tool in action.
 
 Install:
 
@@ -132,3 +132,4 @@ source-map-explorer path/to/foo.min.js{,.map}
 [exorcist]: https://github.com/thlorenz/exorcist
 [inline]: /README.md#types-of-source-maps
 [treemap]: https://github.com/martine/webtreemap
+[video]: https://www.youtube.com/watch?v=7aY9BoMEpG8
