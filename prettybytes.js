@@ -1,9 +1,9 @@
-// Vendored from https://github.com/sindresorhus/pretty-bytes/blob/0d177953b0092fce5749be7cba065b1e70cac272/index.js
+// Modified from https://github.com/sindresorhus/pretty-bytes/blob/0d177953b0092fce5749be7cba065b1e70cac272/index.js
 
 ;(function() {
-	
+
 'use strict';
-var UNITS = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+var UNITS = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
 
 window.prettyBytes = function(num) {
 	if (!Number.isFinite(num)) {
@@ -20,8 +20,8 @@ window.prettyBytes = function(num) {
 		return (neg ? '-' : '') + num + ' B';
 	}
 
-	var exponent = Math.min(Math.floor(Math.log(num) / Math.log(1000)), UNITS.length - 1);
-	var numStr = Number((num / Math.pow(1000, exponent)).toPrecision(3));
+	var exponent = Math.min(Math.floor(Math.log(num) / Math.log(1024)), UNITS.length - 1);
+	var numStr = Number((num / Math.pow(1024, exponent)).toPrecision(3));
 	var unit = UNITS[exponent];
 
 	return (neg ? '-' : '') + numStr + ' ' + unit;
