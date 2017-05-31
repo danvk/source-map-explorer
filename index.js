@@ -78,7 +78,17 @@ function computeGeneratedFileSizes(mapConsumer, generatedJs) {
 var SOURCE_MAP_INFO_URL = 'https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps';
 
 function loadSourceMap(jsFile, mapFile) {
-  var jsData = fs.readFileSync(jsFile).toString();
+  var jsData;
+  try {
+    jsData = fs.readFileSync(jsFile).toString();
+  } catch(e) {
+    if( err.code === "ENOENT" ) {
+      console.error( "File not found! -- "+err.message );
+      return null;
+    } else {
+      throw err;
+    }
+  }
 
   var mapConsumer;
   if (mapFile) {
