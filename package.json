@@ -7,7 +7,7 @@
     "source-map-explorer": "index.js"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha && eslint *.js"
   },
   "repository": {
     "type": "git",
@@ -28,7 +28,6 @@
     "btoa": "^1.1.2",
     "convert-source-map": "^1.1.1",
     "docopt": "^0.6.2",
-    "file-url": "^1.0.1",
     "glob": "^7.1.2",
     "open": "0.0.5",
     "source-map": "^0.5.1",
@@ -37,6 +36,7 @@
   },
   "devDependencies": {
     "chai": "^3.3.0",
+    "eslint": "^4.1.1",
     "mocha": "^2.3.3"
   }
 }
