@@ -1,47 +1,46 @@
 #!/usr/bin/env node
 
 var doc = [
-'Analyze and debug space usage through source maps.',
-'',
-'Usage:',
-'  source-map-explorer <script.js> [<script.js.map>]',
-'  source-map-explorer [--json | --html | --tsv] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
-'  source-map-explorer -h | --help | --version',
-'',
-'If the script file has an inline source map, you may omit the map parameter.',
-'',
-'Options:',
-'  -h --help  Show this screen.',
-'  --version  Show version.',
-'',
-'     --json  Output JSON (on stdout) instead of generating HTML',
-'             and opening the browser.',
-'     --tsv   Output TSV (on stdout) instead of generating HTML',
-'             and opening the browser.',
-'     --html  Output HTML (on stdout) rather than opening a browser.',
-'',
-'   --noroot  To simplify the visualization, source-map-explorer',
-'             will remove any prefix shared by all sources. If you',
-'             wish to disable this behavior, set --noroot.',
-'',
-'  --replace=BEFORE  Apply a simple find/replace on source file',
-'                    names. This can be used to fix some oddities',
-'                    with paths which appear in the source map',
-'                    generation process.  Accepts regular expressions.',
-'      --with=AFTER  See --replace.',
+  'Analyze and debug space usage through source maps.',
+  '',
+  'Usage:',
+  '  source-map-explorer <script.js> [<script.js.map>]',
+  '  source-map-explorer [--json | --html | --tsv] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
+  '  source-map-explorer -h | --help | --version',
+  '',
+  'If the script file has an inline source map, you may omit the map parameter.',
+  '',
+  'Options:',
+  '  -h --help  Show this screen.',
+  '  --version  Show version.',
+  '',
+  '     --json  Output JSON (on stdout) instead of generating HTML',
+  '             and opening the browser.',
+  '     --tsv   Output TSV (on stdout) instead of generating HTML',
+  '             and opening the browser.',
+  '     --html  Output HTML (on stdout) rather than opening a browser.',
+  '',
+  '   --noroot  To simplify the visualization, source-map-explorer',
+  '             will remove any prefix shared by all sources. If you',
+  '             wish to disable this behavior, set --noroot.',
+  '',
+  '  --replace=BEFORE  Apply a simple find/replace on source file',
+  '                    names. This can be used to fix some oddities',
+  '                    with paths which appear in the source map',
+  '                    generation process.  Accepts regular expressions.',
+  '      --with=AFTER  See --replace.',
 ].join('\n');
 
 var fs = require('fs'),
-    glob = require('glob'),
-    path = require('path'),
-    sourcemap = require('source-map'),
-    convert = require('convert-source-map'),
-    temp = require('temp'),
-    open = require('open'),
-    _ = require('underscore'),
-    docopt = require('docopt').docopt,
-    fileURL = require('file-url'),
-    btoa = require('btoa');
+  glob = require('glob'),
+  path = require('path'),
+  sourcemap = require('source-map'),
+  convert = require('convert-source-map'),
+  temp = require('temp'),
+  open = require('open'),
+  _ = require('underscore'),
+  docopt = require('docopt').docopt,
+  btoa = require('btoa');
 
 function computeGeneratedFileSizes(mapConsumer, generatedJs) {
   var lines = generatedJs.split('\n');
@@ -72,7 +71,7 @@ function computeGeneratedFileSizes(mapConsumer, generatedJs) {
     }
   }
   return _.mapObject(sourceExtrema, function(v) {
-    return v.max - v.min + 1
+    return v.max - v.min + 1;
   });
 }
 
@@ -83,8 +82,8 @@ function loadSourceMap(jsFile, mapFile) {
   try {
     jsData = fs.readFileSync(jsFile).toString();
   } catch(err) {
-    if (err.code === "ENOENT" ) {
-      console.error("File not found! -- ", err.message);
+    if (err.code === 'ENOENT' ) {
+      console.error('File not found! -- ', err.message);
       return null;
     } else {
       throw err;
@@ -125,7 +124,7 @@ function loadSourceMap(jsFile, mapFile) {
 function commonPathPrefix(array){
   if (array.length == 0) return '';
   var A= array.concat().sort(),
-  a1= A[0].split(/(\/)/), a2= A[A.length-1].split(/(\/)/), L= a1.length, i= 0;
+    a1= A[0].split(/(\/)/), a2= A[A.length-1].split(/(\/)/), L= a1.length, i= 0;
   while(i<L && a1[i] === a2[i]) i++;
   return a1.slice(0, i).join('');
 }
@@ -140,13 +139,13 @@ function adjustSourcePaths(sizes, findRoot, finds, replaces) {
     var prefix = commonPathPrefix(_.keys(sizes));
     var len = prefix.length;
     if (len) {
-      sizes = mapKeys(sizes, function(source) { return source.slice(len); })
+      sizes = mapKeys(sizes, function(source) { return source.slice(len); });
     }
   }
 
   for (var i = 0; i < finds.length; i++) {
     var before = new RegExp(finds[i]),
-        after = replaces[i];
+      after = replaces[i];
     sizes = mapKeys(sizes, function(source) {
       return source.replace(before, after);
     });
@@ -171,7 +170,7 @@ function expandGlob(args) {
     var files = glob.sync(arg1);
     if (files.length > 2) {
       throw new Error(
-          'Glob should match exactly 2 files but matched ' + files.length + ' ' + arg1);
+        'Glob should match exactly 2 files but matched ' + files.length + ' ' + arg1);
     } else if (files.length === 2) {
       // allow the JS and source map file to match in either order.
       if (files[0].indexOf('.map') >= 0) {
@@ -189,67 +188,67 @@ function expandGlob(args) {
 
 if (require.main === module) {
 
-var args = docopt(doc, {version: '1.4.0'});
-expandGlob(args);
-validateArgs(args);
-var data = loadSourceMap(args['<script.js>'], args['<script.js.map>']);
-if (!data) {
-  process.exit(1);
-}
-var mapConsumer = data.mapConsumer,
+  var args = docopt(doc, {version: '1.4.0'});
+  expandGlob(args);
+  validateArgs(args);
+  var data = loadSourceMap(args['<script.js>'], args['<script.js.map>']);
+  if (!data) {
+    process.exit(1);
+  }
+  var mapConsumer = data.mapConsumer,
     jsData = data.jsData;
 
-var sizes = computeGeneratedFileSizes(mapConsumer, jsData);
+  var sizes = computeGeneratedFileSizes(mapConsumer, jsData);
 
-if (_.size(sizes) == 1) {
-  console.error('Your source map only contains one source (',
-                _.keys(sizes)[0], ')');
-  console.error("This typically means that your source map doesn't map all the way back to the original sources.");
-  console.error("This can happen if you use browserify+uglifyjs, for example, and don't set the --in-source-map flag to uglify.");
-  console.error('See ', SOURCE_MAP_INFO_URL);
-  process.exit(1);
-}
+  if (_.size(sizes) == 1) {
+    console.error('Your source map only contains one source (',
+      _.keys(sizes)[0], ')');
+    console.error('This typically means that your source map doesn\'t map all the way back to the original sources.');
+    console.error('This can happen if you use browserify+uglifyjs, for example, and don\'t set the --in-source-map flag to uglify.');
+    console.error('See ', SOURCE_MAP_INFO_URL);
+    process.exit(1);
+  }
 
-sizes = adjustSourcePaths(sizes, !args['--noroot'], args['--replace'], args['--with']);
+  sizes = adjustSourcePaths(sizes, !args['--noroot'], args['--replace'], args['--with']);
 
-if (args['--json']) {
-  console.log(JSON.stringify(sizes, null, '  '));
-  process.exit(0);
-}
+  if (args['--json']) {
+    console.log(JSON.stringify(sizes, null, '  '));
+    process.exit(0);
+  }
 
-if (args['--tsv']) {
-  console.log('Source\tSize');
-  _.each(sizes, function(source, size) { console.log(size + '\t' + source); })
-  process.exit(0);
-}
+  if (args['--tsv']) {
+    console.log('Source\tSize');
+    _.each(sizes, function(source, size) { console.log(size + '\t' + source); });
+    process.exit(0);
+  }
 
-var assets = {
-  underscoreJs: btoa(fs.readFileSync(require.resolve('underscore'))),
-  webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
-  webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
-};
+  var assets = {
+    underscoreJs: btoa(fs.readFileSync(require.resolve('underscore'))),
+    webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
+    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
+  };
 
-var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
+  var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
 
-html = html.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '))
-           .replace('INSERT TITLE HERE', args['<script.js>'])
-           .replace('INSERT underscore.js HERE', 'data:application/javascript;base64,' + assets.underscoreJs)
-           .replace('INSERT webtreemap.js HERE', 'data:application/javascript;base64,' + assets.webtreemapJs)
-           .replace('INSERT webtreemap.css HERE', 'data:text/css;base64,' + assets.webtreemapCss);
+  html = html.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '))
+    .replace('INSERT TITLE HERE', args['<script.js>'])
+    .replace('INSERT underscore.js HERE', 'data:application/javascript;base64,' + assets.underscoreJs)
+    .replace('INSERT webtreemap.js HERE', 'data:application/javascript;base64,' + assets.webtreemapJs)
+    .replace('INSERT webtreemap.css HERE', 'data:text/css;base64,' + assets.webtreemapCss);
 
-if (args['--html']) {
-  console.log(html);
-  process.exit(0);
-}
+  if (args['--html']) {
+    console.log(html);
+    process.exit(0);
+  }
 
-var tempName = temp.path({suffix: '.html'});
-fs.writeFileSync(tempName, html);
-open(tempName, function(error) {
-  if (!error) return;
-  console.error('Unable to open web browser.');
-  console.error('Either run with --html, --json or --tsv, or view HTML for the visualization at:');
-  console.error(tempName);
-});
+  var tempName = temp.path({suffix: '.html'});
+  fs.writeFileSync(tempName, html);
+  open(tempName, function(error) {
+    if (!error) return;
+    console.error('Unable to open web browser.');
+    console.error('Either run with --html, --json or --tsv, or view HTML for the visualization at:');
+    console.error(tempName);
+  });
 
 }
 

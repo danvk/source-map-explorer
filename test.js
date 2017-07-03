@@ -29,24 +29,24 @@ describe('source-map-explorer', function() {
   describe('adjustSourcePaths', function() {
     it('should factor out a common prefix', function() {
       expect(adjustSourcePaths({'/src/foo.js': 10, '/src/bar.js': 20}, true, [], []))
-          .to.deep.equal({'foo.js': 10, 'bar.js': 20});
+        .to.deep.equal({'foo.js': 10, 'bar.js': 20});
       expect(adjustSourcePaths({'/src/foo.js': 10, '/src/foodle.js': 20}, true, [], []))
-          .to.deep.equal({'foo.js': 10, 'foodle.js': 20});
+        .to.deep.equal({'foo.js': 10, 'foodle.js': 20});
     });
 
     it('should find/replace', function() {
       expect(adjustSourcePaths({'/src/foo.js': 10, '/src/foodle.js': 20}, false, ['src'], ['dist']))
-          .to.deep.equal({'/dist/foo.js': 10, '/dist/foodle.js': 20});
+        .to.deep.equal({'/dist/foo.js': 10, '/dist/foodle.js': 20});
     });
 
     it('should find/replace with regexp', function() {
       expect(adjustSourcePaths({'/src/foo.js': 10, '/src/foodle.js': 20}, false, ['foo.'], ['bar.']))
-          .to.deep.equal({'/src/bar.js': 10, '/src/bar.le.js': 20});
+        .to.deep.equal({'/src/bar.js': 10, '/src/bar.le.js': 20});
     });
 
     it('should find/replace with regexp, can be used to add root', function() {
       expect(adjustSourcePaths({'/foo/foo.js': 10, '/foo/foodle.js': 20}, false, ['^/foo'], ['/bar']))
-          .to.deep.equal({'/bar/foo.js': 10, '/bar/foodle.js': 20});
+        .to.deep.equal({'/bar/foo.js': 10, '/bar/foodle.js': 20});
     });
   });
 
