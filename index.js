@@ -225,7 +225,7 @@ if (args['--tsv']) {
 
 var assets = {
   underscoreJs: btoa(fs.readFileSync(require.resolve('underscore'))),
-  prettyBytesJs: btoa(fs.readFileSync(require.resolve('./vendor/prettybytes.js'))),
+  prettyBytesJs: btoa(fs.readFileSync(require.resolve('./prettybytes.js'))),
   webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
   webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
 };
