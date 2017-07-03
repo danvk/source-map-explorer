@@ -32,6 +32,7 @@ var doc = [
 ].join('\n');
 
 var fs = require('fs'),
+    glob = require('glob'),
     path = require('path'),
     sourcemap = require('source-map'),
     convert = require('convert-source-map'),
@@ -81,9 +82,9 @@ function loadSourceMap(jsFile, mapFile) {
   var jsData;
   try {
     jsData = fs.readFileSync(jsFile).toString();
-  } catch(e) {
-    if( err.code === "ENOENT" ) {
-      console.error( "File not found! -- "+err.message );
+  } catch(err) {
+    if (err.code === "ENOENT" ) {
+      console.error("File not found! -- ", err.message);
       return null;
     } else {
       throw err;
@@ -161,10 +162,35 @@ function validateArgs(args) {
   }
 }
 
+// On Windows, it's helpful if source-map-explorer can expand globs itself.
+// See https://github.com/danvk/source-map-explorer/issues/52
+function expandGlob(args) {
+  var arg1 = args['<script.js>'];
+  var arg2 = args['<script.js.map>'];
+  if (arg1 && !arg2) {
+    var files = glob.sync(arg1);
+    if (files.length > 2) {
+      throw new Error(
+          'Glob should match exactly 2 files but matched ' + files.length + ' ' + arg1);
+    } else if (files.length === 2) {
+      // allow the JS and source map file to match in either order.
+      if (files[0].indexOf('.map') >= 0) {
+        var tmp = files[0];
+        files[0] = files[1];
+        files[1] = tmp;
+      }
+      args['<script.js>'] = files[0];
+      args['<script.js.map>'] = files[1];
+    }
+  }
+  return args;
+}
+
 
 if (require.main === module) {
 
 var args = docopt(doc, {version: '1.3.3'});
+expandGlob(args);
 validateArgs(args);
 var data = loadSourceMap(args['<script.js>'], args['<script.js.map>']);
 if (!data) {
@@ -235,5 +261,6 @@ module.exports = {
   computeGeneratedFileSizes: computeGeneratedFileSizes,
   adjustSourcePaths: adjustSourcePaths,
   mapKeys: mapKeys,
-  commonPathPrefix: commonPathPrefix
+  commonPathPrefix: commonPathPrefix,
+  expandGlob: expandGlob
 };

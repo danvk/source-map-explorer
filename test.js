@@ -3,7 +3,8 @@ var expect = require('chai').expect;
 var sourceMapExplorer = require('./index'),
   adjustSourcePaths = sourceMapExplorer.adjustSourcePaths,
   mapKeys = sourceMapExplorer.mapKeys,
-  commonPathPrefix = sourceMapExplorer.commonPathPrefix;
+  commonPathPrefix = sourceMapExplorer.commonPathPrefix,
+  expandGlob = sourceMapExplorer.expandGlob;
 
 describe('source-map-explorer', function() {
   describe('commonPathPrefix', function() {
@@ -46,6 +47,21 @@ describe('source-map-explorer', function() {
     it('should find/replace with regexp, can be used to add root', function() {
       expect(adjustSourcePaths({'/foo/foo.js': 10, '/foo/foodle.js': 20}, false, ['^/foo'], ['/bar']))
           .to.deep.equal({'/bar/foo.js': 10, '/bar/foodle.js': 20});
+    });
+  });
+
+  describe('command line parsing', function() {
+    expect(expandGlob({'<script.js>': 'testdata/foo.min.js*'})).to.deep.equal({
+      '<script.js>': 'testdata/foo.min.js',
+      '<script.js.map>': 'testdata/foo.min.js.map',
+    });
+
+    expect(expandGlob({
+      '<script.js>': 'foo.min.js',
+      '<script.js.map>': 'foo.min.js.map'
+    })).to.deep.equal({
+      '<script.js>': 'foo.min.js',
+      '<script.js.map>': 'foo.min.js.map'
     });
   });
 });
