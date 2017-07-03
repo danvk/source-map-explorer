@@ -28,13 +28,24 @@ body {
 <div id='map'></div>
 </body>
 
+<script>
+// https://stackoverflow.com/a/18650828/388951
+function formatBytes(bytes, decimals) {
+  if (bytes == 0) return '0 B';
+  var k = 1000,
+      dm = decimals || 2,
+      sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+      i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+</script>
+
 
 <script>
 var tree = INSERT TREE HERE;
 </script>
 
 <script src="INSERT underscore.js HERE"></script>
-<script src="INSERT prettybytes.js HERE"></script>
 <script src="INSERT webtreemap.js HERE"></script>
 
 <script>
@@ -71,7 +82,7 @@ function addNode(path, size) {
 function addSizeToTitle(node, total) {
   var size = node.data['$area'],
       pct = 100.0 * size / total;
-  node.name += ' • ' + prettyBytes(size) + ' • ' + pct.toFixed(1) + '%';
+  node.name += ' • ' + formatBytes(size) + ' • ' + pct.toFixed(1) + '%';
   node.children.forEach(function(x) { addSizeToTitle(x, total) });
 }
 
