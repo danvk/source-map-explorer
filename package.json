@@ -7,7 +7,7 @@
     "source-map-explorer": "index.js"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha && eslint *.js"
   },
   "repository": {
     "type": "git",
