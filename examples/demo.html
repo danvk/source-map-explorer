@@ -1,18 +1,17 @@
 <!doctype html>
+<head>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="https://cdn.rawgit.com/martine/webtreemap/a2fa353833eca1a4821ba4c93fb6a7d546aed02a/webtreemap.css">
+<title>dist/pileup.min.js - Source Map Explorer</title>
 
 <style>
 html, body {
-    height: 100%;
+  height: 100%;
 }
 body {
   font-family: sans-serif;
   font-size: 0.8em;
-  margin: 2ex 4ex;
-}
-h1 {
-  font-weight: normal;
+  margin: 0;
 }
 #map {
   top: 10px;
@@ -24,8 +23,10 @@ h1 {
   -webkit-user-select: none;
 }
 </style>
-
+</head>
+<body>
 <div id='map'></div>
+</body>
 
 
 <script>
@@ -294,8 +295,8 @@ function addNode(path, size) {
   var node = treeData;
   node.data['$area'] += size;
 
-  parts.forEach(part => {
-    var child = _.find(node.children, child => child.name == part);
+  parts.forEach(function(part) {
+    var child = _.find(node.children, function(child) { return child.name == part; });
     if (!child) {
       var child = newNode(part);
       node.children.push(child);
@@ -310,7 +311,7 @@ function addSizeToTitle(node, total) {
   var size = node.data['$area'],
       pct = 100.0 * size / total;
   node.name += ' • ' + size.toLocaleString() + ' • ' + pct.toFixed(2) + '%';
-  node.children.forEach(x => addSizeToTitle(x, total));
+  node.children.forEach(function(x) { addSizeToTitle(x, total) });
 }
 
 for (var source in tree) {
@@ -321,4 +322,9 @@ addSizeToTitle(treeData, treeData.data['$area']);
 var map = document.getElementById('map');
 appendTreemap(map, treeData);
 
+window.addEventListener('resize', function() {
+  appendTreemap(map, treeData);
+});
+
 </script>
+
