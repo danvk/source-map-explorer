@@ -46,7 +46,6 @@ function computeGeneratedFileSizes(mapConsumer, generatedJs) {
   var lines = generatedJs.split('\n');
   var sizes = {};
   var numChars = 0;
-  var lastSource = null;
   for (var line = 1; line <= lines.length; line++) {
     var lineText = lines[line - 1];
     var numCols = lineText.length;
