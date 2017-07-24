@@ -44,7 +44,7 @@ var fs = require('fs'),
 
 function computeGeneratedFileSizes(mapConsumer, generatedJs) {
   var lines = generatedJs.split('\n');
-  var sourceExtrema = {};  // source -> {min: num, max: num}
+  var sizes = {};
   var numChars = 0;
   var lastSource = null;
   for (var line = 1; line <= lines.length; line++) {
@@ -55,24 +55,12 @@ function computeGeneratedFileSizes(mapConsumer, generatedJs) {
       var source = pos.source;
       if (source == null) {
         // Often this is from the '// #sourceMap' comment itself.
-        continue;
-      }
-
-      if (source != lastSource) {
-        if (!(source in sourceExtrema)) {
-          sourceExtrema[source] = {min: numChars};
-          lastSource = source;
-        } else {
-          // source-map reports odd positions for bits between files.
-        }
       } else {
-        sourceExtrema[source].max = numChars;
+        sizes[source] = (sizes[source] || 0) + 1;
       }
     }
   }
-  return _.mapObject(sourceExtrema, function(v) {
-    return v.max - v.min + 1;
-  });
+  return sizes;
 }
 
 var SOURCE_MAP_INFO_URL = 'https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps';
