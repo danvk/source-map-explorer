@@ -4,7 +4,8 @@ var sourceMapExplorer = require('./index'),
   adjustSourcePaths = sourceMapExplorer.adjustSourcePaths,
   mapKeys = sourceMapExplorer.mapKeys,
   commonPathPrefix = sourceMapExplorer.commonPathPrefix,
-  expandGlob = sourceMapExplorer.expandGlob;
+  expandGlob = sourceMapExplorer.expandGlob,
+  mergeNullSeparatedSpans = sourceMapExplorer.mergeNullSeparatedSpans;
 
 describe('source-map-explorer', function() {
   describe('commonPathPrefix', function() {
@@ -62,6 +63,75 @@ describe('source-map-explorer', function() {
     })).to.deep.equal({
       '<script.js>': 'foo.min.js',
       '<script.js.map>': 'foo.min.js.map'
+    });
+  });
+
+  describe('mergeNullSeparatedSpans', function() {
+    var merge = mergeNullSeparatedSpans;
+    var p = function(source, numChars) {
+      return { source: source, numChars: numChars };
+    };
+
+    it('should merge null gaps', function() {
+      expect(merge([
+        p('F1', 10),
+        p(null, 10),
+        p('F1', 20),
+        p('F2', 30)
+      ])).to.deep.equal([
+        {source: 'F1', numChars: 40},
+        {source: 'F2', numChars: 30}
+      ]);
+    });
+
+    it('should handle leading nulls', function() {
+      expect(merge([
+        p(null, 10),
+        p('F1', 10),
+        p(null, 10),
+        p('F1', 20)
+      ])).to.deep.equal([
+        {source: null, numChars: 10},
+        {source: 'F1', numChars: 40}
+      ]);
+    });
+
+    it('should handle trailing nulls', function() {
+      expect(merge([
+        p('F1', 10),
+        p(null, 10),
+        p('F1', 20),
+        p(null, 30)
+      ])).to.deep.equal([
+        {source: 'F1', numChars: 40},
+        {source: null, numChars: 30}
+      ]);
+    });
+
+    it('should ignore nulls between different files', function() {
+      expect(merge([
+        p('F1', 10),
+        p(null, 10),
+        p('F2', 20),
+        p(null, 30)
+      ])).to.deep.equal([
+        {source: 'F1', numChars: 10},
+        {source: null, numChars: 10},
+        {source: 'F2', numChars: 20},
+        {source: null, numChars: 30}
+      ]);
+    });
+
+    it('should merge multiple nulls gaps in a file', function() {
+      expect(merge([
+        p('F1', 10),
+        p(null, 10),
+        p('F1', 20),
+        p(null, 30),
+        p('F1', 10),
+      ])).to.deep.equal([
+        {source: 'F1', numChars: 80}
+      ]);
     });
   });
 });

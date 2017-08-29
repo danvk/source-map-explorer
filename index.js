@@ -42,37 +42,61 @@ var fs = require('fs'),
   docopt = require('docopt').docopt,
   btoa = require('btoa');
 
-function computeGeneratedFileSizes(mapConsumer, generatedJs) {
+function computeSpans(mapConsumer, generatedJs) {
   var lines = generatedJs.split('\n');
-  var sourceExtrema = {};  // source -> {min: num, max: num}
+  var spans = [];
   var numChars = 0;
-  var lastSource = null;
+  var lastSource = false;  // not a string, not null.
   for (var line = 1; line <= lines.length; line++) {
     var lineText = lines[line - 1];
     var numCols = lineText.length;
     for (var column = 0; column < numCols; column++, numChars++) {
       var pos = mapConsumer.originalPositionFor({line:line, column:column});
       var source = pos.source;
-      if (source == null) {
-        // Often this is from the '// #sourceMap' comment itself.
-        continue;
-      }
 
-      if (source != lastSource) {
-        if (!(source in sourceExtrema)) {
-          sourceExtrema[source] = {min: numChars};
-          lastSource = source;
-        } else {
-          // source-map reports odd positions for bits between files.
-        }
+      if (source !== lastSource) {
+        lastSource = source;
+        spans.push({source: source, numChars: 1});
       } else {
-        sourceExtrema[source].max = numChars;
+        spans[spans.length - 1].numChars += 1;
       }
     }
   }
-  return _.mapObject(sourceExtrema, function(v) {
-    return v.max - v.min + 1;
-  });
+  return spans;
+}
+
+// Replace [(File, N1), (null, N2), (File, N3), ...] with [(File, N1+N2+N3), ...]
+// This compensates for gaps in the source map. See
+// https://github.com/danvk/source-map-explorer/issues/47
+// Note: mutates spans.
+function mergeNullSeparatedSpans(spans) {
+  var outSpans = [spans[0]];
+  for (var i = 1; i < spans.length; i++) {
+    var span = spans[i];
+    var lastOut = outSpans[outSpans.length - 1];
+    if (i < spans.length - 1 &&
+        span.source === null &&
+        spans[i + 1].source === lastOut.source) {
+      lastOut.numChars += span.numChars + spans[i + 1].numChars;
+      i++;
+    } else {
+      outSpans.push(spans[i]);
+    }
+  }
+  return outSpans;
+}
+
+function computeGeneratedFileSizes(mapConsumer, generatedJs) {
+  var spans = computeSpans(mapConsumer, generatedJs);
+  var mergedSpans = mergeNullSeparatedSpans(spans);
+
+  var counts = {};
+  for (var i = 0; i < mergedSpans.length; i++) {
+    var span = mergedSpans[i];
+    if (span.source === null) continue;
+    counts[span.source] = (counts[span.source] || 0) + span.numChars;
+  }
+  return counts;
 }
 
 var SOURCE_MAP_INFO_URL = 'https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps';
@@ -259,5 +283,6 @@ module.exports = {
   adjustSourcePaths: adjustSourcePaths,
   mapKeys: mapKeys,
   commonPathPrefix: commonPathPrefix,
-  expandGlob: expandGlob
+  expandGlob: expandGlob,
+  mergeNullSeparatedSpans: mergeNullSeparatedSpans
 };
