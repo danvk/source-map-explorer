@@ -5,7 +5,7 @@ var doc = [
   '',
   'Usage:',
   '  source-map-explorer <script.js> [<script.js.map>]',
-  '  source-map-explorer [--json | --html | --tsv] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
+  '  source-map-explorer [--json | --html | --tsv] [-m | --only-mapped] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
   '  source-map-explorer -h | --help | --version',
   '',
   'If the script file has an inline source map, you may omit the map parameter.',
@@ -19,6 +19,10 @@ var doc = [
   '     --tsv   Output TSV (on stdout) instead of generating HTML',
   '             and opening the browser.',
   '     --html  Output HTML (on stdout) rather than opening a browser.',
+  '',
+  '  -m --onlymapped  Exclude "unmapped" bytes from the output.',
+  '                   This will result in total counts less than the file size',
+  '',
   '',
   '   --noroot  To simplify the visualization, source-map-explorer',
   '             will remove any prefix shared by all sources. If you',
@@ -65,36 +69,29 @@ function computeSpans(mapConsumer, generatedJs) {
   return spans;
 }
 
-// Replace [(File, N1), (null, N2), (File, N3), ...] with [(File, N1+N2+N3), ...]
-// This compensates for gaps in the source map. See
-// https://github.com/danvk/source-map-explorer/issues/47
-// Note: mutates spans.
-function mergeNullSeparatedSpans(spans) {
-  var outSpans = [spans[0]];
-  for (var i = 1; i < spans.length; i++) {
-    var span = spans[i];
-    var lastOut = outSpans[outSpans.length - 1];
-    if (i < spans.length - 1 &&
-        span.source === null &&
-        spans[i + 1].source === lastOut.source) {
-      lastOut.numChars += span.numChars + spans[i + 1].numChars;
-      i++;
-    } else {
-      outSpans.push(spans[i]);
-    }
-  }
-  return outSpans;
-}
-
-function computeGeneratedFileSizes(mapConsumer, generatedJs) {
+var UNMAPPED = '<unmapped>';
+function computeGeneratedFileSizes(mapConsumer, generatedJs, onlyMapped) {
   var spans = computeSpans(mapConsumer, generatedJs);
-  var mergedSpans = mergeNullSeparatedSpans(spans);
+  var totalBytes = 0;
 
   var counts = {};
-  for (var i = 0; i < mergedSpans.length; i++) {
-    var span = mergedSpans[i];
-    if (span.source === null) continue;
+  for (var i = 0; i < spans.length; i++) {
+    var span = spans[i];
+    if (span.source === null) {
+      span.source = UNMAPPED;
+    }
     counts[span.source] = (counts[span.source] || 0) + span.numChars;
+    totalBytes += span.numChars;
+  }
+  var numUnmapped = counts[UNMAPPED];
+  if (onlyMapped) {
+    delete counts[UNMAPPED];
+  }
+  if (numUnmapped) {
+    var pct = 100 * numUnmapped / totalBytes;
+    console.warn(
+        'Unable to map', numUnmapped, '/', totalBytes,
+        'bytes (' + pct.toFixed(2) + '%)');
   }
   return counts;
 }
@@ -215,6 +212,7 @@ if (require.main === module) {
   var args = docopt(doc, {version: '1.4.0'});
   expandGlob(args);
   validateArgs(args);
+  var onlyMapped = args['--only-mapped'] || args['-m'];
   var data = loadSourceMap(args['<script.js>'], args['<script.js.map>']);
   if (!data) {
     process.exit(1);
@@ -222,7 +220,7 @@ if (require.main === module) {
   var mapConsumer = data.mapConsumer,
     jsData = data.jsData;
 
-  var sizes = computeGeneratedFileSizes(mapConsumer, jsData);
+  var sizes = computeGeneratedFileSizes(mapConsumer, jsData, onlyMapped);
 
   if (_.size(sizes) == 1) {
     console.error('Your source map only contains one source (',
@@ -284,5 +282,4 @@ module.exports = {
   mapKeys: mapKeys,
   commonPathPrefix: commonPathPrefix,
   expandGlob: expandGlob,
-  mergeNullSeparatedSpans: mergeNullSeparatedSpans
 };
