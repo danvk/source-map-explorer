@@ -79,7 +79,7 @@ var UNMAPPED = '<unmapped>';
  *  totalBytes: number
  * }
  */
-function computeGeneratedFileSizes(mapConsumer, generatedJs, onlyMapped) {
+function computeGeneratedFileSizes(mapConsumer, generatedJs) {
   var spans = computeSpans(mapConsumer, generatedJs);
 
   var numUnmapped = 0;
