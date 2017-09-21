@@ -248,8 +248,8 @@ if (require.main === module) {
     var totalBytes = sizes.totalBytes;
     var pct = 100 * numUnmapped / totalBytes;
     console.warn(
-        'Unable to map', numUnmapped, '/', totalBytes,
-        'bytes (' + pct.toFixed(2) + '%)');
+      'Unable to map', numUnmapped, '/', totalBytes,
+      'bytes (' + pct.toFixed(2) + '%)');
   }
 
   if (args['--json']) {
