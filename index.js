@@ -32,7 +32,7 @@ var doc = [
   '                    names. This can be used to fix some oddities',
   '                    with paths which appear in the source map',
   '                    generation process.  Accepts regular expressions.',
-  '      --with=AFTER  See --replace.',
+  '      --with=AFTER  See --replace.'
 ].join('\n');
 
 var fs = require('fs'),
@@ -247,7 +247,7 @@ if (require.main === module) {
   var assets = {
     underscoreJs: btoa(fs.readFileSync(require.resolve('underscore'))),
     webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
-    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
+    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css')))
   };
 
   var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
@@ -281,5 +281,5 @@ module.exports = {
   adjustSourcePaths: adjustSourcePaths,
   mapKeys: mapKeys,
   commonPathPrefix: commonPathPrefix,
-  expandGlob: expandGlob,
+  expandGlob: expandGlob
 };

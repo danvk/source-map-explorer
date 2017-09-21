@@ -4,8 +4,7 @@ var sourceMapExplorer = require('./index'),
   adjustSourcePaths = sourceMapExplorer.adjustSourcePaths,
   mapKeys = sourceMapExplorer.mapKeys,
   commonPathPrefix = sourceMapExplorer.commonPathPrefix,
-  expandGlob = sourceMapExplorer.expandGlob,
-  mergeNullSeparatedSpans = sourceMapExplorer.mergeNullSeparatedSpans;
+  expandGlob = sourceMapExplorer.expandGlob;
 
 describe('source-map-explorer', function() {
   describe('commonPathPrefix', function() {
@@ -54,7 +53,7 @@ describe('source-map-explorer', function() {
   describe('command line parsing', function() {
     expect(expandGlob({'<script.js>': 'testdata/foo.min.js*'})).to.deep.equal({
       '<script.js>': 'testdata/foo.min.js',
-      '<script.js.map>': 'testdata/foo.min.js.map',
+      '<script.js.map>': 'testdata/foo.min.js.map'
     });
 
     expect(expandGlob({
