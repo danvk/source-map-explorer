@@ -70,30 +70,36 @@ function computeSpans(mapConsumer, generatedJs) {
 }
 
 var UNMAPPED = '<unmapped>';
+
+/**
+ * Calculate the number of bytes contributed by each source file.
+ * @returns {
+ *  counts: {[sourceFile: string]: number},
+ *  numUnmapped: number,
+ *  totalBytes: number
+ * }
+ */
 function computeGeneratedFileSizes(mapConsumer, generatedJs, onlyMapped) {
   var spans = computeSpans(mapConsumer, generatedJs);
-  var totalBytes = 0;
 
+  var numUnmapped = 0;
   var counts = {};
+  var totalBytes = 0;
   for (var i = 0; i < spans.length; i++) {
     var span = spans[i];
+    var numChars = span.numChars;
+    totalBytes += numChars;
     if (span.source === null) {
-      span.source = UNMAPPED;
+      numUnmapped += numChars;
+    } else {
+      counts[span.source] = (counts[span.source] || 0) + span.numChars;
     }
-    counts[span.source] = (counts[span.source] || 0) + span.numChars;
-    totalBytes += span.numChars;
   }
-  var numUnmapped = counts[UNMAPPED];
-  if (onlyMapped) {
-    delete counts[UNMAPPED];
-  }
-  if (numUnmapped) {
-    var pct = 100 * numUnmapped / totalBytes;
-    console.warn(
-        'Unable to map', numUnmapped, '/', totalBytes,
-        'bytes (' + pct.toFixed(2) + '%)');
-  }
-  return counts;
+  return {
+    counts: counts,
+    numUnmapped: numUnmapped,
+    totalBytes: totalBytes
+  };
 }
 
 var SOURCE_MAP_INFO_URL = 'https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps';
@@ -212,7 +218,6 @@ if (require.main === module) {
   var args = docopt(doc, {version: '1.4.0'});
   expandGlob(args);
   validateArgs(args);
-  var onlyMapped = args['--only-mapped'] || args['-m'];
   var data = loadSourceMap(args['<script.js>'], args['<script.js.map>']);
   if (!data) {
     process.exit(1);
@@ -220,27 +225,41 @@ if (require.main === module) {
   var mapConsumer = data.mapConsumer,
     jsData = data.jsData;
 
-  var sizes = computeGeneratedFileSizes(mapConsumer, jsData, onlyMapped);
+  var sizes = computeGeneratedFileSizes(mapConsumer, jsData);
+  var counts = sizes.counts;
 
-  if (_.size(sizes) == 1) {
+  if (_.size(counts) == 1) {
     console.error('Your source map only contains one source (',
-      _.keys(sizes)[0], ')');
+      _.keys(counts)[0], ')');
     console.error('This typically means that your source map doesn\'t map all the way back to the original sources.');
     console.error('This can happen if you use browserify+uglifyjs, for example, and don\'t set the --in-source-map flag to uglify.');
     console.error('See ', SOURCE_MAP_INFO_URL);
     process.exit(1);
   }
 
-  sizes = adjustSourcePaths(sizes, !args['--noroot'], args['--replace'], args['--with']);
+  counts = adjustSourcePaths(counts, !args['--noroot'], args['--replace'], args['--with']);
+
+  var onlyMapped = args['--only-mapped'] || args['-m'];
+  var numUnmapped = sizes.numUnmapped;
+  if (!onlyMapped) {
+    counts[UNMAPPED] = numUnmapped;
+  }
+  if (numUnmapped) {
+    var totalBytes = sizes.totalBytes;
+    var pct = 100 * numUnmapped / totalBytes;
+    console.warn(
+        'Unable to map', numUnmapped, '/', totalBytes,
+        'bytes (' + pct.toFixed(2) + '%)');
+  }
 
   if (args['--json']) {
-    console.log(JSON.stringify(sizes, null, '  '));
+    console.log(JSON.stringify(counts, null, '  '));
     process.exit(0);
   }
 
   if (args['--tsv']) {
     console.log('Source\tSize');
-    _.each(sizes, function(source, size) { console.log(size + '\t' + source); });
+    _.each(counts, function(source, size) { console.log(size + '\t' + source); });
     process.exit(0);
   }
 
@@ -252,7 +271,7 @@ if (require.main === module) {
 
   var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
 
-  html = html.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '))
+  html = html.replace('INSERT TREE HERE', JSON.stringify(counts, null, '  '))
     .replace('INSERT TITLE HERE', args['<script.js>'])
     .replace('INSERT underscore.js HERE', 'data:application/javascript;base64,' + assets.underscoreJs)
     .replace('INSERT webtreemap.js HERE', 'data:application/javascript;base64,' + assets.webtreemapJs)
