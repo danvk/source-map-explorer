@@ -215,7 +215,7 @@ function expandGlob(args) {
 
 if (require.main === module) {
 
-  var args = docopt(doc, {version: '1.4.0'});
+  var args = docopt(doc, {version: '1.5.0'});
   expandGlob(args);
   validateArgs(args);
   var data = loadSourceMap(args['<script.js>'], args['<script.js.map>']);
