@@ -5,7 +5,7 @@ var doc = [
   '',
   'Usage:',
   '  source-map-explorer <script.js> [<script.js.map>]',
-  '  source-map-explorer [--json | --html | --tsv] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
+  '  source-map-explorer [--json | --html | --tsv] [-m | --only-mapped] <script.js> [<script.js.map>] [--replace=BEFORE --with=AFTER]... [--noroot]',
   '  source-map-explorer -h | --help | --version',
   '',
   'If the script file has an inline source map, you may omit the map parameter.',
@@ -20,6 +20,10 @@ var doc = [
   '             and opening the browser.',
   '     --html  Output HTML (on stdout) rather than opening a browser.',
   '',
+  '  -m --onlymapped  Exclude "unmapped" bytes from the output.',
+  '                   This will result in total counts less than the file size',
+  '',
+  '',
   '   --noroot  To simplify the visualization, source-map-explorer',
   '             will remove any prefix shared by all sources. If you',
   '             wish to disable this behavior, set --noroot.',
@@ -28,7 +32,7 @@ var doc = [
   '                    names. This can be used to fix some oddities',
   '                    with paths which appear in the source map',
   '                    generation process.  Accepts regular expressions.',
-  '      --with=AFTER  See --replace.',
+  '      --with=AFTER  See --replace.'
 ].join('\n');
 
 var fs = require('fs'),
@@ -42,37 +46,60 @@ var fs = require('fs'),
   docopt = require('docopt').docopt,
   btoa = require('btoa');
 
-function computeGeneratedFileSizes(mapConsumer, generatedJs) {
+function computeSpans(mapConsumer, generatedJs) {
   var lines = generatedJs.split('\n');
-  var sourceExtrema = {};  // source -> {min: num, max: num}
+  var spans = [];
   var numChars = 0;
-  var lastSource = null;
+  var lastSource = false;  // not a string, not null.
   for (var line = 1; line <= lines.length; line++) {
     var lineText = lines[line - 1];
     var numCols = lineText.length;
     for (var column = 0; column < numCols; column++, numChars++) {
       var pos = mapConsumer.originalPositionFor({line:line, column:column});
       var source = pos.source;
-      if (source == null) {
-        // Often this is from the '// #sourceMap' comment itself.
-        continue;
-      }
 
-      if (source != lastSource) {
-        if (!(source in sourceExtrema)) {
-          sourceExtrema[source] = {min: numChars};
-          lastSource = source;
-        } else {
-          // source-map reports odd positions for bits between files.
-        }
+      if (source !== lastSource) {
+        lastSource = source;
+        spans.push({source: source, numChars: 1});
       } else {
-        sourceExtrema[source].max = numChars;
+        spans[spans.length - 1].numChars += 1;
       }
     }
   }
-  return _.mapObject(sourceExtrema, function(v) {
-    return v.max - v.min + 1;
-  });
+  return spans;
+}
+
+var UNMAPPED = '<unmapped>';
+
+/**
+ * Calculate the number of bytes contributed by each source file.
+ * @returns {
+ *  counts: {[sourceFile: string]: number},
+ *  numUnmapped: number,
+ *  totalBytes: number
+ * }
+ */
+function computeGeneratedFileSizes(mapConsumer, generatedJs) {
+  var spans = computeSpans(mapConsumer, generatedJs);
+
+  var numUnmapped = 0;
+  var counts = {};
+  var totalBytes = 0;
+  for (var i = 0; i < spans.length; i++) {
+    var span = spans[i];
+    var numChars = span.numChars;
+    totalBytes += numChars;
+    if (span.source === null) {
+      numUnmapped += numChars;
+    } else {
+      counts[span.source] = (counts[span.source] || 0) + span.numChars;
+    }
+  }
+  return {
+    counts: counts,
+    numUnmapped: numUnmapped,
+    totalBytes: totalBytes
+  };
 }
 
 var SOURCE_MAP_INFO_URL = 'https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps';
@@ -199,38 +226,52 @@ if (require.main === module) {
     jsData = data.jsData;
 
   var sizes = computeGeneratedFileSizes(mapConsumer, jsData);
+  var counts = sizes.counts;
 
-  if (_.size(sizes) == 1) {
+  if (_.size(counts) == 1) {
     console.error('Your source map only contains one source (',
-      _.keys(sizes)[0], ')');
+      _.keys(counts)[0], ')');
     console.error('This typically means that your source map doesn\'t map all the way back to the original sources.');
     console.error('This can happen if you use browserify+uglifyjs, for example, and don\'t set the --in-source-map flag to uglify.');
     console.error('See ', SOURCE_MAP_INFO_URL);
     process.exit(1);
   }
 
-  sizes = adjustSourcePaths(sizes, !args['--noroot'], args['--replace'], args['--with']);
+  counts = adjustSourcePaths(counts, !args['--noroot'], args['--replace'], args['--with']);
+
+  var onlyMapped = args['--only-mapped'] || args['-m'];
+  var numUnmapped = sizes.numUnmapped;
+  if (!onlyMapped) {
+    counts[UNMAPPED] = numUnmapped;
+  }
+  if (numUnmapped) {
+    var totalBytes = sizes.totalBytes;
+    var pct = 100 * numUnmapped / totalBytes;
+    console.warn(
+      'Unable to map', numUnmapped, '/', totalBytes,
+      'bytes (' + pct.toFixed(2) + '%)');
+  }
 
   if (args['--json']) {
-    console.log(JSON.stringify(sizes, null, '  '));
+    console.log(JSON.stringify(counts, null, '  '));
     process.exit(0);
   }
 
   if (args['--tsv']) {
     console.log('Source\tSize');
-    _.each(sizes, function(source, size) { console.log(size + '\t' + source); });
+    _.each(counts, function(source, size) { console.log(size + '\t' + source); });
     process.exit(0);
   }
 
   var assets = {
     underscoreJs: btoa(fs.readFileSync(require.resolve('underscore'))),
     webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
-    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
+    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css')))
   };
 
   var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
 
-  html = html.replace('INSERT TREE HERE', JSON.stringify(sizes, null, '  '))
+  html = html.replace('INSERT TREE HERE', JSON.stringify(counts, null, '  '))
     .replace('INSERT TITLE HERE', args['<script.js>'])
     .replace('INSERT underscore.js HERE', 'data:application/javascript;base64,' + assets.underscoreJs)
     .replace('INSERT webtreemap.js HERE', 'data:application/javascript;base64,' + assets.webtreemapJs)
