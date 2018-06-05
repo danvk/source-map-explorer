@@ -116,7 +116,7 @@ function loadSourceMap(jsFile, mapFile) {
   if (mapFile) {
     var sourcemapData;
     if(Buffer.isBuffer(mapFile)) {
-      sourcemapData = fs.readFileSync(mapFile).toString();
+      sourcemapData = mapFile.toString();
     } else {
       sourcemapData = fs.readFileSync(mapFile).toString();
     }
@@ -124,7 +124,7 @@ function loadSourceMap(jsFile, mapFile) {
   } else {
     // Try to read a source map from a 'sourceMappingURL' comment.
     var converter = convert.fromSource(jsData);
-    if (!converter) {
+    if (!converter && !Buffer.isBuffer(jsFile)) {
       converter = convert.fromMapFileSource(jsData, path.dirname(jsFile));
     }
     if (!converter) {
@@ -269,8 +269,9 @@ function explore(code, map, options) {
 
   var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
 
+  var title = Buffer.isBuffer(code) ? 'Buffer' : code;
   html = html.replace('INSERT TREE HERE', JSON.stringify(counts, null, '  '))
-    .replace('INSERT TITLE HERE', args['<script.js>'])
+    .replace('INSERT TITLE HERE', title)
     .replace('INSERT underscore.js HERE', 'data:application/javascript;base64,' + assets.underscoreJs)
     .replace('INSERT webtreemap.js HERE', 'data:application/javascript;base64,' + assets.webtreemapJs)
     .replace('INSERT webtreemap.css HERE', 'data:text/css;base64,' + assets.webtreemapCss);
@@ -319,7 +320,8 @@ if (require.main === module) {
       console.error('File not found! -- ', err.message);
       process.exit(1);
     } else {
-      throw err;
+      console.error(err.message);
+      process.exit(1);
     }
   }
 
