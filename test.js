@@ -35,17 +35,17 @@ describe('source-map-explorer', function() {
     });
 
     it('should find/replace', function() {
-      expect(adjustSourcePaths({'/src/foo.js': 10, '/src/foodle.js': 20}, false, ['src'], ['dist']))
+      expect(adjustSourcePaths({'/src/foo.js': 10, '/src/foodle.js': 20}, false, { src: 'dist' }))
         .to.deep.equal({'/dist/foo.js': 10, '/dist/foodle.js': 20});
     });
 
     it('should find/replace with regexp', function() {
-      expect(adjustSourcePaths({'/src/foo.js': 10, '/src/foodle.js': 20}, false, ['foo.'], ['bar.']))
+      expect(adjustSourcePaths({'/src/foo.js': 10, '/src/foodle.js': 20}, false, { 'foo.': 'bar.' }))
         .to.deep.equal({'/src/bar.js': 10, '/src/bar.le.js': 20});
     });
 
     it('should find/replace with regexp, can be used to add root', function() {
-      expect(adjustSourcePaths({'/foo/foo.js': 10, '/foo/foodle.js': 20}, false, ['^/foo'], ['/bar']))
+      expect(adjustSourcePaths({'/foo/foo.js': 10, '/foo/foodle.js': 20}, false, { '^/foo': '/bar' }))
         .to.deep.equal({'/bar/foo.js': 10, '/bar/foodle.js': 20});
     });
   });
@@ -63,5 +63,67 @@ describe('source-map-explorer', function() {
       '<script.js>': 'foo.min.js',
       '<script.js.map>': 'foo.min.js.map'
     });
+  });
+
+  describe('explore public API', function() {
+    it('should generate data when provided with js file with inline map', function() {
+      var fooDataInline = {
+        'counts': {
+          '<unmapped>': 0,
+          'dist/bar.js': 2854,
+          'dist/foo.js': 137,
+          'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
+        },
+        'numUnmapped': 0,
+        'totalBytes': 3454,
+      };
+
+      expect(sourceMapExplorer('testdata/foo.min.inline-map.js')).to.deep.equal(fooDataInline);
+    });
+
+    it('should generate data when provided with file with referenced map', function() {
+      var fooDataFile = {
+        'counts': {
+          '<unmapped>': 0,
+          'dist/bar.js': 97,
+          'dist/foo.js': 137,
+          'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
+        },
+        'numUnmapped': 0,
+        'totalBytes': 697,
+      };
+
+      expect(sourceMapExplorer('testdata/foo.min.js'))
+        .to.deep.equal(fooDataFile);
+    });
+
+    it('should generate data when provided with file with separated map file', function() {
+      var fooDataSeparated = {
+        'counts': {
+          '<unmapped>': 0,
+          'dist/bar.js': 62,
+          'dist/foo.js': 137,
+          'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
+        },
+        'numUnmapped': 0,
+        'totalBytes': 662,
+      };
+
+      expect(sourceMapExplorer('testdata/foo.min.no-map.js', 'testdata/foo.min.no-map.separated.js.map'))
+        .to.deep.equal(fooDataSeparated);
+    });
+
+    // var fooDataReplaced = {
+    //   'counts': {
+    //     '<unmapped>': 0,
+    //     'dist/bar.js': 97,
+    //     'dist/foo.js': 137,
+    //     'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
+    //   },
+    //   'numUnmapped': 0,
+    //   'totalBytes': 697,
+    // };
+
+
   });
 });

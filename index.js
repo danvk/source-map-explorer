@@ -157,7 +157,7 @@ function mapKeys(obj, fn) {
   return _.object(_.map(obj, function(v, k) { return [fn(k), v]; }));
 }
 
-function adjustSourcePaths(sizes, findRoot, finds, replaces) {
+function adjustSourcePaths(sizes, findRoot, replace) {
   if (findRoot) {
     var prefix = commonPathPrefix(_.keys(sizes));
     var len = prefix.length;
@@ -166,9 +166,15 @@ function adjustSourcePaths(sizes, findRoot, finds, replaces) {
     }
   }
 
+  if(!replace) {
+    replace = {};
+  }
+
+  var finds = Object.keys(replace);
+
   for (var i = 0; i < finds.length; i++) {
     var before = new RegExp(finds[i]),
-      after = replaces[i];
+      after = replace[finds[i]];
     sizes = mapKeys(sizes, function(source) {
       return source.replace(before, after);
     });
@@ -216,6 +222,10 @@ function explore(code, map, options) {
     }
   }
 
+  if(!options) {
+    options = {};
+  }
+
   var data = loadSourceMap(code, map);
   if (!data) {
     throw new Error('Failed to load script and sourcemap');
@@ -235,7 +245,7 @@ function explore(code, map, options) {
     throw new Error(error);
   }
 
-  counts = adjustSourcePaths(counts, !options.noRoot, options.replace, options.with);
+  counts = adjustSourcePaths(counts, !options.noRoot, options.replace);
 
   var onlyMapped = options.onlyMapped;
   var numUnmapped = sizes.numUnmapped;
@@ -284,6 +294,15 @@ if (require.main === module) {
     html = false;
   }
 
+  var replace = {};
+  var argsReplace = args['--replace'];
+  var argsWith = args['--with'];
+  if(argsReplace && argsWith) {
+    for(var replaceIndex = 0; replaceIndex < argsReplace.length; replaceIndex += 1) {
+      replace[argsReplace[replaceIndex]] = argsWith[replaceIndex];
+    }
+  }
+
   try {
     var data = explore(
       args['<script.js>'],
@@ -292,8 +311,7 @@ if (require.main === module) {
         onlyMapped: args['--only-mapped'] || args['-m'],
         html: html,
         noRoot: args['--noroot'],
-        replace: args['--replace'],
-        with: args['--with'],
+        replace: replace,
       }
     );
   } catch(err) {
