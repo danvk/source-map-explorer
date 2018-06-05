@@ -64,6 +64,39 @@ in the bundle (perhaps because of out-of-date dependencies).
 
 * `--noroot`: By default, source-map-explorer finds common prefixes between all source files and eliminates them, since they add complexity to the visualization with no real benefit. But if you want to disable this behavior, set the `--noroot` flag.
 
+## API
+### `explore(filePathOrContent[, sourceMapPathOrContent][, options])`
+* `filePathOrContent` <[string]|[Buffer]> - path to file or Buffer with contents
+* `sourceMapPathOrContent` <[string]|[Buffer]> - path to source map or Buffer with contents
+* `options` <[Object]> Options for generation
+  * `onlyMapped` <[boolean]> (default `false`) See above for details
+  * `html` <[boolean]> (default `false`) When true html will be included in returned object
+  * `noRoot` <[boolean]> (default `false`) See above for details
+  * `replace` <[Object]<{ [from: [string]]: [string] }>> Mapping for replacement, see above for details
+* returns: <[Object]>
+  * `totalBytes` <[number]>
+  * `numUnmapped` <[number]>
+  * `counts` <[Object]<{ [sourceFile: [string]]: [number] }>> Map containging files extracted from the source map an how much space (bytes) the take inside of provided file. Additinal key  `<unmapped>` is included if `options.onlyMapped` is `false`.
+  * `html` <[string]> Contains self-packed html that can be opened in the browser, only if `options.html` is `true`
+
+### Example
+```javascript
+require('source-map-explorer')('testdata/foo.min.js', { html: true })
+
+// Returns
+{
+  totalBytes: 697,
+  numUnmapped: 0,
+  counts: {
+    'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
+    'dist/bar.js': 97,
+    'dist/foo.js': 137,
+    '<unmapped>': 0
+  },
+  html: '<!doctype html>...'
+}
+```
+
 ## Generating source maps
 
 For source-map-explorer to be useful, you need to generate a source map which
@@ -133,3 +166,8 @@ source-map-explorer path/to/foo.min.js{,.map}
 [inline]: /README.md#types-of-source-maps
 [treemap]: https://github.com/martine/webtreemap
 [video]: https://www.youtube.com/watch?v=7aY9BoMEpG8
+[boolean]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type "Boolean"
+[Buffer]: https://nodejs.org/api/buffer.html#buffer_class_buffer "Buffer"
+[Object]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object "Object"
+[string]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type "String"
+[number]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type "Number"
