@@ -52,6 +52,8 @@ in the bundle (perhaps because of out-of-date dependencies).
     source-map-explorer --html foo.min.js > tree.html
     ```
 
+* `-m`, `--only-mapped`: exclude "unmapped" bytes from the output. This will result in total counts less than the file size.
+
 * `--replace`, `--with`: The paths in source maps sometimes have artifacts that are difficult to get rid of. These flags let you do simple find & replaces on the paths. For example:
 
     ```
@@ -69,7 +71,7 @@ in the bundle (perhaps because of out-of-date dependencies).
 * `filePathOrContent` <[string]|[Buffer]> - path to file or Buffer with contents
 * `sourceMapPathOrContent` <[string]|[Buffer]> - path to source map or Buffer with contents
 * `options` <[Object]> Options for generation
-  * `onlyMapped` <[boolean]> (default `false`) <!-- See `--only-mapped` option above for details -->
+  * `onlyMapped` <[boolean]> (default `false`) See `--only-mapped` option above for details
   * `html` <[boolean]> (default `false`) When true html will be included in returned object
   * `noRoot` <[boolean]> (default `false`) See `--noroot` option above for details
   * `replace` <[Object]<{ [from: [string]]: [string] }>> Mapping for replacement, see `--replace`, `--with` options above for details.
