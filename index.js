@@ -74,30 +74,30 @@ var UNMAPPED = '<unmapped>';
 /**
  * Calculate the number of bytes contributed by each source file.
  * @returns {
- *  counts: {[sourceFile: string]: number},
- *  numUnmapped: number,
+ *  files: {[sourceFile: string]: number},
+ *  unmappedBytes: number,
  *  totalBytes: number
  * }
  */
 function computeGeneratedFileSizes(mapConsumer, generatedJs) {
   var spans = computeSpans(mapConsumer, generatedJs);
 
-  var numUnmapped = 0;
-  var counts = {};
+  var unmappedBytes = 0;
+  var files = {};
   var totalBytes = 0;
   for (var i = 0; i < spans.length; i++) {
     var span = spans[i];
     var numChars = span.numChars;
     totalBytes += numChars;
     if (span.source === null) {
-      numUnmapped += numChars;
+      unmappedBytes += numChars;
     } else {
-      counts[span.source] = (counts[span.source] || 0) + span.numChars;
+      files[span.source] = (files[span.source] || 0) + span.numChars;
     }
   }
   return {
-    counts: counts,
-    numUnmapped: numUnmapped,
+    files: files,
+    unmappedBytes: unmappedBytes,
     totalBytes: totalBytes
   };
 }
@@ -235,29 +235,29 @@ function explore(code, map, options) {
     jsData = data.jsData;
 
   var sizes = computeGeneratedFileSizes(mapConsumer, jsData);
-  var counts = sizes.counts;
+  var files = sizes.files;
 
-  if (_.size(counts) == 1) {
-    var error = 'Your source map only contains one source (' + _.keys(counts)[0] + ')\n';
+  if (_.size(files) == 1) {
+    var error = 'Your source map only contains one source (' + _.keys(files)[0] + ')\n';
     error += 'This typically means that your source map doesn\'t map all the way back to the original sources.\n';
     error += 'This can happen if you use browserify+uglifyjs, for example, and don\'t set the --in-source-map flag to uglify.\n';
     error += 'See ' + SOURCE_MAP_INFO_URL;
     throw new Error(error);
   }
 
-  counts = adjustSourcePaths(counts, !options.noRoot, options.replace);
+  files = adjustSourcePaths(files, !options.noRoot, options.replace);
 
   var onlyMapped = options.onlyMapped;
-  var numUnmapped = sizes.numUnmapped;
+  var unmappedBytes = sizes.unmappedBytes;
   if (!onlyMapped) {
-    counts[UNMAPPED] = numUnmapped;
+    files[UNMAPPED] = unmappedBytes;
   }
 
   if(!options.html) {
     return {
       totalBytes: sizes.totalBytes,
-      numUnmapped: numUnmapped,
-      counts: counts,
+      unmappedBytes: unmappedBytes,
+      files: files,
     };
   }
 
@@ -270,7 +270,7 @@ function explore(code, map, options) {
   var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
 
   var title = Buffer.isBuffer(code) ? 'Buffer' : code;
-  html = html.replace('INSERT TREE HERE', JSON.stringify(counts, null, '  '))
+  html = html.replace('INSERT TREE HERE', JSON.stringify(files, null, '  '))
     .replace('INSERT TITLE HERE', title)
     .replace('INSERT underscore.js HERE', 'data:application/javascript;base64,' + assets.underscoreJs)
     .replace('INSERT webtreemap.js HERE', 'data:application/javascript;base64,' + assets.webtreemapJs)
@@ -278,8 +278,8 @@ function explore(code, map, options) {
 
   return {
     totalBytes: sizes.totalBytes,
-    numUnmapped: numUnmapped,
-    counts: counts,
+    unmappedBytes: unmappedBytes,
+    files: files,
     html: html,
   };
 }
@@ -325,24 +325,24 @@ if (require.main === module) {
     }
   }
 
-  var numUnmapped = data.counts[UNMAPPED];
-  if (numUnmapped) {
+  var unmappedBytes = data.files[UNMAPPED];
+  if (unmappedBytes) {
     var totalBytes = data.totalBytes;
-    var pct = 100 * numUnmapped / totalBytes;
+    var pct = 100 * unmappedBytes / totalBytes;
     console.warn(
-      'Unable to map', numUnmapped, '/', totalBytes,
+      'Unable to map', unmappedBytes, '/', totalBytes,
       'bytes (' + pct.toFixed(2) + '%)');
   }
 
 
   if(args['--json']) {
-    console.log(JSON.stringify(data.counts, null, '  '));
+    console.log(JSON.stringify(data.files, null, '  '));
     process.exit(0);
   }
 
   if(args['--tsv']) {
     console.log('Source\tSize');
-    _.each(data.counts, function(source, size) { console.log(size + '\t' + source); });
+    _.each(data.files, function(source, size) { console.log(size + '\t' + source); });
     process.exit(0);
   }
 

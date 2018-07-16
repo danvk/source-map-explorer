@@ -69,14 +69,14 @@ in the bundle (perhaps because of out-of-date dependencies).
 * `filePathOrContent` <[string]|[Buffer]> - path to file or Buffer with contents
 * `sourceMapPathOrContent` <[string]|[Buffer]> - path to source map or Buffer with contents
 * `options` <[Object]> Options for generation
-  * `onlyMapped` <[boolean]> (default `false`) See above for details
+  * `onlyMapped` <[boolean]> (default `false`) <!-- See `--only-mapped` option above for details -->
   * `html` <[boolean]> (default `false`) When true html will be included in returned object
-  * `noRoot` <[boolean]> (default `false`) See above for details
-  * `replace` <[Object]<{ [from: [string]]: [string] }>> Mapping for replacement, see above for details
+  * `noRoot` <[boolean]> (default `false`) See `--noroot` option above for details
+  * `replace` <[Object]<{ [from: [string]]: [string] }>> Mapping for replacement, see `--replace`, `--with` options above for details.
 * returns: <[Object]>
-  * `totalBytes` <[number]>
-  * `numUnmapped` <[number]>
-  * `counts` <[Object]<{ [sourceFile: [string]]: [number] }>> Map containging files extracted from the source map an how much space (bytes) the take inside of provided file. Additinal key  `<unmapped>` is included if `options.onlyMapped` is `false`.
+  * `totalBytes` <[number]> Size of the provided file
+  * `unmappedBytes` <[number]>
+  * `files` <[Object]<{ [sourceFile: [string]]: [number] }>> Map containing filenames from the source map and size in bytes they take inside of provided file. Additinal key  `<unmapped>` is included if `options.onlyMapped` is `false`.
   * `html` <[string]> Contains self-packed html that can be opened in the browser, only if `options.html` is `true`
 
 ### Example

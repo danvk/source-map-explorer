@@ -68,24 +68,24 @@ describe('source-map-explorer', function() {
 
   describe('Public API', function() {
     var fooDataInline = {
-      'counts': {
+      'files': {
         '<unmapped>': 0,
         'dist/bar.js': 2854,
         'dist/foo.js': 137,
         'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
       },
-      'numUnmapped': 0,
+      'unmappedBytes': 0,
       'totalBytes': 3454,
     };
 
     var fooDataFile = {
-      'counts': {
+      'files': {
         '<unmapped>': 0,
         'dist/bar.js': 97,
         'dist/foo.js': 137,
         'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
       },
-      'numUnmapped': 0,
+      'unmappedBytes': 0,
       'totalBytes': 697,
     };
 
@@ -100,13 +100,13 @@ describe('source-map-explorer', function() {
 
     it('should generate data when provided with file with separated map file', function() {
       var fooDataSeparated = {
-        'counts': {
+        'files': {
           '<unmapped>': 0,
           'dist/bar.js': 62,
           'dist/foo.js': 137,
           'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
         },
-        'numUnmapped': 0,
+        'unmappedBytes': 0,
         'totalBytes': 662,
       };
 
@@ -116,12 +116,12 @@ describe('source-map-explorer', function() {
 
     it('should generate data respecting onlyMapped and replace options', function() {
       var fooDataReplacedNoUnmapped = {
-        'counts': {
+        'files': {
           'hello/bar.js': 97,
           'hello/foo.js': 137,
           'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
         },
-        'numUnmapped': 0,
+        'unmappedBytes': 0,
         'totalBytes': 697,
       };
 
@@ -139,12 +139,12 @@ describe('source-map-explorer', function() {
 
     it('should accept options passed as second or third argument', function() {
       var fooDataNoUnmapped = {
-        'counts': {
+        'files': {
           'dist/bar.js': 97,
           'dist/foo.js': 137,
           'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
         },
-        'numUnmapped': 0,
+        'unmappedBytes': 0,
         'totalBytes': 697,
       };
 
