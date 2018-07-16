@@ -81,15 +81,15 @@ in the bundle (perhaps because of out-of-date dependencies).
   * `files` <[Object]<{ [sourceFile: [string]]: [number] }>> Map containing filenames from the source map and size in bytes they take inside of provided file. Additinal key  `<unmapped>` is included if `options.onlyMapped` is `false`.
   * `html` <[string]> Contains self-packed html that can be opened in the browser, only if `options.html` is `true`
 
-### Example
+Example:
 ```javascript
 require('source-map-explorer')('testdata/foo.min.js', { html: true })
 
 // Returns
 {
   totalBytes: 697,
-  numUnmapped: 0,
-  counts: {
+  unmappedBytes: 0,
+  files: {
     'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
     'dist/bar.js': 97,
     'dist/foo.js': 137,
