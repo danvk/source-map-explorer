@@ -214,6 +214,24 @@ function expandGlob(args) {
   return args;
 }
 
+function generateHtml(files, title) {
+  var assets = {
+    underscoreJs: btoa(fs.readFileSync(require.resolve('underscore'))),
+    webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
+    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css')))
+  };
+  
+  var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
+
+  html = html.replace('INSERT TREE HERE', JSON.stringify(files, null, '  '))
+    .replace('INSERT TITLE HERE', title || '')
+    .replace('INSERT underscore.js HERE', 'data:application/javascript;base64,' + assets.underscoreJs)
+    .replace('INSERT webtreemap.js HERE', 'data:application/javascript;base64,' + assets.webtreemapJs)
+    .replace('INSERT webtreemap.css HERE', 'data:text/css;base64,' + assets.webtreemapCss);
+
+  return html;
+}
+
 function explore(code, map, options) {
   if(typeof options === 'undefined') {
     if(typeof map === 'object' && !Buffer.isBuffer(map)) {
@@ -261,26 +279,13 @@ function explore(code, map, options) {
     };
   }
 
-  var assets = {
-    underscoreJs: btoa(fs.readFileSync(require.resolve('underscore'))),
-    webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
-    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css')))
-  };
-
-  var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
-
   var title = Buffer.isBuffer(code) ? 'Buffer' : code;
-  html = html.replace('INSERT TREE HERE', JSON.stringify(files, null, '  '))
-    .replace('INSERT TITLE HERE', title)
-    .replace('INSERT underscore.js HERE', 'data:application/javascript;base64,' + assets.underscoreJs)
-    .replace('INSERT webtreemap.js HERE', 'data:application/javascript;base64,' + assets.webtreemapJs)
-    .replace('INSERT webtreemap.css HERE', 'data:text/css;base64,' + assets.webtreemapCss);
 
   return {
     totalBytes: sizes.totalBytes,
     unmappedBytes: unmappedBytes,
     files: files,
-    html: html,
+    html: generateHtml(files, title),
   };
 }
 
@@ -362,6 +367,7 @@ if (require.main === module) {
 }
 
 module.exports = explore;
+module.exports.generateHtml = generateHtml;
 
 // Exports are here mostly for testing.
 module.exports.loadSourceMap = loadSourceMap;
