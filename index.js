@@ -220,7 +220,7 @@ function generateHtml(files, title) {
     webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
     webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css')))
   };
-  
+
   var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
 
   html = html.replace('INSERT TREE HERE', JSON.stringify(files, null, '  '))
@@ -290,7 +290,7 @@ function explore(code, map, options) {
 }
 
 if (require.main === module) {
-  var args = docopt(doc, {version: '1.5.0'});
+  var args = docopt(doc, {version: '1.6.0'});
   expandGlob(args);
   validateArgs(args);
 
