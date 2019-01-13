@@ -1,13 +1,15 @@
 {
   "name": "source-map-explorer",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Analyze and debug space usage through source maps",
   "main": "index.js",
   "bin": {
     "source-map-explorer": "index.js"
   },
   "scripts": {
-    "test": "mocha && eslint *.js"
+    "test": "mocha && eslint *.js",
+    "coverage": "nyc --reporter=lcov mocha",
+    "lint": "eslint *.js --fix"
   },
   "repository": {
     "type": "git",
@@ -28,15 +30,18 @@
     "btoa": "^1.1.2",
     "convert-source-map": "^1.1.1",
     "docopt": "^0.6.2",
+    "ejs": "^2.6.1",
     "glob": "^7.1.2",
     "opn": "^5.3.0",
     "source-map": "^0.5.1",
-    "temp": "^0.8.3",
-    "underscore": "^1.8.3"
+    "temp": "^0.9.0"
   },
   "devDependencies": {
-    "chai": "^3.3.0",
-    "eslint": "^4.1.1",
-    "mocha": "^2.3.3"
+    "chai": "^4.2.0",
+    "concat-stream": "^2.0.0",
+    "cross-spawn": "^6.0.5",
+    "eslint": "^5.12.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.1.0"
   }
 }

@@ -1,15 +1,19 @@
-var expect = require('chai').expect;
-var fs = require('fs');
+const expect = require('chai').expect;
+const fs = require('fs');
 
-var sourceMapExplorer = require('./index'),
+const { execute } = require('./test-helpers');
+
+const sourceMapExplorer = require('./index'),
   adjustSourcePaths = sourceMapExplorer.adjustSourcePaths,
   mapKeys = sourceMapExplorer.mapKeys,
   commonPathPrefix = sourceMapExplorer.commonPathPrefix,
-  expandGlob = sourceMapExplorer.expandGlob;
+  getBundles = sourceMapExplorer.getBundles;
 
-describe('source-map-explorer', function() {
-  describe('commonPathPrefix', function() {
-    it('should find common prefixes', function() {
+const SCRIPT_PATH = './index.js';
+
+describe('source-map-explorer', function () {
+  describe('commonPathPrefix', function () {
+    it('should find common prefixes', function () {
       expect(commonPathPrefix(['abc', 'abcd', 'ab'])).to.deep.equal('');  // no paths
       expect(commonPathPrefix(['/abc/def', '/bcd/efg'])).to.deep.equal('/');   // mismatch
       expect(commonPathPrefix(['/abc/def', '/abc/efg'])).to.deep.equal('/abc/');
@@ -17,56 +21,72 @@ describe('source-map-explorer', function() {
     });
   });
 
-  describe('mapKeys', function() {
-    it('should map keys', function() {
-      expect(mapKeys({a: 1, b: 2}, function(x) { return x; }))
-        .to.deep.equal({a: 1, b: 2});
-      expect(mapKeys({a: 1, b: 2}, function(x) { return x + x; }))
-        .to.deep.equal({aa: 1, bb: 2});
-      expect(mapKeys({}, function(x) { return x + x; })) .to.deep.equal({});
+  describe('mapKeys', function () {
+    it('should map keys', function () {
+      expect(mapKeys({ a: 1, b: 2 }, function (x) { return x; }))
+        .to.deep.equal({ a: 1, b: 2 });
+      expect(mapKeys({ a: 1, b: 2 }, function (x) { return x + x; }))
+        .to.deep.equal({ aa: 1, bb: 2 });
+      expect(mapKeys({}, function (x) { return x + x; })).to.deep.equal({});
     });
   });
 
-  describe('adjustSourcePaths', function() {
-    it('should factor out a common prefix', function() {
-      expect(adjustSourcePaths({'/src/foo.js': 10, '/src/bar.js': 20}, true, [], []))
-        .to.deep.equal({'foo.js': 10, 'bar.js': 20});
-      expect(adjustSourcePaths({'/src/foo.js': 10, '/src/foodle.js': 20}, true, [], []))
-        .to.deep.equal({'foo.js': 10, 'foodle.js': 20});
+  describe('adjustSourcePaths', function () {
+    it('should factor out a common prefix', function () {
+      expect(adjustSourcePaths({ '/src/foo.js': 10, '/src/bar.js': 20 }, true, [], []))
+        .to.deep.equal({ 'foo.js': 10, 'bar.js': 20 });
+      expect(adjustSourcePaths({ '/src/foo.js': 10, '/src/foodle.js': 20 }, true, [], []))
+        .to.deep.equal({ 'foo.js': 10, 'foodle.js': 20 });
     });
 
-    it('should find/replace', function() {
-      expect(adjustSourcePaths({'/src/foo.js': 10, '/src/foodle.js': 20}, false, { src: 'dist' }))
-        .to.deep.equal({'/dist/foo.js': 10, '/dist/foodle.js': 20});
+    it('should find/replace', function () {
+      expect(adjustSourcePaths({ '/src/foo.js': 10, '/src/foodle.js': 20 }, false, { src: 'dist' }))
+        .to.deep.equal({ '/dist/foo.js': 10, '/dist/foodle.js': 20 });
     });
 
-    it('should find/replace with regexp', function() {
-      expect(adjustSourcePaths({'/src/foo.js': 10, '/src/foodle.js': 20}, false, { 'foo.': 'bar.' }))
-        .to.deep.equal({'/src/bar.js': 10, '/src/bar.le.js': 20});
+    it('should find/replace with regexp', function () {
+      expect(adjustSourcePaths({ '/src/foo.js': 10, '/src/foodle.js': 20 }, false, { 'foo.': 'bar.' }))
+        .to.deep.equal({ '/src/bar.js': 10, '/src/bar.le.js': 20 });
     });
 
-    it('should find/replace with regexp, can be used to add root', function() {
-      expect(adjustSourcePaths({'/foo/foo.js': 10, '/foo/foodle.js': 20}, false, { '^/foo': '/bar' }))
-        .to.deep.equal({'/bar/foo.js': 10, '/bar/foodle.js': 20});
-    });
-  });
-
-  describe('command line parsing', function() {
-    expect(expandGlob({'<script.js>': 'testdata/foo.min.js*'})).to.deep.equal({
-      '<script.js>': 'testdata/foo.min.js',
-      '<script.js.map>': 'testdata/foo.min.js.map'
-    });
-
-    expect(expandGlob({
-      '<script.js>': 'foo.min.js',
-      '<script.js.map>': 'foo.min.js.map'
-    })).to.deep.equal({
-      '<script.js>': 'foo.min.js',
-      '<script.js.map>': 'foo.min.js.map'
+    it('should find/replace with regexp, can be used to add root', function () {
+      expect(adjustSourcePaths({ '/foo/foo.js': 10, '/foo/foodle.js': 20 }, false, { '^/foo': '/bar' }))
+        .to.deep.equal({ '/bar/foo.js': 10, '/bar/foodle.js': 20 });
     });
   });
 
-  describe('Public API', function() {
+  describe('command line parsing', function () {
+    it('should expand glob', () => {
+      expect(getBundles('testdata/foo.min.js*')).to.deep.equal([{
+        codePath: 'testdata/foo.min.js',
+        mapPath: 'testdata/foo.min.js.map'
+      }]);
+    });
+
+    it('should return one bundle if map file specified', () => {
+      expect(getBundles('foo.min.js', 'foo.min.js.map')).to.deep.equal([{
+        codePath: 'foo.min.js',
+        mapPath: 'foo.min.js.map'
+      }]);
+    });
+
+    it('should expand glob into all bundles in directory', () => {
+      expect(getBundles('testdata/*.*'), 'multiple bundles').to.deep.equal([
+        {
+          codePath: 'testdata/foo.min.inline-map.js',
+          mapPath: undefined
+        }, {
+          codePath: 'testdata/foo.min.js',
+          mapPath: 'testdata/foo.min.js.map'
+        }, {
+          codePath: 'testdata/foo.min.no-map.js',
+          mapPath: undefined
+        }
+      ]);
+    });
+  });
+
+  describe('Public API', function () {
     var fooDataInline = {
       'files': {
         '<unmapped>': 0,
@@ -89,16 +109,16 @@ describe('source-map-explorer', function() {
       'totalBytes': 697,
     };
 
-    it('should generate data when provided with js file with inline map', function() {
+    it('should generate data when provided with js file with inline map', function () {
       expect(sourceMapExplorer('testdata/foo.min.inline-map.js')).to.deep.equal(fooDataInline);
     });
 
-    it('should generate data when provided with file with referenced map', function() {
+    it('should generate data when provided with file with referenced map', function () {
       expect(sourceMapExplorer('testdata/foo.min.js'))
         .to.deep.equal(fooDataFile);
     });
 
-    it('should generate data when provided with file with separated map file', function() {
+    it('should generate data when provided with file with separated map file', function () {
       var fooDataSeparated = {
         'files': {
           '<unmapped>': 0,
@@ -114,7 +134,7 @@ describe('source-map-explorer', function() {
         .to.deep.equal(fooDataSeparated);
     });
 
-    it('should generate data respecting onlyMapped and replace options', function() {
+    it('should generate data respecting onlyMapped and replace options', function () {
       var fooDataReplacedNoUnmapped = {
         'files': {
           'hello/bar.js': 97,
@@ -137,7 +157,7 @@ describe('source-map-explorer', function() {
       ).to.deep.equal(fooDataReplacedNoUnmapped);
     });
 
-    it('should accept options passed as second or third argument', function() {
+    it('should accept options passed as second or third argument', function () {
       var fooDataNoUnmapped = {
         'files': {
           'dist/bar.js': 97,
@@ -155,12 +175,12 @@ describe('source-map-explorer', function() {
         .to.deep.equal(fooDataNoUnmapped);
     });
 
-    it('should accept buffer with inline map', function() {
+    it('should accept buffer with inline map', function () {
       expect(sourceMapExplorer(fs.readFileSync('testdata/foo.min.inline-map.js')))
         .to.deep.equal(fooDataInline);
     });
 
-    it('should accept buffers with js and map', function() {
+    it('should accept buffers with js and map', function () {
       expect(
         sourceMapExplorer(
           fs.readFileSync('testdata/foo.min.js'),
@@ -169,36 +189,78 @@ describe('source-map-explorer', function() {
       ).to.deep.equal(fooDataFile);
     });
 
-    it('should generate html', function() {
+    it('should generate html', function () {
       expect(sourceMapExplorer(fs.readFileSync('testdata/foo.min.inline-map.js'), { html: true }))
         .to.have.property('html')
         .that.contains('<title>Buffer - Source Map Explorer</title>')
-        .and.contains('"dist/bar.js"')
-        .and.contains('"dist/foo.js"');
+        .and.contains('"bar.js')
+        .and.contains('"foo.js');
 
       expect(sourceMapExplorer('testdata/foo.min.js', { html: true }))
         .to.have.property('html')
         .that.contains('<title>testdata/foo.min.js - Source Map Explorer</title>')
-        .and.contains('"dist/bar.js"')
-        .and.contains('"dist/foo.js"');
+        .and.contains('"bar.js')
+        .and.contains('"foo.js');
     });
 
-    it('should throw when specified file (js or map) not found', function() {
-      expect(function() { sourceMapExplorer('testdata/something.js'); })
+    it('should throw when specified file (js or map) not found', function () {
+      expect(function () { sourceMapExplorer('testdata/something.js'); })
         .to.throw('no such file or directory');
 
-      expect(function() { sourceMapExplorer('testdata/foo.min.js', 'testdata/foo.min.js.maap'); })
+      expect(function () { sourceMapExplorer('testdata/foo.min.js', 'testdata/foo.min.js.maap'); })
         .to.throw('no such file or directory');
     });
 
-    it('should trow when cannot locate sourcemap', function() {
-      expect(function() { sourceMapExplorer('testdata/foo.min.no-map.js'); })
+    it('should trow when cannot locate sourcemap', function () {
+      expect(function () { sourceMapExplorer('testdata/foo.min.no-map.js'); })
         .to.throw('Unable to find a source map.');
     });
 
-    it('should throw when used with bad sourcemap', function() {
-      expect(function() { sourceMapExplorer('testdata/foo.min.no-map.js', 'testdata/foo.min.no-map.bad-map.js.map'); })
+    it('should throw when used with bad sourcemap', function () {
+      expect(function () { sourceMapExplorer('testdata/foo.min.no-map.js', 'testdata/foo.min.no-map.bad-map.js.map'); })
         .to.throw('Your source map only contains one source (foo.min.js)');
+    });
+  });
+
+  describe('CLI', () => {
+    it('should validate --replace arguments', async () => {
+      try {
+        await execute(SCRIPT_PATH, [
+          'testdata/foo.min.inline-map.js',
+          '--replace=foo', '--with=bar',
+          '--replace=we']);
+      } catch (err) {
+        expect(err).to.include('--replace flags must be paired with --with flags.');
+      }
+    });
+
+    it('should print result as JSON', async () => {
+      const result = await execute(SCRIPT_PATH, ['testdata/foo.min.inline-map.js', '--json']);
+
+      expect(result).to.be.equal(`{
+  "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+  "dist/bar.js": 2854,
+  "dist/foo.js": 137,
+  "<unmapped>": 0
+}
+`);
+    });
+
+    it('should output result as tsv', async () => {
+      const result = await execute(SCRIPT_PATH, ['testdata/foo.min.inline-map.js', '--tsv']);
+
+      expect(result).to.be.equal(`Source\tSize
+463\tnode_modules/browserify/node_modules/browser-pack/_prelude.js
+2854\tdist/bar.js
+137\tdist/foo.js
+0\t<unmapped>
+`);
+    });
+
+    it('should output result as html', async () => {
+      const result = await execute(SCRIPT_PATH, ['testdata/foo.min.inline-map.js', '--html']);
+
+      expect(result).to.be.include('<title>testdata/foo.min.inline-map.js - Source Map Explorer</title>');
     });
   });
 });

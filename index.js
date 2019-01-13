@@ -1,6 +1,19 @@
 #!/usr/bin/env node
 
-var doc = [
+const fs = require('fs'),
+  os = require('os'),
+  glob = require('glob'),
+  path = require('path'),
+  SourceMapConsumer = require('source-map').SourceMapConsumer,
+  convert = require('convert-source-map'),
+  temp = require('temp'),
+  ejs = require('ejs'),
+  open = require('opn'),
+  docopt = require('docopt').docopt,
+  btoa = require('btoa'),
+  packageJson = require('./package.json');
+
+const doc = [
   'Analyze and debug space usage through source maps.',
   '',
   'Usage:',
@@ -14,37 +27,80 @@ var doc = [
   '  -h --help  Show this screen.',
   '  --version  Show version.',
   '',
-  '     --json  Output JSON (on stdout) instead of generating HTML',
-  '             and opening the browser.',
-  '     --tsv   Output TSV (on stdout) instead of generating HTML',
-  '             and opening the browser.',
-  '     --html  Output HTML (on stdout) rather than opening a browser.',
+  '  --json  Output JSON (on stdout) instead of generating HTML',
+  '          and opening the browser.',
+  '  --tsv   Output TSV (on stdout) instead of generating HTML',
+  '          and opening the browser.',
+  '  --html  Output HTML (on stdout) rather than opening a browser.',
   '',
   '  -m --only-mapped  Exclude "unmapped" bytes from the output.',
   '                    This will result in total counts less than the file size',
   '',
   '',
-  '   --noroot  To simplify the visualization, source-map-explorer',
-  '             will remove any prefix shared by all sources. If you',
-  '             wish to disable this behavior, set --noroot.',
+  '  --noroot  To simplify the visualization, source-map-explorer',
+  '            will remove any prefix shared by all sources. If you',
+  '            wish to disable this behavior, set --noroot.',
   '',
   '  --replace=BEFORE  Apply a simple find/replace on source file',
   '                    names. This can be used to fix some oddities',
   '                    with paths which appear in the source map',
   '                    generation process.  Accepts regular expressions.',
-  '      --with=AFTER  See --replace.'
+  '  --with=AFTER  See --replace.',
 ].join('\n');
 
-var fs = require('fs'),
-  glob = require('glob'),
-  path = require('path'),
-  sourcemap = require('source-map'),
-  convert = require('convert-source-map'),
-  temp = require('temp'),
-  open = require('opn'),
-  _ = require('underscore'),
-  docopt = require('docopt').docopt,
-  btoa = require('btoa');
+/**
+ * @typedef {Object} Args
+ * @property {string} `<script.js>` - Path to code file or Glob matching bundle files
+ * @property {(string|null)} `<script.js.map>` - Path to map file
+ * @property {boolean} `--json`
+ * @property {boolean} `--html`
+ * @property {boolean} `--tsv`
+ * @property {boolean}  `--only-mapped`
+ * @property {boolean}  `-m`
+ * @property {string[]} `--replace`
+ * @property {string[]} `--with`
+ * @property {boolean} `--noroot`
+ */
+
+/**
+ * @typedef {Object.<string, number>} FileSizeMap
+ */
+
+const helpers = {
+  /**
+   * @param {(Buffer|string)} file Path to file or Buffer
+   */
+  getFileContent(file) {
+    const buffer = Buffer.isBuffer(file) ? file : fs.readFileSync(file);
+
+    return buffer.toString();
+  },
+
+  /**
+   * Apply a transform to the keys of an object, leaving the values unaffected.
+   * @param {Object} obj 
+   * @param {Function} fn 
+   */
+  mapKeys(obj, fn) {
+    return Object.keys(obj).reduce((result, key) => {
+      const newKey = fn(key);
+      result[newKey] = obj[key];
+      return result;
+    }, {});
+  },
+
+  // https://stackoverflow.com/a/18650828/388951
+  formatBytes(bytes, decimals = 2) {
+    if (bytes == 0) return '0 B';
+
+    const k = 1000,
+      dm = decimals,
+      sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+      i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+  }
+};
 
 function computeSpans(mapConsumer, generatedJs) {
   var lines = generatedJs.split('\n');
@@ -54,13 +110,13 @@ function computeSpans(mapConsumer, generatedJs) {
   for (var line = 1; line <= lines.length; line++) {
     var lineText = lines[line - 1];
     var numCols = lineText.length;
-    for (var column = 0; column < numCols; column++, numChars++) {
-      var pos = mapConsumer.originalPositionFor({line:line, column:column});
+    for (var column = 0; column < numCols; column++ , numChars++) {
+      var pos = mapConsumer.originalPositionFor({ line: line, column: column });
       var source = pos.source;
 
       if (source !== lastSource) {
         lastSource = source;
-        spans.push({source: source, numChars: 1});
+        spans.push({ source: source, numChars: 1 });
       } else {
         spans[spans.length - 1].numChars += 1;
       }
@@ -69,7 +125,7 @@ function computeSpans(mapConsumer, generatedJs) {
   return spans;
 }
 
-var UNMAPPED = '<unmapped>';
+const UNMAPPED = '<unmapped>';
 
 /**
  * Calculate the number of bytes contributed by each source file.
@@ -96,77 +152,78 @@ function computeGeneratedFileSizes(mapConsumer, generatedJs) {
     }
   }
   return {
-    files: files,
-    unmappedBytes: unmappedBytes,
-    totalBytes: totalBytes
+    files,
+    unmappedBytes,
+    totalBytes
   };
 }
 
-var SOURCE_MAP_INFO_URL = 'https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps';
+const SOURCE_MAP_INFO_URL = 'https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps';
 
+/**
+ * Get source map
+ * @param {(string|Buffer)} jsFile 
+ * @param {(string|Buffer)} mapFile 
+ */
 function loadSourceMap(jsFile, mapFile) {
-  var jsData;
-  if(Buffer.isBuffer(jsFile)) {
-    jsData = jsFile.toString();
-  } else {
-    jsData = fs.readFileSync(jsFile).toString();
-  }
+  const jsData = helpers.getFileContent(jsFile);
 
   var mapConsumer;
   if (mapFile) {
-    var sourcemapData;
-    if(Buffer.isBuffer(mapFile)) {
-      sourcemapData = mapFile.toString();
-    } else {
-      sourcemapData = fs.readFileSync(mapFile).toString();
-    }
-    mapConsumer = new sourcemap.SourceMapConsumer(sourcemapData);
+    const sourcemapData = helpers.getFileContent(mapFile);
+    mapConsumer = new SourceMapConsumer(sourcemapData);
   } else {
     // Try to read a source map from a 'sourceMappingURL' comment.
-    var converter = convert.fromSource(jsData);
+    let converter = convert.fromSource(jsData);
     if (!converter && !Buffer.isBuffer(jsFile)) {
       converter = convert.fromMapFileSource(jsData, path.dirname(jsFile));
     }
     if (!converter) {
-      throw new Error('Unable to find a source map.\nSee ' + SOURCE_MAP_INFO_URL);
+      throw new Error(`Unable to find a source map.${os.EOL}See ${SOURCE_MAP_INFO_URL}`);
     }
-    mapConsumer = new sourcemap.SourceMapConsumer(converter.toJSON());
+    mapConsumer = new SourceMapConsumer(converter.toJSON());
   }
 
   if (!mapConsumer) {
-    throw new Error('Unable to find a source map.\nSee ' + SOURCE_MAP_INFO_URL);
+    throw new Error(`Unable to find a source map.${os.EOL}See ${SOURCE_MAP_INFO_URL}`);
   }
 
   return {
-    mapConsumer: mapConsumer,
-    jsData: jsData
+    mapConsumer,
+    jsData
   };
 }
 
-// See http://stackoverflow.com/a/1917041/388951
-function commonPathPrefix(array){
-  if (array.length == 0) return '';
-  var A= array.concat().sort(),
-    a1= A[0].split(/(\/)/), a2= A[A.length-1].split(/(\/)/), L= a1.length, i= 0;
-  while(i<L && a1[i] === a2[i]) i++;
-  return a1.slice(0, i).join('');
-}
+/**
+ * Find common path prefix
+ * @see http://stackoverflow.com/a/1917041/388951
+ * @param {string[]} array List of filenames
+ */
+function commonPathPrefix(array) {
+  if (array.length === 0) return '';
 
-// Apply a transform to the keys of an object, leaving the values unaffected.
-function mapKeys(obj, fn) {
-  return _.object(_.map(obj, function(v, k) { return [fn(k), v]; }));
+  const A = array.concat().sort(),
+    a1 = A[0].split(/(\/)/),
+    a2 = A[A.length - 1].split(/(\/)/),
+    L = a1.length;
+
+  let i = 0;
+
+  while (i < L && a1[i] === a2[i]) i++;
+
+  return a1.slice(0, i).join('');
 }
 
 function adjustSourcePaths(sizes, findRoot, replace) {
   if (findRoot) {
-    var prefix = commonPathPrefix(_.keys(sizes));
+    var prefix = commonPathPrefix(Object.keys(sizes));
     var len = prefix.length;
     if (len) {
-      sizes = mapKeys(sizes, function(source) { return source.slice(len); });
+      sizes = helpers.mapKeys(sizes, function (source) { return source.slice(len); });
     }
   }
 
-  if(!replace) {
+  if (!replace) {
     replace = {};
   }
 
@@ -175,7 +232,7 @@ function adjustSourcePaths(sizes, findRoot, replace) {
   for (var i = 0; i < finds.length; i++) {
     var before = new RegExp(finds[i]),
       after = replace[finds[i]];
-    sizes = mapKeys(sizes, function(source) {
+    sizes = helpers.mapKeys(sizes, function (source) {
       return source.replace(before, after);
     });
   }
@@ -183,187 +240,373 @@ function adjustSourcePaths(sizes, findRoot, replace) {
   return sizes;
 }
 
+/**
+ * Validates CLI arguments
+ * @param {Args} args 
+ */
 function validateArgs(args) {
-  if (args['--replace'].length != args['--with'].length) {
+  if (args['--replace'].length !== args['--with'].length) {
     console.error('--replace flags must be paired with --with flags.');
     process.exit(1);
   }
 }
 
-// On Windows, it's helpful if source-map-explorer can expand globs itself.
-// See https://github.com/danvk/source-map-explorer/issues/52
-function expandGlob(args) {
-  var arg1 = args['<script.js>'];
-  var arg2 = args['<script.js.map>'];
-  if (arg1 && !arg2) {
-    var files = glob.sync(arg1);
-    if (files.length > 2) {
-      throw new Error(
-        'Glob should match exactly 2 files but matched ' + files.length + ' ' + arg1);
-    } else if (files.length === 2) {
-      // allow the JS and source map file to match in either order.
-      if (files[0].indexOf('.map') >= 0) {
-        var tmp = files[0];
-        files[0] = files[1];
-        files[1] = tmp;
-      }
-      args['<script.js>'] = files[0];
-      args['<script.js.map>'] = files[1];
-    }
+/**
+ * Covert file size map to webtreemap data
+ * @param {FileSizeMap} files 
+ */
+function getWebTreeMapData(files) {
+  function newNode(name) {
+    return {
+      name: name,
+      data: {
+        '$area': 0
+      },
+      children: []
+    };
   }
-  return args;
+
+  function addNode(path, size) {
+    const parts = path.split('/');
+    let node = treeData;
+
+    node.data['$area'] += size;
+
+    parts.forEach(part => {
+      let child = node.children.find(child => child.name === part);
+
+      if (!child) {
+        child = newNode(part);
+        node.children.push(child);
+      }
+
+      node = child;
+      node.data['$area'] += size;
+    });
+  }
+
+  function addSizeToTitle(node, total) {
+    const size = node.data['$area'],
+      pct = 100.0 * size / total;
+
+    node.name += ` • ${helpers.formatBytes(size)} • ${pct.toFixed(1)}%`;
+    node.children.forEach(child => { addSizeToTitle(child, total); });
+  }
+
+  const treeData = newNode('/');
+
+  for (let source in files) {
+    addNode(source, files[source]);
+  }
+  addSizeToTitle(treeData, treeData.data['$area']);
+
+  return treeData;
 }
 
-function generateHtml(files, title) {
-  var assets = {
-    underscoreJs: btoa(fs.readFileSync(require.resolve('underscore'))),
+/**
+ * @typedef {Object} ExploreBatchResult
+ * @property {string} bundleName
+ * @property {number} totalBytes
+ * @property {FileSizeMap} files
+ */
+
+/**
+ * Generate HTML file content for specified files
+ * @param {ExploreBatchResult[]} exploreResults 
+ */
+function generateHtml(exploreResults) {
+  const assets = {
     webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
     webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css')))
   };
 
-  var html = fs.readFileSync(path.join(__dirname, 'tree-viz.html')).toString();
+  // Get bundles info to generate select
+  const bundles = exploreResults.map(data => ({
+    name: data.bundleName,
+    size: helpers.formatBytes(data.totalBytes)
+  }));
 
-  html = html.replace('INSERT TREE HERE', JSON.stringify(files, null, '  '))
-    .replace('INSERT TITLE HERE', title || '')
-    .replace('INSERT underscore.js HERE', 'data:application/javascript;base64,' + assets.underscoreJs)
-    .replace('INSERT webtreemap.js HERE', 'data:application/javascript;base64,' + assets.webtreemapJs)
-    .replace('INSERT webtreemap.css HERE', 'data:text/css;base64,' + assets.webtreemapCss);
+  // Get webtreemap data to update map on bundle select
+  const treeDataMap = exploreResults.reduce((result, data) => {
+    result[data.bundleName] = getWebTreeMapData(data.files);
+    return result;
+  }, {});
 
-  return html;
+  const template = fs.readFileSync(path.join(__dirname, 'tree-viz.ejs')).toString();
+
+  return ejs.render(template, {
+    bundles,
+    treeDataMap,
+    webtreemapJs: assets.webtreemapJs,
+    webtreemapCss: assets.webtreemapCss
+  });
 }
 
+/**
+ * @typedef {Object} ExploreResult
+ * @property {number} totalBytes
+ * @property {number} unmappedBytes
+ * @property {FileSizeMap} files
+ * @property {string} [html]
+ */
+
+/**
+ * Analyze bundle
+ * @param {(string|Buffer)} code 
+ * @param {(string|Buffer)} [map] 
+ * @param {ExploreOptions} [options]
+ * @returns {ExploreResult[]}
+ */
 function explore(code, map, options) {
-  if(typeof options === 'undefined') {
-    if(typeof map === 'object' && !Buffer.isBuffer(map)) {
+  if (typeof options === 'undefined') {
+    if (typeof map === 'object' && !Buffer.isBuffer(map)) {
       options = map;
       map = undefined;
     }
   }
 
-  if(!options) {
+  if (!options) {
     options = {};
   }
 
-  var data = loadSourceMap(code, map);
+  const data = loadSourceMap(code, map);
   if (!data) {
     throw new Error('Failed to load script and sourcemap');
   }
 
-  var mapConsumer = data.mapConsumer,
-    jsData = data.jsData;
+  const { mapConsumer, jsData } = data;
 
-  var sizes = computeGeneratedFileSizes(mapConsumer, jsData);
-  var files = sizes.files;
+  const sizes = computeGeneratedFileSizes(mapConsumer, jsData);
+  let files = sizes.files;
 
-  if (_.size(files) == 1) {
-    var error = 'Your source map only contains one source (' + _.keys(files)[0] + ')\n';
-    error += 'This typically means that your source map doesn\'t map all the way back to the original sources.\n';
-    error += 'This can happen if you use browserify+uglifyjs, for example, and don\'t set the --in-source-map flag to uglify.\n';
-    error += 'See ' + SOURCE_MAP_INFO_URL;
-    throw new Error(error);
+  const filenames = Object.keys(files);
+  if (filenames.length === 1) {
+    const errorMessage = [
+      `Your source map only contains one source (${filenames[0]})`,
+      'This can happen if you use browserify+uglifyjs, for example, and don\'t set the --in-source-map flag to uglify.',
+      `See ${SOURCE_MAP_INFO_URL}`].join(os.EOL);
+
+    throw new Error(errorMessage);
   }
 
   files = adjustSourcePaths(files, !options.noRoot, options.replace);
 
-  var onlyMapped = options.onlyMapped;
-  var unmappedBytes = sizes.unmappedBytes;
-  if (!onlyMapped) {
+  const { totalBytes, unmappedBytes } = sizes;
+
+  if (!options.onlyMapped) {
     files[UNMAPPED] = unmappedBytes;
   }
 
-  if(!options.html) {
-    return {
-      totalBytes: sizes.totalBytes,
-      unmappedBytes: unmappedBytes,
-      files: files,
-    };
+  const result = {
+    totalBytes,
+    unmappedBytes,
+    files
+  };
+
+  if (options.html) {
+    const title = Buffer.isBuffer(code) ? 'Buffer' : code;
+    result.html = generateHtml([{
+      files,
+      totalBytes,
+      bundleName: title
+    }]);
   }
 
-  var title = Buffer.isBuffer(code) ? 'Buffer' : code;
-
-  return {
-    totalBytes: sizes.totalBytes,
-    unmappedBytes: unmappedBytes,
-    files: files,
-    html: generateHtml(files, title),
-  };
+  return result;
 }
 
-if (require.main === module) {
-  var args = docopt(doc, {version: '1.6.0'});
-  expandGlob(args);
-  validateArgs(args);
+/**
+ * Wrap `explore` with Promise
+ * @param {Bundle} bundle
+ * @returns {Promise<ExploreBatchResult>}
+ */
+function explorePromisified({ codePath, mapPath }) {
+  return new Promise(resolve => {
+    const result = explore(codePath, mapPath);
 
-  var html = true;
+    resolve({
+      ...result,
+      bundleName: codePath
+    });
+  });
+}
 
-  if(args['--json'] || args['--tsv']) {
+/**
+ * @typedef {Object} Bundle
+ * @property {string} codePath Path to code file
+ * @property {string} mapPath Path to map file
+ */
+
+/**
+ * Expand codePath and mapPath into a list of { codePath, mapPath } pairs
+ * @see https://github.com/danvk/source-map-explorer/issues/52
+ * @param {string} codePath Path to bundle file or glob matching bundle files
+ * @param {string} [mapPath] Path to bundle map file
+ * @returns {Bundle[]}
+ */
+function getBundles(codePath, mapPath) {
+  if (codePath && mapPath) {
+    return [{
+      codePath,
+      mapPath
+    }];
+  }
+
+  const filenames = glob.sync(codePath);
+
+  const mapFilenames = filenames.filter(filename => filename.endsWith('.map'));
+
+  return filenames
+    .filter(filename => !filename.endsWith('.map'))
+    .map(filename => ({
+      codePath: filename,
+      mapPath: mapFilenames.find(mapFilename => mapFilename === `${filename}.map`)
+    }));
+}
+
+/**
+ * @typedef {Object} ExploreOptions
+ * @property {boolean} onlyMapped
+ * @property {boolean} html
+ * @property {boolean} noRoot
+ * @property {Object.<string, string>} replace
+ */
+
+/**
+ * Create options object for `explore` method
+ * @param {Args} args CLI arguments
+ * @returns {ExploreOptions}
+ */
+function getExploreOptions(args) {
+  let html = true;
+  if (args['--json'] || args['--tsv']) {
     html = false;
   }
 
-  var replace = {};
-  var argsReplace = args['--replace'];
-  var argsWith = args['--with'];
-  if(argsReplace && argsWith) {
-    for(var replaceIndex = 0; replaceIndex < argsReplace.length; replaceIndex += 1) {
+  const replace = {};
+  const argsReplace = args['--replace'];
+  const argsWith = args['--with'];
+  if (argsReplace && argsWith) {
+    for (let replaceIndex = 0; replaceIndex < argsReplace.length; replaceIndex += 1) {
       replace[argsReplace[replaceIndex]] = argsWith[replaceIndex];
     }
   }
 
-  try {
-    var data = explore(
-      args['<script.js>'],
-      args['<script.js.map>'],
-      {
-        onlyMapped: args['--only-mapped'] || args['-m'],
-        html: html,
-        noRoot: args['--noroot'],
-        replace: replace,
-      }
-    );
-  } catch(err) {
-    if(err.code === 'ENOENT') {
-      console.error('File not found! -- ', err.message);
-      process.exit(1);
-    } else {
-      console.error(err.message);
-      process.exit(1);
-    }
-  }
+  return {
+    onlyMapped: args['--only-mapped'] || args['-m'],
+    html,
+    noRoot: args['--noroot'],
+    replace
+  };
+}
 
-  var unmappedBytes = data.files[UNMAPPED];
+/**
+ * Handle error during multiple bundles processing
+ * @param {Bundle} bundleInfo 
+ * @param {Error} err 
+ */
+function onExploreError(bundleInfo, err) {
+  if (err.code === 'ENOENT') {
+    console.error(`[${bundleInfo.codePath}] File not found! -- ${err.message}`);
+  } else {
+    console.error(`[${bundleInfo.codePath}]`, err.message);
+  }
+}
+
+function reportUnmappedBytes(data) {
+  const unmappedBytes = data.files[UNMAPPED];
   if (unmappedBytes) {
-    var totalBytes = data.totalBytes;
-    var pct = 100 * unmappedBytes / totalBytes;
-    console.warn(
-      'Unable to map', unmappedBytes, '/', totalBytes,
-      'bytes (' + pct.toFixed(2) + '%)');
+    const totalBytes = data.totalBytes;
+    const pct = 100 * unmappedBytes / totalBytes;
+    console.warn(`[${data.bundleName}] Unable to map ${unmappedBytes}/${totalBytes} bytes (${pct.toFixed(2)}%)`);
   }
+}
 
+/**
+ * Write HTML content to a temporary file and open the file in a browser
+ * @param {string} html 
+ */
+function writeToHtml(html) {
+  const tempName = temp.path({ suffix: '.html' });
 
-  if(args['--json']) {
-    console.log(JSON.stringify(data.files, null, '  '));
-    process.exit(0);
-  }
+  fs.writeFileSync(tempName, html);
 
-  if(args['--tsv']) {
-    console.log('Source\tSize');
-    _.each(data.files, function(source, size) { console.log(size + '\t' + source); });
-    process.exit(0);
-  }
-
-  if (args['--html']) {
-    console.log(data.html);
-    process.exit(0);
-  }
-
-  var tempName = temp.path({suffix: '.html'});
-  fs.writeFileSync(tempName, data.html);
-  open(tempName, function(error) {
+  open(tempName, function (error) {
     if (!error) return;
     console.error('Unable to open web browser.');
     console.error('Either run with --html, --json or --tsv, or view HTML for the visualization at:');
     console.error(tempName);
   });
+}
+
+if (require.main === module) {
+  /** @type {Args} */
+  const args = docopt(doc, { version: packageJson.version });
+
+  validateArgs(args);
+
+  const bundles = getBundles(args['<script.js>'], args['<script.js.map>']);
+
+  if (bundles.length === 0) {
+    throw new Error('No file(s) found');
+  }
+
+  const exploreOptions = getExploreOptions(args);
+
+  if (bundles.length === 1) {
+    let data;
+
+    try {
+      const { codePath, mapPath } = bundles[0];
+      data = explore(codePath, mapPath, exploreOptions);
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        console.error(`File not found! -- ${err.message}`);
+        process.exit(1);
+      } else {
+        console.error(err.message);
+        process.exit(1);
+      }
+    }
+
+    reportUnmappedBytes(data);
+
+    if (args['--json']) {
+      console.log(JSON.stringify(data.files, null, '  '));
+      process.exit(0);
+    } else if (args['--tsv']) {
+      console.log('Source\tSize');
+      Object.keys(data.files).forEach(source => {
+        const size = data.files[source];
+        console.log(`${size}\t${source}`);
+      });
+      process.exit(0);
+    } else if (args['--html']) {
+      console.log(data.html);
+      process.exit(0);
+    }
+
+    writeToHtml(data.html);
+  } else {
+    // Do not generate HTML when exploring multiple bundles
+    exploreOptions.html = false;
+
+    Promise.all(bundles
+      .map(bundle => explorePromisified(bundle, exploreOptions)
+        .catch(err => onExploreError(bundle, err))))
+      .then(results => results.filter(data => data)) // Exclude erroneous results
+      .then(results => {
+        if (results.length === 0) {
+          throw new Error('There were errors');
+        }
+
+        results.forEach(reportUnmappedBytes);
+
+        const html = generateHtml(results);
+
+        writeToHtml(html);
+      });
+  }
 }
 
 module.exports = explore;
@@ -373,6 +616,6 @@ module.exports.generateHtml = generateHtml;
 module.exports.loadSourceMap = loadSourceMap;
 module.exports.computeGeneratedFileSizes = computeGeneratedFileSizes;
 module.exports.adjustSourcePaths = adjustSourcePaths;
-module.exports.mapKeys = mapKeys;
+module.exports.mapKeys = helpers.mapKeys;
 module.exports.commonPathPrefix = commonPathPrefix;
-module.exports.expandGlob = expandGlob;
+module.exports.getBundles = getBundles;
