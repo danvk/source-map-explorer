@@ -531,9 +531,8 @@ function writeToHtml(html) {
 
   fs.writeFileSync(tempName, html);
 
-  open(tempName, function (error) {
-    if (!error) return;
-    console.error('Unable to open web browser.');
+  open(tempName, {wait: false}).catch(error => {
+    console.error('Unable to open web browser. ' + error);
     console.error('Either run with --html, --json or --tsv, or view HTML for the visualization at:');
     console.error(tempName);
   });
