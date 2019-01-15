@@ -57,6 +57,10 @@ describe('source-map-explorer', function() {
       '<script.js.map>': 'testdata/foo.min.js.map'
     });
 
+    expect(expandGlob({'<script.js>': 'testdata/foo.min.inline*.js'})).to.deep.equal({
+      '<script.js>': 'testdata/foo.min.inline-map.js'
+    });
+
     expect(expandGlob({
       '<script.js>': 'foo.min.js',
       '<script.js.map>': 'foo.min.js.map'

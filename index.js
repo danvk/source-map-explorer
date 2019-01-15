@@ -197,9 +197,8 @@ function expandGlob(args) {
   var arg2 = args['<script.js.map>'];
   if (arg1 && !arg2) {
     var files = glob.sync(arg1);
-    if (files.length > 2) {
-      throw new Error(
-        'Glob should match exactly 2 files but matched ' + files.length + ' ' + arg1);
+    if (files.length === 1) {
+      args['<script.js>'] = files[0];
     } else if (files.length === 2) {
       // allow the JS and source map file to match in either order.
       if (files[0].indexOf('.map') >= 0) {
@@ -209,6 +208,9 @@ function expandGlob(args) {
       }
       args['<script.js>'] = files[0];
       args['<script.js.map>'] = files[1];
+    } else {
+      throw new Error(
+        'Glob should match exactly 1 or 2 files but matched ' + files.length + ' ' + arg1);
     }
   }
   return args;
