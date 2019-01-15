@@ -78,8 +78,8 @@ const helpers = {
 
   /**
    * Apply a transform to the keys of an object, leaving the values unaffected.
-   * @param {Object} obj 
-   * @param {Function} fn 
+   * @param {Object} obj
+   * @param {Function} fn
    */
   mapKeys(obj, fn) {
     return Object.keys(obj).reduce((result, key) => {
@@ -111,12 +111,12 @@ function computeSpans(mapConsumer, generatedJs) {
     var lineText = lines[line - 1];
     var numCols = lineText.length;
     for (var column = 0; column < numCols; column++ , numChars++) {
-      var pos = mapConsumer.originalPositionFor({ line: line, column: column });
+      var pos = mapConsumer.originalPositionFor({ line, column });
       var source = pos.source;
 
       if (source !== lastSource) {
         lastSource = source;
-        spans.push({ source: source, numChars: 1 });
+        spans.push({ source, numChars: 1 });
       } else {
         spans[spans.length - 1].numChars += 1;
       }
@@ -162,8 +162,8 @@ const SOURCE_MAP_INFO_URL = 'https://github.com/danvk/source-map-explorer/blob/m
 
 /**
  * Get source map
- * @param {(string|Buffer)} jsFile 
- * @param {(string|Buffer)} mapFile 
+ * @param {(string|Buffer)} jsFile
+ * @param {(string|Buffer)} mapFile
  */
 function loadSourceMap(jsFile, mapFile) {
   const jsData = helpers.getFileContent(jsFile);
@@ -242,7 +242,7 @@ function adjustSourcePaths(sizes, findRoot, replace) {
 
 /**
  * Validates CLI arguments
- * @param {Args} args 
+ * @param {Args} args
  */
 function validateArgs(args) {
   if (args['--replace'].length !== args['--with'].length) {
@@ -253,7 +253,7 @@ function validateArgs(args) {
 
 /**
  * Covert file size map to webtreemap data
- * @param {FileSizeMap} files 
+ * @param {FileSizeMap} files
  */
 function getWebTreeMapData(files) {
   function newNode(name) {
@@ -312,7 +312,7 @@ function getWebTreeMapData(files) {
 
 /**
  * Generate HTML file content for specified files
- * @param {ExploreBatchResult[]} exploreResults 
+ * @param {ExploreBatchResult[]} exploreResults
  */
 function generateHtml(exploreResults) {
   const assets = {
@@ -352,8 +352,8 @@ function generateHtml(exploreResults) {
 
 /**
  * Analyze bundle
- * @param {(string|Buffer)} code 
- * @param {(string|Buffer)} [map] 
+ * @param {(string|Buffer)} code
+ * @param {(string|Buffer)} [map]
  * @param {ExploreOptions} [options]
  * @returns {ExploreResult[]}
  */
@@ -502,8 +502,8 @@ function getExploreOptions(args) {
 
 /**
  * Handle error during multiple bundles processing
- * @param {Bundle} bundleInfo 
- * @param {Error} err 
+ * @param {Bundle} bundleInfo
+ * @param {Error} err
  */
 function onExploreError(bundleInfo, err) {
   if (err.code === 'ENOENT') {
@@ -524,16 +524,15 @@ function reportUnmappedBytes(data) {
 
 /**
  * Write HTML content to a temporary file and open the file in a browser
- * @param {string} html 
+ * @param {string} html
  */
 function writeToHtml(html) {
   const tempName = temp.path({ suffix: '.html' });
 
   fs.writeFileSync(tempName, html);
 
-  open(tempName, function (error) {
-    if (!error) return;
-    console.error('Unable to open web browser.');
+  open(tempName, {wait: false}).catch(error => {
+    console.error('Unable to open web browser. ' + error);
     console.error('Either run with --html, --json or --tsv, or view HTML for the visualization at:');
     console.error(tempName);
   });

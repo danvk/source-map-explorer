@@ -4,7 +4,7 @@ const concat = require('concat-stream');
 const PATH = process.env.PATH;
 
 /*
-  `createProcess` and `execute` are from 
+  `createProcess` and `execute` are from
   https://gist.github.com/zorrodg/c349cf54a3f6d0a9ba62e0f4066f31cb
   https://medium.com/@zorrodg/integration-tests-on-node-js-cli-part-1-why-and-how-fa5b1ba552fe
 */
