@@ -111,12 +111,12 @@ function computeSpans(mapConsumer, generatedJs) {
     var lineText = lines[line - 1];
     var numCols = lineText.length;
     for (var column = 0; column < numCols; column++ , numChars++) {
-      var pos = mapConsumer.originalPositionFor({ line: line, column: column });
+      var pos = mapConsumer.originalPositionFor({ line, column });
       var source = pos.source;
 
       if (source !== lastSource) {
         lastSource = source;
-        spans.push({ source: source, numChars: 1 });
+        spans.push({ source, numChars: 1 });
       } else {
         spans[spans.length - 1].numChars += 1;
       }
