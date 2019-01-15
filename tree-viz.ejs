@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="data:text/css;base64,<%= webtreemapCss %>">
+  <title><%= bundles[0].name %> - Source Map Explorer</title>
+
+  <style>
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: monospace, sans-serif;
+      font-size: 0.8em;
+      margin: 0;
+      display: flex;
+    }
+
+    select, .webtreemap-caption {
+      font-family: monospace, sans-serif;
+    }
+
+    #content {
+      display: flex;
+      width: 100%;
+      flex-direction: column;
+      padding: 15px;
+    }
+
+    #header {
+      display: flex;
+      padding: 0 0 15px 15px;
+      align-items: center;
+    }
+
+    #map {
+      flex-grow: 1;
+      position: relative;
+      cursor: pointer;
+      -webkit-user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="content">
+    <% if(bundles.length > 1) {%>
+    <div id="header">
+      <label for="bundle-select">Bundle:&nbsp;</label>
+      <select id="bundle-select">
+      <%_ bundles.forEach((bundle) => { _%>
+        <option value="<%= bundle.name %>"><%= bundle.name %> (<%= bundle.size %>)</option>
+      <%_ }); _%>
+      </select>
+    </div>
+    <% } %>
+    <div id="map"></div>
+  </div>
+</body>
+
+<script>
+var treeDataMap = <%- JSON.stringify(treeDataMap) %>;
+</script>
+
+<script src="data:application/javascript;base64,<%= webtreemapJs %>"></script>
+
+<script>
+  var selectedBundle = '<%= bundles[0].name %>';
+
+  function selectBundle(bundleId) {
+    appendTreemap(map, treeDataMap[bundleId]);
+    document.title = bundleId + ' - Source Map Explorer';
+  }
+
+  var map = document.getElementById('map');
+
+  <%_ if(bundles.length > 1) { _%>
+  var bundleSelect = document.getElementById('bundle-select');
+  bundleSelect.addEventListener('change', function(event) {
+    selectedBundle = bundleSelect.value;
+    selectBundle(selectedBundle);
+  })
+  <%_ } _%>
+
+  window.addEventListener('resize', function() {
+    selectBundle(selectedBundle);
+  });
+
+  selectBundle(selectedBundle);
+</script>
+<html>
