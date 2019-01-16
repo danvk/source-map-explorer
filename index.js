@@ -454,7 +454,7 @@ function getBundles(codePath, mapPath) {
 
   const filenames = glob.sync(codePath);
 
-  const mapFilenames = filenames.filter(filename => filename.endsWith('.map'));
+  const mapFilenames = glob.sync(codePath + '.map');
 
   return filenames
     .filter(filename => !filename.endsWith('.map'))
