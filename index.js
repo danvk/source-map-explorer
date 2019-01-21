@@ -110,7 +110,7 @@ function computeSpans(mapConsumer, generatedJs) {
     var lineText = lines[line - 1];
     var numCols = lineText.length;
     for (var column = 0; column < numCols; column++) {
-      var pos = mapConsumer.originalPositionFor({line:line, column:column});
+      var pos = mapConsumer.originalPositionFor({ line, column });
       var source = pos.source;
 
       if (source !== lastSource) {
