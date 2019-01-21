@@ -44,11 +44,10 @@ var fs = require('fs'),
   open = require('opn'),
   _ = require('underscore'),
   docopt = require('docopt').docopt,
-  btoa = require('btoa'),
-  os = require('os');
+  btoa = require('btoa');
 
 function computeSpans(mapConsumer, generatedJs) {
-  var lines = generatedJs.split(os.EOL);
+  var lines = generatedJs.split(/(\r?\n)/);
   var spans = [];
   var lastSource = false;  // not a string, not null.
   for (var line = 1; line <= lines.length; line++) {
