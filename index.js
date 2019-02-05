@@ -310,6 +310,35 @@ function getWebTreeMapData(files) {
  * @property {FileSizeMap} files
  */
 
+
+/**
+ * Create a combined result where each of the inputs is a separate node under the root.
+ * @param {ExploreBatchResult[]} exploreResults
+ * @returns ExploreBatchResult
+ */
+function makeMergedBundle(exploreResults) {
+  let totalBytes = 0;
+  const files = {};
+
+  // Remove any common prefix to keep the visualization as simple as possible.
+  const commonPrefix = commonPathPrefix(exploreResults.map(r => r.bundleName));
+
+  for (const result of exploreResults) {
+    totalBytes += result.totalBytes;
+    const prefix = result.bundleName.slice(commonPrefix.length);
+    Object.keys(result.files).forEach(fileName => {
+      const size = result.files[fileName];
+      files[prefix + '/' + fileName] = size;
+    });
+  }
+
+  return {
+    bundleName: '[combined]',
+    totalBytes,
+    files
+  };
+}
+
 /**
  * Generate HTML file content for specified files
  * @param {ExploreBatchResult[]} exploreResults
@@ -319,6 +348,12 @@ function generateHtml(exploreResults) {
     webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
     webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css')))
   };
+
+
+  // Create a combined bundle if applicable
+  if (exploreResults.length > 1) {
+    exploreResults = [makeMergedBundle(exploreResults)].concat(exploreResults);
+  }
 
   // Get bundles info to generate select
   const bundles = exploreResults.map(data => ({
