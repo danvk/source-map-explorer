@@ -12,6 +12,7 @@ Use:
 
     source-map-explorer bundle.min.js
     source-map-explorer bundle.min.js bundle.min.js.map
+    source-map-explorer '*.js'
 
 This will open up a visualization of how the space is used in your minified bundle:
 
