@@ -99,8 +99,9 @@ describe('source-map-explorer', function() {
       expect(getBundles('testdata/*.*'), 'multiple bundles').to.deep.equal([
         {
           codePath: 'testdata/foo.1234.js',
-          mapPath: 'testdata/foo.1234.js.map'
-        }, {
+          mapPath: 'testdata/foo.1234.js.map',
+        },
+        {
           codePath: 'testdata/foo.min.inline-map.js',
           mapPath: undefined,
         },
@@ -116,17 +117,21 @@ describe('source-map-explorer', function() {
     });
 
     it('should support single file glob', () => {
-      expect(getBundles('testdata/foo.1*.js')).to.deep.equal([{
-        codePath: 'testdata/foo.1234.js',
-        mapPath: 'testdata/foo.1234.js.map'
-      }]);
+      expect(getBundles('testdata/foo.1*.js')).to.deep.equal([
+        {
+          codePath: 'testdata/foo.1234.js',
+          mapPath: 'testdata/foo.1234.js.map',
+        },
+      ]);
     });
 
     it('should support single file glob when inline map', () => {
-      expect(getBundles('testdata/foo.min.inline*.js'), 'single glob').to.deep.equal([{
-        codePath: 'testdata/foo.min.inline-map.js',
-        mapPath: undefined
-      }]);
+      expect(getBundles('testdata/foo.min.inline*.js'), 'single glob').to.deep.equal([
+        {
+          codePath: 'testdata/foo.min.inline-map.js',
+          mapPath: undefined,
+        },
+      ]);
     });
   });
 
@@ -303,6 +308,17 @@ describe('source-map-explorer', function() {
 
     it('should output result as tsv', async function() {
       const result = await execute(SCRIPT_PATH, ['testdata/foo.min.inline-map.js', '--tsv']);
+
+      expect(result).to.be.equal(`Source\tSize
+463\tnode_modules/browserify/node_modules/browser-pack/_prelude.js
+2854\tdist/bar.js
+137\tdist/foo.js
+0\t<unmapped>
+`);
+    });
+
+    it('should handle path wrapped with single quotes', async () => {
+      const result = await execute(SCRIPT_PATH, ["'testdata/foo.min.inline-map.js'", '--tsv']);
 
       expect(result).to.be.equal(`Source\tSize
 463\tnode_modules/browserify/node_modules/browser-pack/_prelude.js

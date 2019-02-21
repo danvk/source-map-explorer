@@ -66,7 +66,19 @@ const doc = [
  * @typedef {Object.<string, number>} FileSizeMap
  */
 
+const ESCAPED_QUOTE_REGEX = new RegExp('\\\'', 'g');
+
 const helpers = {
+  /** 
+   * Remove extra single quotes around path.
+   * '\'./js/foo.min.js\'' => './js/foo.min.js'
+   */
+  normalizePathArgument(path) {
+    if (!path) { return path; }
+
+    return path.replace(ESCAPED_QUOTE_REGEX, '');
+  },
+
   /**
    * @param {(Buffer|string)} file Path to file or Buffer
    */
@@ -598,7 +610,10 @@ if (require.main === module) {
 
   validateArgs(args);
 
-  const bundles = getBundles(args['<script.js>'], args['<script.js.map>']);
+  const scriptPath = helpers.normalizePathArgument(args['<script.js>']);
+  const scriptMapPath = helpers.normalizePathArgument(args['<script.js.map>']);
+
+  const bundles = getBundles(scriptPath, scriptMapPath);
 
   if (bundles.length === 0) {
     throw new Error('No file(s) found');
