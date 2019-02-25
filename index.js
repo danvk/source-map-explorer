@@ -673,6 +673,7 @@ if (require.main === module) {
 
         if (args["--html"]) {
           console.log(html);
+          process.exit(0);
         }
 
         writeToHtml(html);
