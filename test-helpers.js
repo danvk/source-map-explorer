@@ -26,9 +26,9 @@ function createProcess(processPath, args = []) {
     env: {
       NODE_ENV: 'test',
       preventAutoStart: false,
-      PATH // This is needed in order to get all the binaries in your current terminal
+      PATH, // This is needed in order to get all the binaries in your current terminal
     },
-    stdio: [null, null, null, 'ipc'] // This enables interprocess communication (IPC)
+    stdio: [null, null, null, 'ipc'], // This enables interprocess communication (IPC)
   });
 }
 
@@ -53,9 +53,10 @@ function execute(processPath, args = []) {
       })
     );
   });
+
   return promise;
 }
 
 module.exports = {
-  execute
+  execute,
 };

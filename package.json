@@ -7,9 +7,21 @@
     "source-map-explorer": "index.js"
   },
   "scripts": {
-    "test": "mocha && eslint *.js",
+    "test": "mocha",
     "coverage": "nyc --reporter=lcov mocha",
     "lint": "eslint *.js --fix"
+  },
+  "lint-staged": {
+    "*.js": [
+      "mocha",
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "repository": {
     "type": "git",
@@ -41,7 +53,12 @@
     "concat-stream": "^2.0.0",
     "cross-spawn": "^6.0.5",
     "eslint": "^5.12.0",
+    "eslint-config-prettier": "^4.0.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "husky": "^1.3.1",
+    "lint-staged": "^8.1.4",
     "mocha": "^5.2.0",
-    "nyc": "^13.1.0"
+    "nyc": "^13.3.0",
+    "prettier": "^1.16.4"
   }
 }
