@@ -85,6 +85,7 @@ const helpers = {
     return Object.keys(obj).reduce((result, key) => {
       const newKey = fn(key);
       result[newKey] = obj[key];
+
       return result;
     }, {});
   },
@@ -99,18 +100,18 @@ const helpers = {
       i = Math.floor(Math.log(bytes) / Math.log(k));
 
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
-  }
+  },
 };
 
 function computeSpans(mapConsumer, generatedJs) {
   var lines = generatedJs.split('\n');
   var spans = [];
   var numChars = 0;
-  var lastSource = false;  // not a string, not null.
+  var lastSource = false; // not a string, not null.
   for (var line = 1; line <= lines.length; line++) {
     var lineText = lines[line - 1];
     var numCols = lineText.length;
-    for (var column = 0; column < numCols; column++ , numChars++) {
+    for (var column = 0; column < numCols; column++, numChars++) {
       var pos = mapConsumer.originalPositionFor({ line, column });
       var source = pos.source;
 
@@ -122,6 +123,7 @@ function computeSpans(mapConsumer, generatedJs) {
       }
     }
   }
+
   return spans;
 }
 
@@ -151,14 +153,16 @@ function computeGeneratedFileSizes(mapConsumer, generatedJs) {
       files[span.source] = (files[span.source] || 0) + span.numChars;
     }
   }
+
   return {
     files,
     unmappedBytes,
-    totalBytes
+    totalBytes,
   };
 }
 
-const SOURCE_MAP_INFO_URL = 'https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps';
+const SOURCE_MAP_INFO_URL =
+  'https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps';
 
 /**
  * Get source map
@@ -190,7 +194,7 @@ function loadSourceMap(jsFile, mapFile) {
 
   return {
     mapConsumer,
-    jsData
+    jsData,
   };
 }
 
@@ -219,7 +223,9 @@ function adjustSourcePaths(sizes, findRoot, replace) {
     var prefix = commonPathPrefix(Object.keys(sizes));
     var len = prefix.length;
     if (len) {
-      sizes = helpers.mapKeys(sizes, function (source) { return source.slice(len); });
+      sizes = helpers.mapKeys(sizes, function(source) {
+        return source.slice(len);
+      });
     }
   }
 
@@ -232,7 +238,7 @@ function adjustSourcePaths(sizes, findRoot, replace) {
   for (var i = 0; i < finds.length; i++) {
     var before = new RegExp(finds[i]),
       after = replace[finds[i]];
-    sizes = helpers.mapKeys(sizes, function (source) {
+    sizes = helpers.mapKeys(sizes, function(source) {
       return source.replace(before, after);
     });
   }
@@ -260,9 +266,9 @@ function getWebTreeMapData(files) {
     return {
       name: name,
       data: {
-        '$area': 0
+        $area: 0,
       },
-      children: []
+      children: [],
     };
   }
 
@@ -287,15 +293,17 @@ function getWebTreeMapData(files) {
 
   function addSizeToTitle(node, total) {
     const size = node.data['$area'],
-      pct = 100.0 * size / total;
+      pct = (100.0 * size) / total;
 
     node.name += ` • ${helpers.formatBytes(size)} • ${pct.toFixed(1)}%`;
-    node.children.forEach(child => { addSizeToTitle(child, total); });
+    node.children.forEach(child => {
+      addSizeToTitle(child, total);
+    });
   }
 
   const treeData = newNode('/');
 
-  for (let source in files) {
+  for (const source in files) {
     addNode(source, files[source]);
   }
   addSizeToTitle(treeData, treeData.data['$area']);
@@ -309,7 +317,6 @@ function getWebTreeMapData(files) {
  * @property {number} totalBytes
  * @property {FileSizeMap} files
  */
-
 
 /**
  * Create a combined result where each of the inputs is a separate node under the root.
@@ -335,7 +342,7 @@ function makeMergedBundle(exploreResults) {
   return {
     bundleName: '[combined]',
     totalBytes,
-    files
+    files,
   };
 }
 
@@ -346,9 +353,8 @@ function makeMergedBundle(exploreResults) {
 function generateHtml(exploreResults) {
   const assets = {
     webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
-    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css')))
+    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
   };
-
 
   // Create a combined bundle if applicable
   if (exploreResults.length > 1) {
@@ -358,12 +364,13 @@ function generateHtml(exploreResults) {
   // Get bundles info to generate select
   const bundles = exploreResults.map(data => ({
     name: data.bundleName,
-    size: helpers.formatBytes(data.totalBytes)
+    size: helpers.formatBytes(data.totalBytes),
   }));
 
   // Get webtreemap data to update map on bundle select
   const treeDataMap = exploreResults.reduce((result, data) => {
     result[data.bundleName] = getWebTreeMapData(data.files);
+
     return result;
   }, {});
 
@@ -373,7 +380,7 @@ function generateHtml(exploreResults) {
     bundles,
     treeDataMap,
     webtreemapJs: assets.webtreemapJs,
-    webtreemapCss: assets.webtreemapCss
+    webtreemapCss: assets.webtreemapCss,
   });
 }
 
@@ -418,8 +425,9 @@ function explore(code, map, options) {
   if (filenames.length === 1) {
     const errorMessage = [
       `Your source map only contains one source (${filenames[0]})`,
-      'This can happen if you use browserify+uglifyjs, for example, and don\'t set the --in-source-map flag to uglify.',
-      `See ${SOURCE_MAP_INFO_URL}`].join(os.EOL);
+      "This can happen if you use browserify+uglifyjs, for example, and don't set the --in-source-map flag to uglify.",
+      `See ${SOURCE_MAP_INFO_URL}`,
+    ].join(os.EOL);
 
     throw new Error(errorMessage);
   }
@@ -435,16 +443,18 @@ function explore(code, map, options) {
   const result = {
     totalBytes,
     unmappedBytes,
-    files
+    files,
   };
 
   if (options.html) {
     const title = Buffer.isBuffer(code) ? 'Buffer' : code;
-    result.html = generateHtml([{
-      files,
-      totalBytes,
-      bundleName: title
-    }]);
+    result.html = generateHtml([
+      {
+        files,
+        totalBytes,
+        bundleName: title,
+      },
+    ]);
   }
 
   return result;
@@ -461,7 +471,7 @@ function explorePromisified({ codePath, mapPath }) {
 
     resolve({
       ...result,
-      bundleName: codePath
+      bundleName: codePath,
     });
   });
 }
@@ -481,10 +491,12 @@ function explorePromisified({ codePath, mapPath }) {
  */
 function getBundles(codePath, mapPath) {
   if (codePath && mapPath) {
-    return [{
-      codePath,
-      mapPath
-    }];
+    return [
+      {
+        codePath,
+        mapPath,
+      },
+    ];
   }
 
   const filenames = glob.sync(codePath);
@@ -495,7 +507,7 @@ function getBundles(codePath, mapPath) {
     .filter(filename => !filename.endsWith('.map'))
     .map(filename => ({
       codePath: filename,
-      mapPath: mapFilenames.find(mapFilename => mapFilename === `${filename}.map`)
+      mapPath: mapFilenames.find(mapFilename => mapFilename === `${filename}.map`),
     }));
 }
 
@@ -531,7 +543,7 @@ function getExploreOptions(args) {
     onlyMapped: args['--only-mapped'] || args['-m'],
     html,
     noRoot: args['--noroot'],
-    replace
+    replace,
   };
 }
 
@@ -552,8 +564,13 @@ function reportUnmappedBytes(data) {
   const unmappedBytes = data.files[UNMAPPED];
   if (unmappedBytes) {
     const totalBytes = data.totalBytes;
-    const pct = 100 * unmappedBytes / totalBytes;
-    console.warn(`[${data.bundleName}] Unable to map ${unmappedBytes}/${totalBytes} bytes (${pct.toFixed(2)}%)`);
+    const pct = (100 * unmappedBytes) / totalBytes;
+
+    const bytesString = pct.toFixed(2);
+
+    console.warn(
+      `[${data.bundleName}] Unable to map ${unmappedBytes}/${totalBytes} bytes (${bytesString}%)`
+    );
   }
 }
 
@@ -566,9 +583,11 @@ function writeToHtml(html) {
 
   fs.writeFileSync(tempName, html);
 
-  open(tempName, {wait: false}).catch(error => {
+  open(tempName, { wait: false }).catch(error => {
     console.error('Unable to open web browser. ' + error);
-    console.error('Either run with --html, --json or --tsv, or view HTML for the visualization at:');
+    console.error(
+      'Either run with --html, --json or --tsv, or view HTML for the visualization at:'
+    );
     console.error(tempName);
   });
 }
@@ -625,9 +644,11 @@ if (require.main === module) {
     // Do not generate HTML when exploring multiple bundles
     exploreOptions.html = false;
 
-    Promise.all(bundles
-      .map(bundle => explorePromisified(bundle, exploreOptions)
-        .catch(err => onExploreError(bundle, err))))
+    Promise.all(
+      bundles.map(bundle =>
+        explorePromisified(bundle, exploreOptions).catch(err => onExploreError(bundle, err))
+      )
+    )
       .then(results => results.filter(data => data)) // Exclude erroneous results
       .then(results => {
         if (results.length === 0) {
