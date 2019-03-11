@@ -38,6 +38,13 @@
     "url": "https://github.com/danvk/source-map-explorer/issues"
   },
   "homepage": "https://github.com/danvk/source-map-explorer#readme",
+  "files": [
+    "vendor",
+    "index.js",
+    "tree-viz.ejs",
+    "LICENSE",
+    "README.md"
+  ],
   "dependencies": {
     "btoa": "^1.1.2",
     "convert-source-map": "^1.1.1",
