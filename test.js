@@ -98,6 +98,9 @@ describe('source-map-explorer', function() {
     it('should expand glob into all bundles in directory', function() {
       expect(getBundles('testdata/*.*'), 'multiple bundles').to.deep.equal([
         {
+          codePath: 'testdata/foo.1234.js',
+          mapPath: 'testdata/foo.1234.js.map'
+        }, {
           codePath: 'testdata/foo.min.inline-map.js',
           mapPath: undefined,
         },
@@ -110,6 +113,20 @@ describe('source-map-explorer', function() {
           mapPath: undefined,
         },
       ]);
+    });
+
+    it('should support single file glob', () => {
+      expect(getBundles('testdata/foo.1*.js')).to.deep.equal([{
+        codePath: 'testdata/foo.1234.js',
+        mapPath: 'testdata/foo.1234.js.map'
+      }]);
+    });
+
+    it('should support single file glob when inline map', () => {
+      expect(getBundles('testdata/foo.min.inline*.js'), 'single glob').to.deep.equal([{
+        codePath: 'testdata/foo.min.inline-map.js',
+        mapPath: undefined
+      }]);
     });
   });
 
