@@ -641,9 +641,6 @@ if (require.main === module) {
 
     writeToHtml(data.html);
   } else {
-    // Do not generate HTML when exploring multiple bundles
-    exploreOptions.html = false;
-
     Promise.all(
       bundles.map(bundle =>
         explorePromisified(bundle, exploreOptions).catch(err => onExploreError(bundle, err))
@@ -659,7 +656,11 @@ if (require.main === module) {
 
         const html = generateHtml(results);
 
-        writeToHtml(html);
+        if (exploreOptions.html) {
+          console.log(html);
+        } else {
+          writeToHtml(html);
+        }
       });
   }
 }
