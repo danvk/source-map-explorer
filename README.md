@@ -100,6 +100,34 @@ require('source-map-explorer')('testdata/foo.min.js', { html: true })
 }
 ```
 
+### `exploreBundlesAndWriteHtml(writeConfig, codePath[, mapPath])`
+* `writeConfig` <[Object]> Configuration how to write the html file.
+  * `path` <[string]> Path to write.
+  * `fileName` <[string]> File name to write.
+* `codePath` <[string]> Path to bundle file or glob matching bundle files.
+* `mapPath` <[string]> Path to bundle map file.
+
+Example:
+
+```javascript
+const path = require('path')
+const {exploreBundlesAndWriteHtml} = require('source-map-explorer')
+
+const writePath = path.resolve(__dirname, 'this/path/will/be/ensured/to/exist/ok/thanks')
+const writeConfig = {
+  path: writePath, 
+  fileName: 'source.html'
+}
+
+exploreBundlesAndWriteHtml(writeConfig, 'build/static/js/*.*')
+  .then(() => { 
+    console.log(':)')
+  })
+  .catch(err => {
+    console.err(':(', err)
+  })
+```
+
 ## Generating source maps
 
 For source-map-explorer to be useful, you need to generate a source map which
