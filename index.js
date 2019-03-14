@@ -642,9 +642,7 @@ if (require.main === module) {
     writeToHtml(data.html);
   } else {
     Promise.all(
-      bundles.map(bundle =>
-        explorePromisified(bundle, exploreOptions).catch(err => onExploreError(bundle, err))
-      )
+      bundles.map(bundle => explorePromisified(bundle).catch(err => onExploreError(bundle, err)))
     )
       .then(results => results.filter(data => data)) // Exclude erroneous results
       .then(results => {
