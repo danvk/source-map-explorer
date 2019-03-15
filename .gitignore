@@ -30,3 +30,7 @@ node_modules
 
 # IDE
 .vscode
+
+# tmp files
+tmp/
+*.tmp.*
