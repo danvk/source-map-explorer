@@ -703,8 +703,12 @@ if (require.main === module) {
 
       const html = generateHtml(results);
 
-      writeToHtml(html);
-    });
+        if (exploreOptions.html) {
+          console.log(html);
+        } else {
+          writeToHtml(html);
+        }
+      });
   }
 }
 
