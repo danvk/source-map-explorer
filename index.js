@@ -694,9 +694,6 @@ if (require.main === module) {
 
     writeToHtml(data.html);
   } else {
-    // Do not generate HTML when exploring multiple bundles
-    exploreOptions.html = false;
-
     exploreBundlesAndFilterErroneous(bundles).then(results => {
       if (results.length === 0) {
         throw new Error('There were errors');
