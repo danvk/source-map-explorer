@@ -703,7 +703,8 @@ if (require.main === module) {
 
       const html = generateHtml(results);
 
-      if (exploreOptions.html) {
+      // Check args instead of exploreOptions.html because it always true
+      if (args['--html']) {
         console.log(html);
       } else {
         writeToHtml(html);
