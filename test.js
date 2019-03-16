@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 
 const { execute } = require('./test-helpers');
@@ -306,6 +306,8 @@ describe('source-map-explorer', function() {
         const data = fs.readFileSync(writeConfigToPath(writeConfig), 'utf8');
 
         expectBundleHtml(data);
+
+        fs.removeSync(writePath);
       });
 
       it('should explore multiple bundles and write a html file to current directory if path is undefined in writeConfig', async function() {
@@ -316,6 +318,8 @@ describe('source-map-explorer', function() {
         const data = fs.readFileSync(writeConfigToPath(writeConfig), 'utf8');
 
         expectBundleHtml(data);
+
+        fs.removeSync(writeConfig.fileName);
       });
     });
   });
