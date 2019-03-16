@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs'),
+  fse = require('fs-extra'),
   os = require('os'),
   glob = require('glob'),
   path = require('path'),
@@ -592,6 +593,58 @@ function writeToHtml(html) {
   });
 }
 
+/**
+ * Explore multiple bundles and write html output to file.
+ *
+ * @param {Bundle[]} bundles Bundles to explore
+ * @returns {Promise<Promise<ExploreBatchResult[]>}
+ */
+function exploreBundlesAndFilterErroneous(bundles) {
+  return Promise.all(
+    bundles.map(bundle => explorePromisified(bundle).catch(err => onExploreError(bundle, err)))
+  ).then(results => results.filter(data => data));
+}
+
+/**
+ * @typedef {Object} WriteConfig
+ * @property {string} [path] Path to write
+ * @property {string} fileName File name to write
+ */
+
+/**
+ * Explore multiple bundles and write html output to file.
+ *
+ * @param {WriteConfig} writeConfig
+ * @param {string} codePath Path to bundle file or glob matching bundle files
+ * @param {string} [mapPath] Path to bundle map file
+ * @returns {Bundle[]}
+ */
+function exploreBundlesAndWriteHtml(writeConfig, codePath, mapPath) {
+  const bundles = getBundles(codePath, mapPath);
+
+  return exploreBundlesAndFilterErroneous(bundles).then(results => {
+    if (results.length === 0) {
+      throw new Error('There were errors');
+    }
+
+    results.forEach(reportUnmappedBytes);
+
+    const html = generateHtml(results);
+
+    if (writeConfig.path !== undefined) {
+      // Use fse to support older node versions
+      fse.ensureDirSync(writeConfig.path);
+    }
+
+    const relPath =
+      writeConfig.path !== undefined
+        ? `${writeConfig.path}/${writeConfig.fileName}`
+        : writeConfig.fileName;
+
+    return fs.writeFileSync(relPath, html);
+  });
+}
+
 if (require.main === module) {
   /** @type {Args} */
   const args = docopt(doc, { version: packageJson.version });
@@ -641,30 +694,27 @@ if (require.main === module) {
 
     writeToHtml(data.html);
   } else {
-    Promise.all(
-      bundles.map(bundle => explorePromisified(bundle).catch(err => onExploreError(bundle, err)))
-    )
-      .then(results => results.filter(data => data)) // Exclude erroneous results
-      .then(results => {
-        if (results.length === 0) {
-          throw new Error('There were errors');
-        }
+    exploreBundlesAndFilterErroneous(bundles).then(results => {
+      if (results.length === 0) {
+        throw new Error('There were errors');
+      }
 
-        results.forEach(reportUnmappedBytes);
+      results.forEach(reportUnmappedBytes);
 
-        const html = generateHtml(results);
+      const html = generateHtml(results);
 
-        if (exploreOptions.html) {
-          console.log(html);
-        } else {
-          writeToHtml(html);
-        }
-      });
+      if (exploreOptions.html) {
+        console.log(html);
+      } else {
+        writeToHtml(html);
+      }
+    });
   }
 }
 
 module.exports = explore;
 module.exports.generateHtml = generateHtml;
+module.exports.exploreBundlesAndWriteHtml = exploreBundlesAndWriteHtml;
 
 // Exports are here mostly for testing.
 module.exports.loadSourceMap = loadSourceMap;

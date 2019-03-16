@@ -1,5 +1,6 @@
 const expect = require('chai').expect;
-const fs = require('fs');
+const fs = require('fs-extra');
+const path = require('path');
 
 const { execute } = require('./test-helpers');
 
@@ -8,6 +9,8 @@ const sourceMapExplorer = require('./index'),
   mapKeys = sourceMapExplorer.mapKeys,
   commonPathPrefix = sourceMapExplorer.commonPathPrefix,
   getBundles = sourceMapExplorer.getBundles;
+
+const exploreBundlesAndWriteHtml = sourceMapExplorer.exploreBundlesAndWriteHtml;
 
 const SCRIPT_PATH = './index.js';
 
@@ -99,8 +102,9 @@ describe('source-map-explorer', function() {
       expect(getBundles('testdata/*.*'), 'multiple bundles').to.deep.equal([
         {
           codePath: 'testdata/foo.1234.js',
-          mapPath: 'testdata/foo.1234.js.map'
-        }, {
+          mapPath: 'testdata/foo.1234.js.map',
+        },
+        {
           codePath: 'testdata/foo.min.inline-map.js',
           mapPath: undefined,
         },
@@ -116,17 +120,21 @@ describe('source-map-explorer', function() {
     });
 
     it('should support single file glob', () => {
-      expect(getBundles('testdata/foo.1*.js')).to.deep.equal([{
-        codePath: 'testdata/foo.1234.js',
-        mapPath: 'testdata/foo.1234.js.map'
-      }]);
+      expect(getBundles('testdata/foo.1*.js')).to.deep.equal([
+        {
+          codePath: 'testdata/foo.1234.js',
+          mapPath: 'testdata/foo.1234.js.map',
+        },
+      ]);
     });
 
     it('should support single file glob when inline map', () => {
-      expect(getBundles('testdata/foo.min.inline*.js'), 'single glob').to.deep.equal([{
-        codePath: 'testdata/foo.min.inline-map.js',
-        mapPath: undefined
-      }]);
+      expect(getBundles('testdata/foo.min.inline*.js'), 'single glob').to.deep.equal([
+        {
+          codePath: 'testdata/foo.min.inline-map.js',
+          mapPath: undefined,
+        },
+      ]);
     });
   });
 
@@ -272,6 +280,47 @@ describe('source-map-explorer', function() {
       expect(function() {
         sourceMapExplorer('testdata/foo.min.no-map.js', 'testdata/foo.min.no-map.bad-map.js.map');
       }).to.throw('Your source map only contains one source (foo.min.js)');
+    });
+
+    describe('exploreBundlesAndWriteHtml method', function() {
+      function writeConfigToPath(writeConfig) {
+        return writeConfig.path !== undefined
+          ? `${writeConfig.path}/${writeConfig.fileName}`
+          : writeConfig.fileName;
+      }
+
+      function expectBundleHtml(data) {
+        expect(data).to.to.be.a('string');
+        expect(data).to.have.string('<title>[combined] - Source Map Explorer</title>');
+      }
+
+      it('should explore multiple bundles and write a html file as specified in writeConfig', async () => {
+        const writePath = path.resolve(__dirname, 'tmp');
+        const writeConfig = {
+          path: writePath,
+          fileName: 'bundle-out.tmp.html',
+        };
+
+        await exploreBundlesAndWriteHtml(writeConfig, 'testdata/*.*');
+
+        const data = fs.readFileSync(writeConfigToPath(writeConfig), 'utf8');
+
+        expectBundleHtml(data);
+
+        fs.removeSync(writePath);
+      });
+
+      it('should explore multiple bundles and write a html file to current directory if path is undefined in writeConfig', async function() {
+        const writeConfig = { fileName: 'bundle-out.tmp.html' };
+
+        await exploreBundlesAndWriteHtml(writeConfig, 'testdata/*.*');
+
+        const data = fs.readFileSync(writeConfigToPath(writeConfig), 'utf8');
+
+        expectBundleHtml(data);
+
+        fs.removeSync(writeConfig.fileName);
+      });
     });
   });
 
