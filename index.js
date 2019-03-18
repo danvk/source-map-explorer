@@ -597,7 +597,7 @@ function writeToHtml(html) {
  * Explore multiple bundles and write html output to file.
  *
  * @param {Bundle[]} bundles Bundles to explore
- * @returns {Promise<Promise<ExploreBatchResult[]>}
+ * @returns {Promise<ExploreBatchResult[]>}
  */
 function exploreBundlesAndFilterErroneous(bundles) {
   return Promise.all(
