@@ -341,32 +341,19 @@ describe('source-map-explorer', function() {
     it('should print result as JSON', async function() {
       const result = await execute(SCRIPT_PATH, ['testdata/foo.min.inline-map.js', '--json']);
 
-      expect(result).to.be.equal(`{
-  "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-  "dist/bar.js": 2854,
-  "dist/foo.js": 137,
-  "<unmapped>": 0
-}
-`);
+      expect(result).to.matchSnapshot();
     });
 
     it('should output result as tsv', async function() {
       const result = await execute(SCRIPT_PATH, ['testdata/foo.min.inline-map.js', '--tsv']);
 
-      expect(result).to.be.equal(`Source\tSize
-463\tnode_modules/browserify/node_modules/browser-pack/_prelude.js
-2854\tdist/bar.js
-137\tdist/foo.js
-0\t<unmapped>
-`);
+      expect(result).to.matchSnapshot();
     });
 
     it('should output result as html', async function() {
       const result = await execute(SCRIPT_PATH, ['testdata/foo.min.inline-map.js', '--html']);
 
-      expect(result).to.be.include(
-        '<title>testdata/foo.min.inline-map.js - Source Map Explorer</title>'
-      );
+      expect(result).to.matchSnapshot();
     });
   });
 });
