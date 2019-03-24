@@ -4,12 +4,13 @@
   "description": "Analyze and debug space usage through source maps",
   "main": "index.js",
   "bin": {
-    "source-map-explorer": "index.js"
+    "source-map-explorer": "src/cli.js"
   },
   "scripts": {
-    "test": "mocha",
+    "test": "mocha tests/*.test.js",
+    "test:update-snapshots": "cross-env CHAI_JEST_SNAPSHOT_UPDATE_ALL=true npm run test",
     "coverage": "nyc --reporter=lcov mocha",
-    "lint": "eslint *.js --fix"
+    "lint": "eslint **/*.js --fix"
   },
   "lint-staged": {
     "*.js": [
@@ -40,8 +41,7 @@
   "homepage": "https://github.com/danvk/source-map-explorer#readme",
   "files": [
     "vendor",
-    "index.js",
-    "tree-viz.ejs",
+    "src",
     "LICENSE",
     "README.md"
   ],
@@ -60,6 +60,7 @@
     "chai": "^4.2.0",
     "chai-jest-snapshot": "^2.0.0",
     "concat-stream": "^2.0.0",
+    "cross-env": "^5.2.0",
     "cross-spawn": "^6.0.5",
     "eslint": "^5.15.3",
     "eslint-config-prettier": "^4.1.0",
