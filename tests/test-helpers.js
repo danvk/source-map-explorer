@@ -1,6 +1,7 @@
 const { existsSync } = require('fs');
 const spawn = require('cross-spawn');
 const concat = require('concat-stream');
+
 const PATH = process.env.PATH;
 
 /*
@@ -42,19 +43,19 @@ function createProcess(processPath, args = []) {
 function execute(processPath, args = []) {
   const childProcess = createProcess(processPath, args);
   childProcess.stdin.setEncoding('utf-8');
-  const promise = new Promise((resolve, reject) => {
+
+  return new Promise((resolve, reject) => {
     childProcess.stderr.once('data', err => {
       reject(err.toString());
     });
     childProcess.on('error', reject);
+    // Collect output
     childProcess.stdout.pipe(
       concat(result => {
         resolve(result.toString());
       })
     );
   });
-
-  return promise;
 }
 
 module.exports = {

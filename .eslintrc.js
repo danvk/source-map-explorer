@@ -2,7 +2,6 @@ module.exports = {
   root: true,
   env: {
     commonjs: true,
-    mocha: true,
     node: true,
     es6: true,
   },
@@ -12,11 +11,13 @@ module.exports = {
   plugins: ['prettier'],
   extends: ['eslint:recommended', 'plugin:prettier/recommended'],
   rules: {
+    'func-style': ['error', "declaration"],
     'no-console': 0,
+    'prefer-arrow-callback': 'error',
     'prefer-const': 2,
     'padding-line-between-statements': [
-      "error",
-      { blankLine: "always", prev: "*", next: "return" }
+      'error',
+      { blankLine: 'always', prev: '*', next: 'return' }
     ]
   },
 };
