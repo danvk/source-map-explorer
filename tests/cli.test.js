@@ -1,9 +1,10 @@
-const { expect } = require('chai');
-const path = require('path');
+import { expect } from 'chai';
+import path from 'path';
 
-const { execute } = require('./test-helpers');
+import { execute } from './test-helpers';
 
-const SCRIPT_PATH = path.resolve(__dirname, '../src/cli.js');
+// Test compiled source
+const SCRIPT_PATH = path.resolve(__dirname, '../dist/cli.js');
 
 describe('CLI', function() {
   it('should validate --replace arguments', async function() {
