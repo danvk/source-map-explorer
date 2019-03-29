@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 
-const { docopt } = require('docopt');
-const fs = require('fs');
-const temp = require('temp');
-const open = require('opn');
+import { docopt } from 'docopt';
+import fs from 'fs';
+import temp from 'temp';
+import open from 'open';
 
-const packageJson = require('../package.json');
+// TODO: https://github.com/Microsoft/TypeScript/issues/24744
+// import packageJson from '../package.json';
 
-const { explore, exploreBundlesAndFilterErroneous } = require('./api');
-const { reportUnmappedBytes, generateHtml, getBundles } = require('./common');
+import { explore, exploreBundlesAndFilterErroneous } from './api';
+import { reportUnmappedBytes, generateHtml, getBundles } from './common';
 
 const doc = [
   'Analyze and debug space usage through source maps.',
@@ -46,52 +47,29 @@ const doc = [
 ].join('\n');
 
 /**
- * @typedef {Object} Args
- * @property {string} `<script.js>` - Path to code file or Glob matching bundle files
- * @property {(string|null)} `<script.js.map>` - Path to map file
- * @property {boolean} `--json`
- * @property {boolean} `--html`
- * @property {boolean} `--tsv`
- * @property {boolean}  `--only-mapped`
- * @property {boolean}  `-m`
- * @property {string[]} `--replace`
- * @property {string[]} `--with`
- * @property {boolean} `--noroot`
+ * Validate CLI arguments
  */
-
-/**
- * Validates CLI arguments
- * @param {Args} args
- */
-function validateArgs(args) {
-  if (args['--replace'].length !== args['--with'].length) {
+function validateArgs(args: Args): void {
+  if (args['--replace'] && args['--with'] && args['--replace'].length !== args['--with'].length) {
     console.error('--replace flags must be paired with --with flags.');
     process.exit(1);
   }
 }
 
 /**
- * @typedef {Object} ExploreOptions
- * @property {boolean} onlyMapped
- * @property {boolean} html
- * @property {boolean} noRoot
- * @property {Object.<string, string>} replace
- */
-
-/**
  * Create options object for `explore` method
- * @param {Args} args CLI arguments
- * @returns {ExploreOptions}
+ * @param  args CLI arguments
  */
-function getExploreOptions(args) {
+function getExploreOptions(args: Args): ExploreOptions {
   let html = true;
   if (args['--json'] || args['--tsv']) {
     html = false;
   }
 
-  const replace = {};
+  const replace: Record<string, string> = {};
   const argsReplace = args['--replace'];
   const argsWith = args['--with'];
+
   if (argsReplace && argsWith) {
     for (let replaceIndex = 0; replaceIndex < argsReplace.length; replaceIndex += 1) {
       replace[argsReplace[replaceIndex]] = argsWith[replaceIndex];
@@ -101,16 +79,19 @@ function getExploreOptions(args) {
   return {
     onlyMapped: args['--only-mapped'] || args['-m'],
     html,
-    noRoot: args['--noroot'],
+    noRoot: !!args['--noroot'],
     replace,
   };
 }
 
 /**
  * Write HTML content to a temporary file and open the file in a browser
- * @param {string} html
  */
-function writeToHtml(html) {
+function writeToHtml(html?: string): void {
+  if (!html) {
+    return;
+  }
+
   const tempName = temp.path({ suffix: '.html' });
 
   fs.writeFileSync(tempName, html);
@@ -125,8 +106,7 @@ function writeToHtml(html) {
 }
 
 if (require.main === module) {
-  /** @type {Args} */
-  const args = docopt(doc, { version: packageJson.version });
+  const args: Args = docopt(doc, { version: '2.0.0' /* packageJson.version*/ });
 
   validateArgs(args);
 
@@ -139,47 +119,49 @@ if (require.main === module) {
   const exploreOptions = getExploreOptions(args);
 
   if (bundles.length === 1) {
-    let data;
+    let data: ExploreResult;
 
     try {
       const { codePath, mapPath } = bundles[0];
       data = explore(codePath, mapPath, exploreOptions);
+
+      reportUnmappedBytes(data);
+
+      if (args['--json']) {
+        console.log(JSON.stringify(data.files, null, '  '));
+        process.exit(0);
+      } else if (args['--tsv']) {
+        console.log('Source\tSize');
+        Object.keys(data.files).forEach(source => {
+          const size = data.files[source];
+          console.log(`${size}\t${source}`);
+        });
+        process.exit(0);
+      } else if (args['--html']) {
+        console.log(data.html);
+        process.exit(0);
+      }
+
+      writeToHtml(data.html);
     } catch (err) {
       if (err.code === 'ENOENT') {
         console.error(`File not found! -- ${err.message}`);
-        process.exit(1);
       } else {
         console.error(err.message);
-        process.exit(1);
       }
+
+      process.exit(1);
     }
-
-    reportUnmappedBytes(data);
-
-    if (args['--json']) {
-      console.log(JSON.stringify(data.files, null, '  '));
-      process.exit(0);
-    } else if (args['--tsv']) {
-      console.log('Source\tSize');
-      Object.keys(data.files).forEach(source => {
-        const size = data.files[source];
-        console.log(`${size}\t${source}`);
-      });
-      process.exit(0);
-    } else if (args['--html']) {
-      console.log(data.html);
-      process.exit(0);
-    }
-
-    writeToHtml(data.html);
   } else {
     exploreBundlesAndFilterErroneous(bundles).then(results => {
       if (results.length === 0) {
         throw new Error('There were errors');
       }
 
+      // @ts-ignore TODO: Promise.all returns (void | ExploreResult)[] find a way to filter out void
       results.forEach(reportUnmappedBytes);
 
+      // @ts-ignore TODO: Promise.all returns (void | ExploreResult)[] find a way to filter out void
       const html = generateHtml(results);
 
       // Check args instead of exploreOptions.html because it always true

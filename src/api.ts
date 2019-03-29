@@ -1,25 +1,23 @@
-const path = require('path');
-const fs = require('fs');
-const fse = require('fs-extra');
-const os = require('os');
-const SourceMapConsumer = require('source-map').SourceMapConsumer;
-const convert = require('convert-source-map');
+import path from 'path';
+import fs from 'fs';
+import fse from 'fs-extra';
+import os from 'os';
+import { SourceMapConsumer } from 'source-map';
+import convert from 'convert-source-map';
 
-const { reportUnmappedBytes, generateHtml, getBundles, UNMAPPED } = require('./common');
-const { getFileContent, mapKeys, commonPathPrefix } = require('./helpers');
+import { reportUnmappedBytes, generateHtml, getBundles, UNMAPPED } from './common';
+import { getFileContent, mapKeys, getCommonPathPrefix } from './helpers';
+
+type File = string | Buffer;
 
 const SOURCE_MAP_INFO_URL =
   'https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps';
 
-/**
- * Get source map
- * @param {(string|Buffer)} jsFile
- * @param {(string|Buffer)} mapFile
- */
-function loadSourceMap(jsFile, mapFile) {
+/** Get source map */
+function loadSourceMap(jsFile: File, mapFile?: File) {
   const jsData = getFileContent(jsFile);
+  let mapConsumer;
 
-  var mapConsumer;
   if (mapFile) {
     const sourcemapData = getFileContent(mapFile);
     mapConsumer = new SourceMapConsumer(sourcemapData);
@@ -45,17 +43,21 @@ function loadSourceMap(jsFile, mapFile) {
   };
 }
 
-function computeSpans(mapConsumer, generatedJs) {
-  var lines = generatedJs.split('\n');
-  var spans = [];
-  var numChars = 0;
-  var lastSource = false; // not a string, not null.
-  for (var line = 1; line <= lines.length; line++) {
-    var lineText = lines[line - 1];
-    var numCols = lineText.length;
-    for (var column = 0; column < numCols; column++, numChars++) {
-      var pos = mapConsumer.originalPositionFor({ line, column });
-      var source = pos.source;
+function computeSpans(mapConsumer: any, generatedJs: string): Span[] {
+  const lines = generatedJs.split('\n');
+  const spans: Span[] = [];
+  let numChars = 0;
+
+  // TODO: Figure out why lastSource was set to false
+  let lastSource: string | null | undefined = undefined; // not a string, not null.
+
+  for (let line = 1; line <= lines.length; line++) {
+    const lineText = lines[line - 1];
+    const numCols = lineText.length;
+
+    for (let column = 0; column < numCols; column++, numChars++) {
+      const pos: { source: string | null } = mapConsumer.originalPositionFor({ line, column });
+      const source = pos.source;
 
       if (source !== lastSource) {
         lastSource = source;
@@ -69,28 +71,23 @@ function computeSpans(mapConsumer, generatedJs) {
   return spans;
 }
 
-/**
- * Calculate the number of bytes contributed by each source file.
- * @returns {
- *  files: {[sourceFile: string]: number},
- *  unmappedBytes: number,
- *  totalBytes: number
- * }
- */
-function computeGeneratedFileSizes(mapConsumer, generatedJs) {
-  var spans = computeSpans(mapConsumer, generatedJs);
+/** Calculate the number of bytes contributed by each source file */
+function computeGeneratedFileSizes(mapConsumer: any, generatedJs: string) {
+  const spans = computeSpans(mapConsumer, generatedJs);
 
-  var unmappedBytes = 0;
-  var files = {};
+  let unmappedBytes = 0;
+  const files: Record<string, number> = {};
   var totalBytes = 0;
+
   for (var i = 0; i < spans.length; i++) {
-    var span = spans[i];
-    var numChars = span.numChars;
+    const { numChars, source } = spans[i];
+
     totalBytes += numChars;
-    if (span.source === null) {
+
+    if (source === null) {
       unmappedBytes += numChars;
     } else {
-      files[span.source] = (files[span.source] || 0) + span.numChars;
+      files[source] = (files[source] || 0) + numChars;
     }
   }
 
@@ -101,14 +98,18 @@ function computeGeneratedFileSizes(mapConsumer, generatedJs) {
   };
 }
 
-function adjustSourcePaths(sizes, findRoot, replace) {
+// Export for tests
+export function adjustSourcePaths(
+  sizes: FileSizeMap,
+  findRoot: boolean,
+  replace?: ReplaceMap
+): FileSizeMap {
   if (findRoot) {
-    var prefix = commonPathPrefix(Object.keys(sizes));
-    var len = prefix.length;
+    const prefix = getCommonPathPrefix(Object.keys(sizes));
+    const len = prefix.length;
+
     if (len) {
-      sizes = mapKeys(sizes, source => {
-        return source.slice(len);
-      });
+      sizes = mapKeys(sizes, source => source.slice(len));
     }
   }
 
@@ -119,28 +120,17 @@ function adjustSourcePaths(sizes, findRoot, replace) {
   var finds = Object.keys(replace);
 
   for (var i = 0; i < finds.length; i++) {
-    var before = new RegExp(finds[i]),
-      after = replace[finds[i]];
-    sizes = mapKeys(sizes, source => {
-      return source.replace(before, after);
-    });
+    const before = new RegExp(finds[i]);
+    const after = replace[finds[i]];
+
+    sizes = mapKeys(sizes, source => source.replace(before, after));
   }
 
   return sizes;
 }
 
-/**
- * @typedef {Object.<string, number>} FileSizeMap
- */
-
-/**
- * Analyze bundle
- * @param {(string|Buffer)} code
- * @param {(string|Buffer)} [map]
- * @param {ExploreOptions} [options]
- * @returns {ExploreResult[]}
- */
-function explore(code, map, options) {
+/** Analyze bundle */
+export function explore(code: File, map?: File, options?: ExploreOptions): ExploreResult {
   if (typeof options === 'undefined') {
     if (typeof map === 'object' && !Buffer.isBuffer(map)) {
       options = map;
@@ -153,6 +143,8 @@ function explore(code, map, options) {
   }
 
   const data = loadSourceMap(code, map);
+
+  // TODO: Remove. `data` is always set
   if (!data) {
     throw new Error('Failed to load script and sourcemap');
   }
@@ -181,7 +173,8 @@ function explore(code, map, options) {
     files[UNMAPPED] = unmappedBytes;
   }
 
-  const result = {
+  const result: ExploreResult = {
+    bundleName: 'bundle', // TODO: Temporary to merge ExploreResult and ExploreBatchResult
     totalBytes,
     unmappedBytes,
     files,
@@ -191,8 +184,7 @@ function explore(code, map, options) {
     const title = Buffer.isBuffer(code) ? 'Buffer' : code;
     result.html = generateHtml([
       {
-        files,
-        totalBytes,
+        ...result,
         bundleName: title,
       },
     ]);
@@ -203,11 +195,9 @@ function explore(code, map, options) {
 
 /**
  * Wrap `explore` with Promise
- * @param {Bundle} bundle
- * @returns {Promise<ExploreBatchResult>}
  */
-function explorePromisified({ codePath, mapPath }) {
-  return new Promise(resolve => {
+function explorePromisified({ codePath, mapPath }: Bundle): Promise<ExploreResult> {
+  return new Promise<ExploreResult>(resolve => {
     const result = explore(codePath, mapPath);
 
     resolve({
@@ -219,10 +209,8 @@ function explorePromisified({ codePath, mapPath }) {
 
 /**
  * Handle error during multiple bundles processing
- * @param {Bundle} bundleInfo
- * @param {Error} err
  */
-function onExploreError(bundleInfo, err) {
+function onExploreError(bundleInfo: Bundle, err: NodeJS.ErrnoException): void {
   if (err.code === 'ENOENT') {
     console.error(`[${bundleInfo.codePath}] File not found! -- ${err.message}`);
   } else {
@@ -233,30 +221,27 @@ function onExploreError(bundleInfo, err) {
 /**
  * Explore multiple bundles and write html output to file.
  *
- * @param {Bundle[]} bundles Bundles to explore
- * @returns {Promise<Promise<ExploreBatchResult[]>}
+ * @param bundles Bundles to explore
  */
-function exploreBundlesAndFilterErroneous(bundles) {
+export function exploreBundlesAndFilterErroneous(
+  bundles: Bundle[]
+): Promise<(void | ExploreResult)[]> {
   return Promise.all(
     bundles.map(bundle => explorePromisified(bundle).catch(err => onExploreError(bundle, err)))
   ).then(results => results.filter(data => data));
 }
 
 /**
- * @typedef {Object} WriteConfig
- * @property {string} [path] Path to write
- * @property {string} fileName File name to write
- */
-
-/**
  * Explore multiple bundles and write html output to file.
  *
- * @param {WriteConfig} writeConfig
- * @param {string} codePath Path to bundle file or glob matching bundle files
- * @param {string} [mapPath] Path to bundle map file
- * @returns {Bundle[]}
+ * @param codePath Path to bundle file or glob matching bundle files
+ * @param [mapPath] Path to bundle map file
  */
-function exploreBundlesAndWriteHtml(writeConfig, codePath, mapPath) {
+export function exploreBundlesAndWriteHtml(
+  writeConfig: WriteConfig,
+  codePath: string,
+  mapPath?: string
+): Promise<void> {
   const bundles = getBundles(codePath, mapPath);
 
   return exploreBundlesAndFilterErroneous(bundles).then(results => {
@@ -264,8 +249,10 @@ function exploreBundlesAndWriteHtml(writeConfig, codePath, mapPath) {
       throw new Error('There were errors');
     }
 
+    // @ts-ignore TODO: Promise.all returns (void | ExploreResult)[] find a way to filter out void
     results.forEach(reportUnmappedBytes);
 
+    // @ts-ignore TODO: Promise.all returns (void | ExploreResult)[] find a way to filter out void
     const html = generateHtml(results);
 
     if (writeConfig.path !== undefined) {
@@ -281,10 +268,3 @@ function exploreBundlesAndWriteHtml(writeConfig, codePath, mapPath) {
     return fs.writeFileSync(relPath, html);
   });
 }
-
-module.exports = {
-  explore,
-  exploreBundlesAndWriteHtml,
-  // Exports below for tests only
-  adjustSourcePaths,
-};

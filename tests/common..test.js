@@ -1,6 +1,6 @@
-const { expect } = require('chai');
+import { expect } from 'chai';
 
-const { getBundles } = require('../src/common');
+import { getBundles } from '../src/common';
 
 describe('getBundles - command line parsing', function() {
   const tests = [

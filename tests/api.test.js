@@ -1,13 +1,14 @@
-const { expect } = require('chai');
-const fs = require('fs-extra');
-const path = require('path');
+import { expect } from 'chai';
+import fs from 'fs-extra';
+import path from 'path';
 
-const { explore, exploreBundlesAndWriteHtml, adjustSourcePaths } = require('../src/api');
+import { explore, exploreBundlesAndWriteHtml, adjustSourcePaths } from '../src/api';
 
 describe('Public API', function() {
   describe('explore', function() {
     const resultMap = {
       inline: {
+        bundleName: 'bundle', // TODO: Remove after refactoring
         files: {
           '<unmapped>': 0,
           'dist/bar.js': 2854,
@@ -19,6 +20,7 @@ describe('Public API', function() {
       },
 
       inlineOnlyMapped: {
+        bundleName: 'bundle',
         files: {
           'dist/bar.js': 97,
           'dist/foo.js': 137,
@@ -29,6 +31,7 @@ describe('Public API', function() {
       },
 
       referenced: {
+        bundleName: 'bundle',
         files: {
           '<unmapped>': 0,
           'dist/bar.js': 97,
@@ -40,6 +43,7 @@ describe('Public API', function() {
       },
 
       'foo.min.no-map.js': {
+        bundleName: 'bundle',
         files: {
           '<unmapped>': 0,
           'dist/bar.js': 62,
@@ -71,6 +75,7 @@ describe('Public API', function() {
 
     it('should generate data respecting onlyMapped and replace options', function() {
       const expected = {
+        bundleName: 'bundle',
         files: {
           'hello/bar.js': 97,
           'hello/foo.js': 137,
