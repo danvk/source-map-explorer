@@ -1,2 +1,7 @@
+**/*.*
+!**/*.js
+!**/*.ts
+node_modules
+dist
 tests/data
-vendor
+*vendor*

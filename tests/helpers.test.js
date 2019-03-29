@@ -1,8 +1,8 @@
-const { expect } = require('chai');
+import { expect } from 'chai';
 
-const { commonPathPrefix, mapKeys } = require('../src/helpers');
+import { getCommonPathPrefix, mapKeys } from '../src/helpers';
 
-describe('commonPathPrefix', function() {
+describe('getCommonPathPrefix', function() {
   const tests = [
     { paths: ['abc', 'abcd', 'ab'], expected: '' },
     { paths: ['/abc/def', '/bcd/efg'], expected: '/' },
@@ -12,7 +12,7 @@ describe('commonPathPrefix', function() {
 
   tests.forEach(function({ paths, expected }) {
     it(`should find '${expected}' as common prefix of [${paths.join(', ')}]`, function() {
-      expect(commonPathPrefix(paths)).to.deep.equal(expected);
+      expect(getCommonPathPrefix(paths)).to.deep.equal(expected);
     });
   });
 });

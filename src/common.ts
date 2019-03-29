@@ -1,22 +1,14 @@
-const path = require('path');
-const fs = require('fs');
-const glob = require('glob');
-const ejs = require('ejs');
-const btoa = require('btoa');
+import path from 'path';
+import fs from 'fs';
+import glob from 'glob';
+import ejs from 'ejs';
+import btoa from 'btoa';
 
-const { formatBytes, commonPathPrefix } = require('./helpers');
+import { formatBytes, getCommonPathPrefix } from './helpers';
 
-const UNMAPPED = '<unmapped>';
+export const UNMAPPED = '<unmapped>';
 
-/**
- * @typedef {Object} ExploreResult
- * @property {number} totalBytes
- * @property {number} unmappedBytes
- * @property {FileSizeMap} files
- * @property {string} [html]
- */
-
-function reportUnmappedBytes(data) {
+export function reportUnmappedBytes(data: ExploreResult): void {
   const unmappedBytes = data.files[UNMAPPED];
   if (unmappedBytes) {
     const totalBytes = data.totalBytes;
@@ -32,19 +24,18 @@ function reportUnmappedBytes(data) {
 
 /**
  * Create a combined result where each of the inputs is a separate node under the root.
- * @param {ExploreBatchResult[]} exploreResults
- * @returns ExploreBatchResult
  */
-function makeMergedBundle(exploreResults) {
+function makeMergedBundle(exploreResults: ExploreResult[]): ExploreResult {
   let totalBytes = 0;
-  const files = {};
+  const files: Record<string, number> = {};
 
   // Remove any common prefix to keep the visualization as simple as possible.
-  const commonPrefix = commonPathPrefix(exploreResults.map(r => r.bundleName));
+  const commonPrefix = getCommonPathPrefix(exploreResults.map(r => r.bundleName));
 
   for (const result of exploreResults) {
     totalBytes += result.totalBytes;
     const prefix = result.bundleName.slice(commonPrefix.length);
+
     Object.keys(result.files).forEach(fileName => {
       const size = result.files[fileName];
       files[prefix + '/' + fileName] = size;
@@ -59,18 +50,10 @@ function makeMergedBundle(exploreResults) {
 }
 
 /**
- * @typedef {Object} ExploreBatchResult
- * @property {string} bundleName
- * @property {number} totalBytes
- * @property {FileSizeMap} files
- */
-
-/**
  * Covert file size map to webtreemap data
- * @param {FileSizeMap} files
  */
-function getWebTreeMapData(files) {
-  function newNode(name) {
+function getWebTreeMapData(files: FileSizeMap): WebTreeMapNode {
+  function newNode(name: string): WebTreeMapNode {
     return {
       name: name,
       data: {
@@ -80,7 +63,9 @@ function getWebTreeMapData(files) {
     };
   }
 
-  function addNode(path, size) {
+  const treeData = newNode('/');
+
+  function addNode(path: string, size: number): void {
     const parts = path.split('/');
     let node = treeData;
 
@@ -99,7 +84,7 @@ function getWebTreeMapData(files) {
     });
   }
 
-  function addSizeToTitle(node, total) {
+  function addSizeToTitle(node: WebTreeMapNode, total: number): void {
     const size = node.data['$area'],
       pct = (100.0 * size) / total;
 
@@ -108,8 +93,6 @@ function getWebTreeMapData(files) {
       addSizeToTitle(child, total);
     });
   }
-
-  const treeData = newNode('/');
 
   for (const source in files) {
     addNode(source, files[source]);
@@ -120,13 +103,13 @@ function getWebTreeMapData(files) {
 }
 
 /**
- * Generate HTML file content for specified files
- * @param {ExploreBatchResult[]} exploreResults
+ *  Generate HTML file content for specified files
  */
-function generateHtml(exploreResults) {
+export function generateHtml(exploreResults: ExploreResult[]): string {
   const assets = {
-    webtreemapJs: btoa(fs.readFileSync(require.resolve('../vendor/webtreemap.js'))),
-    webtreemapCss: btoa(fs.readFileSync(require.resolve('../vendor/webtreemap.css'))),
+    // TODO: Remove `as any` when https://github.com/DefinitelyTyped/DefinitelyTyped/pull/34271 is merged
+    webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js')) as any),
+    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css')) as any),
   };
 
   // Create a combined bundle if applicable
@@ -141,7 +124,7 @@ function generateHtml(exploreResults) {
   }));
 
   // Get webtreemap data to update map on bundle select
-  const treeDataMap = exploreResults.reduce((result, data) => {
+  const treeDataMap = exploreResults.reduce<Record<string, WebTreeMapNode>>((result, data) => {
     result[data.bundleName] = getWebTreeMapData(data.files);
 
     return result;
@@ -158,19 +141,12 @@ function generateHtml(exploreResults) {
 }
 
 /**
- * @typedef {Object} Bundle
- * @property {string} codePath Path to code file
- * @property {string} mapPath Path to map file
- */
-
-/**
  * Expand codePath and mapPath into a list of { codePath, mapPath } pairs
  * @see https://github.com/danvk/source-map-explorer/issues/52
- * @param {string} codePath Path to bundle file or glob matching bundle files
- * @param {string} [mapPath] Path to bundle map file
- * @returns {Bundle[]}
+ * @param codePath Path to bundle file or glob matching bundle files
+ * @param [mapPath] Path to bundle map file
  */
-function getBundles(codePath, mapPath) {
+export function getBundles(codePath: string, mapPath?: string): Bundle[] {
   if (codePath && mapPath) {
     return [
       {
@@ -181,20 +157,12 @@ function getBundles(codePath, mapPath) {
   }
 
   const filenames = glob.sync(codePath);
-
   const mapFilenames = glob.sync(codePath + '.map');
 
   return filenames
     .filter(filename => !filename.endsWith('.map'))
-    .map(filename => ({
+    .map<Bundle>(filename => ({
       codePath: filename,
       mapPath: mapFilenames.find(mapFilename => mapFilename === `${filename}.map`),
     }));
 }
-
-module.exports = {
-  UNMAPPED,
-  reportUnmappedBytes,
-  generateHtml,
-  getBundles,
-};
