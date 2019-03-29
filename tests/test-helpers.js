@@ -1,6 +1,6 @@
-const { existsSync } = require('fs');
-const spawn = require('cross-spawn');
-const concat = require('concat-stream');
+import { existsSync } from 'fs';
+import spawn from 'cross-spawn';
+import concat from 'concat-stream';
 
 const PATH = process.env.PATH;
 
