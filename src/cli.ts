@@ -8,7 +8,7 @@ import open from 'open';
 // TODO: https://github.com/Microsoft/TypeScript/issues/24744
 // import packageJson from '../package.json';
 
-import { explore, exploreBundlesAndFilterErroneous } from './api';
+import { explore, exploreBundles, ExploreOptions, ExploreResult } from './api';
 import { reportUnmappedBytes, generateHtml, getBundles } from './common';
 
 const doc = [
@@ -45,6 +45,21 @@ const doc = [
   '                    generation process.  Accepts regular expressions.',
   '  --with=AFTER  See --replace.',
 ].join('\n');
+
+interface Args {
+  /** Path to code file or Glob matching bundle files */
+  '<script.js>': string;
+  /** Path to map file */
+  '<script.js.map>'?: string;
+  '--json'?: boolean;
+  '--html'?: boolean;
+  '--tsv'?: boolean;
+  '--only-mapped'?: boolean;
+  '-m': boolean;
+  '--replace'?: string[];
+  '--with'?: string[];
+  '--noroot'?: boolean;
+}
 
 /**
  * Validate CLI arguments
@@ -119,50 +134,51 @@ if (require.main === module) {
   const exploreOptions = getExploreOptions(args);
 
   if (bundles.length === 1) {
-    let data: ExploreResult;
+    const { codePath, mapPath } = bundles[0];
 
-    try {
-      const { codePath, mapPath } = bundles[0];
-      data = explore(codePath, mapPath, exploreOptions);
+    explore(codePath, mapPath, exploreOptions)
+      .then(result => {
+        reportUnmappedBytes(result);
 
-      reportUnmappedBytes(data);
+        if (args['--json']) {
+          console.log(JSON.stringify(result.files, null, '  '));
+          process.exit(0);
+        } else if (args['--tsv']) {
+          console.log('Source\tSize');
+          Object.keys(result.files).forEach(source => {
+            const size = result.files[source];
+            console.log(`${size}\t${source}`);
+          });
+          process.exit(0);
+        } else if (args['--html']) {
+          console.log(result.html);
+          process.exit(0);
+        }
 
-      if (args['--json']) {
-        console.log(JSON.stringify(data.files, null, '  '));
-        process.exit(0);
-      } else if (args['--tsv']) {
-        console.log('Source\tSize');
-        Object.keys(data.files).forEach(source => {
-          const size = data.files[source];
-          console.log(`${size}\t${source}`);
-        });
-        process.exit(0);
-      } else if (args['--html']) {
-        console.log(data.html);
-        process.exit(0);
-      }
+        writeToHtml(result.html);
+      })
+      .catch(error => {
+        if (error.code === 'ENOENT') {
+          console.error(`File not found! -- ${error.message}`);
+        } else {
+          console.error(error.message);
+        }
 
-      writeToHtml(data.html);
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        console.error(`File not found! -- ${err.message}`);
-      } else {
-        console.error(err.message);
-      }
-
-      process.exit(1);
-    }
+        process.exit(1);
+      });
   } else {
-    exploreBundlesAndFilterErroneous(bundles).then(results => {
-      if (results.length === 0) {
+    exploreBundles(bundles).then(results => {
+      const successResults = results.filter(
+        (result): result is ExploreResult => result.hasOwnProperty('files')
+      );
+
+      if (successResults.length === 0) {
         throw new Error('There were errors');
       }
 
-      // @ts-ignore TODO: Promise.all returns (void | ExploreResult)[] find a way to filter out void
-      results.forEach(reportUnmappedBytes);
+      successResults.forEach(reportUnmappedBytes);
 
-      // @ts-ignore TODO: Promise.all returns (void | ExploreResult)[] find a way to filter out void
-      const html = generateHtml(results);
+      const html = generateHtml(successResults);
 
       // Check args instead of exploreOptions.html because it always true
       if (args['--html']) {
