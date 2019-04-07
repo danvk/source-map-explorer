@@ -45,8 +45,8 @@ function execute(processPath, args = []) {
   childProcess.stdin.setEncoding('utf-8');
 
   return new Promise((resolve, reject) => {
-    childProcess.stderr.once('data', err => {
-      reject(err.toString());
+    childProcess.stderr.once('data', error => {
+      reject(error.toString());
     });
     childProcess.on('error', reject);
     // Collect output

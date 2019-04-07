@@ -1,0 +1,110 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Public API explore should accept buffer with inline map 1`] = `
+Object {
+  "bundleName": "Buffer",
+  "files": Object {
+    "<unmapped>": 0,
+    "dist/bar.js": 2854,
+    "dist/foo.js": 137,
+    "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+  },
+  "totalBytes": 3454,
+  "unmappedBytes": 0,
+}
+`;
+
+exports[`Public API explore should accept buffers with js and map 1`] = `
+Object {
+  "bundleName": "Buffer",
+  "files": Object {
+    "<unmapped>": 0,
+    "dist/bar.js": 97,
+    "dist/foo.js": 137,
+    "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+  },
+  "totalBytes": 697,
+  "unmappedBytes": 0,
+}
+`;
+
+exports[`Public API explore should accept options passed as second or third argument 1`] = `
+Object {
+  "bundleName": "data/foo.min.js",
+  "files": Object {
+    "dist/bar.js": 97,
+    "dist/foo.js": 137,
+    "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+  },
+  "totalBytes": 697,
+  "unmappedBytes": 0,
+}
+`;
+
+exports[`Public API explore should accept options passed as second or third argument 2`] = `
+Object {
+  "bundleName": "data/foo.min.js",
+  "files": Object {
+    "dist/bar.js": 97,
+    "dist/foo.js": 137,
+    "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+  },
+  "totalBytes": 697,
+  "unmappedBytes": 0,
+}
+`;
+
+exports[`Public API explore should generate data respecting onlyMapped and replace options 1`] = `
+Object {
+  "bundleName": "data/foo.min.js",
+  "files": Object {
+    "hello/bar.js": 97,
+    "hello/foo.js": 137,
+    "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+  },
+  "totalBytes": 697,
+  "unmappedBytes": 0,
+}
+`;
+
+exports[`Public API explore should generate data when provided with file with referenced map 1`] = `
+Object {
+  "bundleName": "data/foo.min.js",
+  "files": Object {
+    "<unmapped>": 0,
+    "dist/bar.js": 97,
+    "dist/foo.js": 137,
+    "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+  },
+  "totalBytes": 697,
+  "unmappedBytes": 0,
+}
+`;
+
+exports[`Public API explore should generate data when provided with file with separated map file 1`] = `
+Object {
+  "bundleName": "data/foo.min.no-map.js",
+  "files": Object {
+    "<unmapped>": 0,
+    "dist/bar.js": 62,
+    "dist/foo.js": 137,
+    "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+  },
+  "totalBytes": 662,
+  "unmappedBytes": 0,
+}
+`;
+
+exports[`Public API explore should generate data when provided with js file with inline map 1`] = `
+Object {
+  "bundleName": "data/foo.min.inline-map.js",
+  "files": Object {
+    "<unmapped>": 0,
+    "dist/bar.js": 2854,
+    "dist/foo.js": 137,
+    "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+  },
+  "totalBytes": 3454,
+  "unmappedBytes": 0,
+}
+`;

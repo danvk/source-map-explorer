@@ -5,6 +5,7 @@ import ejs from 'ejs';
 import btoa from 'btoa';
 
 import { formatBytes, getCommonPathPrefix } from './helpers';
+import { ExploreResult, FileSizeMap } from './api';
 
 export const UNMAPPED = '<unmapped>';
 
@@ -47,6 +48,14 @@ function makeMergedBundle(exploreResults: ExploreResult[]): ExploreResult {
     totalBytes,
     files,
   };
+}
+
+interface WebTreeMapNode {
+  name: string;
+  data: {
+    $area: number;
+  };
+  children: WebTreeMapNode[];
 }
 
 /**
@@ -107,9 +116,8 @@ function getWebTreeMapData(files: FileSizeMap): WebTreeMapNode {
  */
 export function generateHtml(exploreResults: ExploreResult[]): string {
   const assets = {
-    // TODO: Remove `as any` when https://github.com/DefinitelyTyped/DefinitelyTyped/pull/34271 is merged
-    webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js')) as any),
-    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css')) as any),
+    webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
+    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
   };
 
   // Create a combined bundle if applicable
@@ -138,6 +146,11 @@ export function generateHtml(exploreResults: ExploreResult[]): string {
     webtreemapJs: assets.webtreemapJs,
     webtreemapCss: assets.webtreemapCss,
   });
+}
+
+export interface Bundle {
+  codePath: string;
+  mapPath?: string;
 }
 
 /**

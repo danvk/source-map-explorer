@@ -25,7 +25,7 @@ module.exports = {
       'error',
       { blankLine: 'always', prev: '*', next: 'return' },
     ],
-    '@typescript-eslint/explicit-function-return-type': 'off', // TODO: Remove after source-map update
-    '@typescript-eslint/no-explicit-any': 'off', // TODO: Remove after source-map update
+    // TypeScript specific
+    '@typescript-eslint/explicit-function-return-type': ['warn', { allowExpressions: true }],
   },
 };
