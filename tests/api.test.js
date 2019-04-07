@@ -6,124 +6,65 @@ import { explore, exploreBundlesAndWriteHtml, adjustSourcePaths } from '../src/a
 
 describe('Public API', function() {
   describe('explore', function() {
-    const resultMap = {
-      inline: {
-        bundleName: 'bundle', // TODO: Remove after refactoring
-        files: {
-          '<unmapped>': 0,
-          'dist/bar.js': 2854,
-          'dist/foo.js': 137,
-          'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
-        },
-        unmappedBytes: 0,
-        totalBytes: 3454,
-      },
+    it('should generate data when provided with js file with inline map', async function() {
+      const actual = await explore('data/foo.min.inline-map.js');
 
-      inlineOnlyMapped: {
-        bundleName: 'bundle',
-        files: {
-          'dist/bar.js': 97,
-          'dist/foo.js': 137,
-          'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
-        },
-        unmappedBytes: 0,
-        totalBytes: 697,
-      },
-
-      referenced: {
-        bundleName: 'bundle',
-        files: {
-          '<unmapped>': 0,
-          'dist/bar.js': 97,
-          'dist/foo.js': 137,
-          'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
-        },
-        unmappedBytes: 0,
-        totalBytes: 697,
-      },
-
-      'foo.min.no-map.js': {
-        bundleName: 'bundle',
-        files: {
-          '<unmapped>': 0,
-          'dist/bar.js': 62,
-          'dist/foo.js': 137,
-          'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
-        },
-        unmappedBytes: 0,
-        totalBytes: 662,
-      },
-    };
-
-    it('should generate data when provided with js file with inline map', function() {
-      const actual = explore('data/foo.min.inline-map.js');
-
-      expect(actual).to.deep.equal(resultMap.inline);
+      expect(actual).to.matchSnapshot();
     });
 
-    it('should generate data when provided with file with referenced map', function() {
-      const actual = explore('data/foo.min.js');
+    it('should generate data when provided with file with referenced map', async function() {
+      const actual = await explore('data/foo.min.js');
 
-      expect(actual).to.deep.equal(resultMap.referenced);
+      expect(actual).to.matchSnapshot();
     });
 
-    it('should generate data when provided with file with separated map file', function() {
-      const actual = explore('data/foo.min.no-map.js', 'data/foo.min.no-map.separated.js.map');
+    it('should generate data when provided with file with separated map file', async function() {
+      const actual = await explore(
+        'data/foo.min.no-map.js',
+        'data/foo.min.no-map.separated.js.map'
+      );
 
-      expect(actual).to.deep.equal(resultMap['foo.min.no-map.js']);
+      expect(actual).to.matchSnapshot();
     });
 
-    it('should generate data respecting onlyMapped and replace options', function() {
-      const expected = {
-        bundleName: 'bundle',
-        files: {
-          'hello/bar.js': 97,
-          'hello/foo.js': 137,
-          'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
-        },
-        unmappedBytes: 0,
-        totalBytes: 697,
-      };
-
-      const actual = explore('data/foo.min.js', 'data/foo.min.js.map', {
+    it('should generate data respecting onlyMapped and replace options', async function() {
+      const actual = await explore('data/foo.min.js', 'data/foo.min.js.map', {
         onlyMapped: true,
         replace: { dist: 'hello' },
       });
 
-      expect(actual).to.deep.equal(expected);
+      expect(actual).to.matchSnapshot();
     });
 
-    it('should accept options passed as second or third argument', function() {
-      const expected = resultMap.inlineOnlyMapped;
-
-      const actual3rdArg = explore('data/foo.min.js', 'data/foo.min.js.map', {
+    it('should accept options passed as second or third argument', async function() {
+      const actual3rdArg = await explore('data/foo.min.js', 'data/foo.min.js.map', {
         onlyMapped: true,
       });
 
-      expect(actual3rdArg).to.deep.equal(expected);
+      expect(actual3rdArg).to.matchSnapshot();
 
-      const actual2ndArg = explore('data/foo.min.js', { onlyMapped: true });
+      const actual2ndArg = await explore('data/foo.min.js', { onlyMapped: true });
 
-      expect(actual2ndArg).to.deep.equal(expected);
+      expect(actual2ndArg).to.matchSnapshot();
     });
 
-    it('should accept buffer with inline map', function() {
-      const actual = explore(fs.readFileSync('data/foo.min.inline-map.js'));
+    it('should accept buffer with inline map', async function() {
+      const actual = await explore(fs.readFileSync('data/foo.min.inline-map.js'));
 
-      expect(actual).to.deep.equal(actual);
+      expect(actual).to.matchSnapshot();
     });
 
-    it('should accept buffers with js and map', function() {
-      const actual = explore(
+    it('should accept buffers with js and map', async function() {
+      const actual = await explore(
         fs.readFileSync('data/foo.min.js'),
         fs.readFileSync('data/foo.min.js.map')
       );
 
-      expect(actual).to.deep.equal(resultMap.referenced);
+      expect(actual).to.matchSnapshot();
     });
 
-    it('should generate html', function() {
-      const actualBuffer = explore(fs.readFileSync('data/foo.min.inline-map.js'), {
+    it('should generate html', async function() {
+      const actualBuffer = await explore(fs.readFileSync('data/foo.min.inline-map.js'), {
         html: true,
       });
 
@@ -133,7 +74,7 @@ describe('Public API', function() {
         .and.contains('"bar.js')
         .and.contains('"foo.js');
 
-      const actualInline = explore('data/foo.min.js', { html: true });
+      const actualInline = await explore('data/foo.min.js', { html: true });
 
       expect(actualInline)
         .to.have.property('html')
@@ -142,26 +83,24 @@ describe('Public API', function() {
         .and.contains('"foo.js');
     });
 
-    it('should throw when specified file (js or map) not found', function() {
-      expect(function() {
-        explore('data/something.js');
-      }).to.throw('no such file or directory');
+    it('should throw when specified file (js or map) not found', async function() {
+      await expect(explore('data/something.js')).to.be.rejectedWith('no such file or directory');
 
-      expect(function() {
-        explore('data/foo.min.js', 'data/foo.min.js.maap');
-      }).to.throw('no such file or directory');
+      await expect(explore('data/foo.min.js', 'data/foo.min.js.maap')).to.be.rejectedWith(
+        'no such file or directory'
+      );
     });
 
-    it('should trow when cannot locate sourcemap', function() {
-      expect(function() {
-        explore('data/foo.min.no-map.js');
-      }).to.throw('Unable to find a source map.');
+    it('should trow when cannot locate sourcemap', async function() {
+      await expect(explore('data/foo.min.no-map.js')).to.be.rejectedWith(
+        'Unable to find a source map.'
+      );
     });
 
-    it('should throw when used with bad sourcemap', function() {
-      expect(function() {
-        explore('data/foo.min.no-map.js', 'data/foo.min.no-map.bad-map.js.map');
-      }).to.throw('Your source map only contains one source (foo.min.js)');
+    it('should throw when used with bad sourcemap', async function() {
+      await expect(
+        explore('data/foo.min.no-map.js', 'data/foo.min.no-map.bad-map.js.map')
+      ).to.be.rejectedWith('Your source map only contains one source (foo.min.js)');
     });
   });
 
@@ -177,7 +116,7 @@ describe('Public API', function() {
       expect(data).to.have.string('<title>[combined] - Source Map Explorer</title>');
     }
 
-    it('should explore multiple bundles and write a html file as specified in writeConfig', async () => {
+    it('should explore multiple bundles and write a html file as specified in writeConfig', async function() {
       const writePath = path.resolve(__dirname, 'tmp');
       const writeConfig = {
         path: writePath,
