@@ -160,7 +160,7 @@ export interface ExploreOptions {
   replace?: ReplaceMap;
 }
 
-type ReplaceMap = Record<string, string>;
+export type ReplaceMap = Record<string, string>;
 
 export interface ExploreResult {
   bundleName: string;
