@@ -16,7 +16,7 @@ describe('CLI', function() {
         '--replace=we',
       ]);
     } catch (err) {
-      expect(err).to.include('--replace flags must be paired with --with flags.');
+      expect(err).to.include('--replace flags must be paired with --with flags');
     }
   });
 
