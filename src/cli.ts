@@ -20,8 +20,7 @@ interface Arguments {
 }
 
 function parseArguments(): Arguments {
-  // TODO: Use `middleware` to remove extra single quotes from positional arguments
-  return yargs
+  const argv = yargs
     .strict()
     .scriptName('source-map-explorer')
     .usage('Analyze and debug space usage through source maps.')
@@ -94,6 +93,12 @@ function parseArguments(): Arguments {
       return true;
     })
     .parse();
+
+  // Trim extra quotes
+  const quoteRegex = /'/g;
+  argv._ = argv._.map(path => path.replace(quoteRegex, ''));
+
+  return argv;
 }
 
 /**
