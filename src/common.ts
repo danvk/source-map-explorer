@@ -153,29 +153,42 @@ export interface Bundle {
   mapPath?: string;
 }
 
-/**
- * Expand codePath and mapPath into a list of { codePath, mapPath } pairs
- * @see https://github.com/danvk/source-map-explorer/issues/52
- * @param codePath Path to bundle file or glob matching bundle files
- * @param [mapPath] Path to bundle map file
- */
-export function getBundles(codePath: string, mapPath?: string): Bundle[] {
-  if (codePath && mapPath) {
-    return [
-      {
-        codePath,
-        mapPath,
-      },
-    ];
+function expandGlob(pattern: string): string[] {
+  // Make sure pattern match `.map` files as well
+  if (pattern.endsWith('.js')) {
+    pattern = `${pattern}?(.map)`;
   }
 
-  const filenames = glob.sync(codePath);
-  const mapFilenames = glob.sync(codePath + '.map');
+  return glob.sync(pattern);
+}
 
-  return filenames
-    .filter(filename => !filename.endsWith('.map'))
-    .map<Bundle>(filename => ({
-      codePath: filename,
-      mapPath: mapFilenames.find(mapFilename => mapFilename === `${filename}.map`),
-    }));
+/**
+ * Expands list of file token into a list of { codePath, mapPath } pairs
+ */
+export function getBundles(fileTokens: string[]): Bundle[] {
+  const filenames = fileTokens.reduce<string[]>((result, filePath) => {
+    if (glob.hasMagic(filePath)) {
+      result.push(...expandGlob(filePath));
+    } else {
+      result.push(filePath);
+    }
+
+    return result;
+  }, []);
+
+  const codeFilenames: string[] = [];
+  const mapFilenames: string[] = [];
+
+  filenames.forEach(filename => {
+    if (filename.endsWith('.map')) {
+      mapFilenames.push(filename);
+    } else {
+      codeFilenames.push(filename);
+    }
+  });
+
+  return codeFilenames.map<Bundle>(codePath => ({
+    codePath,
+    mapPath: mapFilenames.find(filename => filename === `${codePath}.map`),
+  }));
 }

@@ -155,7 +155,7 @@ function writeToHtml(html?: string): void {
 if (require.main === module) {
   const argv = parseArguments();
 
-  const bundles = getBundles(argv._[0], argv._[1]);
+  const bundles = getBundles(argv._);
 
   if (bundles.length === 0) {
     throw new Error('No file(s) found');

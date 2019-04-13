@@ -276,15 +276,13 @@ interface WriteConfig {
 /**
  * Explore multiple bundles and write html output to file.
  *
- * @param codePath Path to bundle file or glob matching bundle files
- * @param [mapPath] Path to bundle map file
+ * @param fileTokens List of file paths or glob patterns
  */
 export async function exploreBundlesAndWriteHtml(
   writeConfig: WriteConfig,
-  codePath: string,
-  mapPath?: string
+  fileTokens: string[]
 ): Promise<void> {
-  const bundles = getBundles(codePath, mapPath);
+  const bundles = getBundles(fileTokens);
 
   return exploreBundles(bundles).then(results => {
     const successResults = results.filter(
