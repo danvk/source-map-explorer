@@ -123,34 +123,25 @@ function computeGeneratedFileSizes(consumer: Consumer, jsFileContent: string): F
 }
 
 // Export for tests
-export function adjustSourcePaths(
-  sizes: FileSizeMap,
-  findRoot: boolean,
-  replace?: ReplaceMap
-): FileSizeMap {
-  if (findRoot) {
-    const prefix = getCommonPathPrefix(Object.keys(sizes));
+export function adjustSourcePaths(fileSizeMap: FileSizeMap, options: ExploreOptions): FileSizeMap {
+  if (!options.noRoot) {
+    const prefix = getCommonPathPrefix(Object.keys(fileSizeMap));
     const length = prefix.length;
 
     if (length) {
-      sizes = mapKeys(sizes, source => source.slice(length));
+      fileSizeMap = mapKeys(fileSizeMap, source => source.slice(length));
     }
   }
 
-  if (!replace) {
-    replace = {};
+  if (options.replace) {
+    fileSizeMap = Object.entries(options.replace).reduce((result, [before, after]) => {
+      const regexp = new RegExp(before, 'g');
+
+      return mapKeys(result, source => source.replace(regexp, after));
+    }, fileSizeMap);
   }
 
-  var finds = Object.keys(replace);
-
-  for (let i = 0; i < finds.length; i++) {
-    const before = new RegExp(finds[i]);
-    const after = replace[finds[i]];
-
-    sizes = mapKeys(sizes, source => source.replace(before, after));
-  }
-
-  return sizes;
+  return fileSizeMap;
 }
 
 export interface ExploreOptions {
@@ -207,7 +198,7 @@ export async function explore(
     throw new Error(errorMessage);
   }
 
-  files = adjustSourcePaths(files, !options.noRoot, options.replace);
+  files = adjustSourcePaths(files, options);
 
   const { totalBytes, unmappedBytes } = sizes;
 
