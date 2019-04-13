@@ -146,49 +146,69 @@ describe('Public API', function() {
   });
 
   describe('adjustSourcePaths', function() {
-    it('should factor out a common prefix', function() {
-      [
-        {
-          sizes: { '/src/foo.js': 10, '/src/bar.js': 20 },
-          expected: { 'foo.js': 10, 'bar.js': 20 },
+    const tests = [
+      {
+        name: 'should factor out a common prefix',
+        fileSizeMap: { '/src/foo.js': 10, '/src/bar.js': 20 },
+        options: { noRoot: false },
+        expected: { 'foo.js': 10, 'bar.js': 20 },
+      },
+      {
+        name: 'should factor out a common prefix',
+        fileSizeMap: { '/src/foo.js': 10, '/src/foodle.js': 20 },
+        options: { noRoot: false },
+        expected: { 'foo.js': 10, 'foodle.js': 20 },
+      },
+      {
+        name: 'should find/replace',
+        fileSizeMap: { '/src/foo.js': 10, '/src/foodle.js': 20 },
+        options: {
+          noRoot: true,
+          replace: {
+            src: 'dist',
+          },
         },
-        {
-          sizes: { '/src/foo.js': 10, '/src/foodle.js': 20 },
-          expected: { 'foo.js': 10, 'foodle.js': 20 },
+        expected: { '/dist/foo.js': 10, '/dist/foodle.js': 20 },
+      },
+      {
+        name: 'should find/replace with regexp',
+        fileSizeMap: { '/src/foo.js': 10, '/src/foodle.js': 20 },
+        options: {
+          noRoot: true,
+          replace: {
+            'foo.': 'bar.',
+          },
         },
-      ].forEach(function({ sizes, expected }) {
-        expect(adjustSourcePaths(sizes, true, [], [])).to.deep.equal(expected);
+        expected: { '/src/bar.js': 10, '/src/bar.le.js': 20 },
+      },
+      {
+        name: 'should find/replace with regexp all instances',
+        fileSizeMap: { '/src/foo/foo.js': 10, '/src/foo/app.js': 20 },
+        options: {
+          noRoot: true,
+          replace: {
+            foo: 'bar',
+          },
+        },
+        expected: { '/src/bar/bar.js': 10, '/src/bar/app.js': 20 },
+      },
+      {
+        name: 'should find/replace with regexp, can be used to add root',
+        fileSizeMap: { '/foo/foo.js': 10, '/foo/foodle.js': 20 },
+        options: {
+          noRoot: true,
+          replace: {
+            '^/foo': '/bar',
+          },
+        },
+        expected: { '/bar/foo.js': 10, '/bar/foodle.js': 20 },
+      },
+    ];
+
+    tests.forEach(function({ name, fileSizeMap, options, expected }) {
+      it(name, function() {
+        expect(adjustSourcePaths(fileSizeMap, options)).to.deep.equal(expected);
       });
-    });
-
-    it('should find/replace', function() {
-      const expected = { '/dist/foo.js': 10, '/dist/foodle.js': 20 };
-
-      const actual = adjustSourcePaths({ '/src/foo.js': 10, '/src/foodle.js': 20 }, false, {
-        src: 'dist',
-      });
-
-      expect(actual).to.deep.equal(expected);
-    });
-
-    it('should find/replace with regexp', function() {
-      const expected = { '/src/bar.js': 10, '/src/bar.le.js': 20 };
-
-      const actual = adjustSourcePaths({ '/src/foo.js': 10, '/src/foodle.js': 20 }, false, {
-        'foo.': 'bar.',
-      });
-
-      expect(actual).to.deep.equal(expected);
-    });
-
-    it('should find/replace with regexp, can be used to add root', function() {
-      const expected = { '/bar/foo.js': 10, '/bar/foodle.js': 20 };
-
-      const actual = adjustSourcePaths({ '/foo/foo.js': 10, '/foo/foodle.js': 20 }, false, {
-        '^/foo': '/bar',
-      });
-
-      expect(actual).to.deep.equal(expected);
     });
   });
 });
