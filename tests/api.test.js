@@ -123,7 +123,7 @@ describe('Public API', function() {
         fileName: 'bundle-out.tmp.html',
       };
 
-      await exploreBundlesAndWriteHtml(writeConfig, 'data/*.*');
+      await exploreBundlesAndWriteHtml(writeConfig, ['data/*.*']);
 
       const data = fs.readFileSync(writeConfigToPath(writeConfig), 'utf8');
 
@@ -135,7 +135,7 @@ describe('Public API', function() {
     it('should explore multiple bundles and write a html file to current directory if path is undefined in writeConfig', async function() {
       const writeConfig = { fileName: 'bundle-out.tmp.html' };
 
-      await exploreBundlesAndWriteHtml(writeConfig, 'data/*.*');
+      await exploreBundlesAndWriteHtml(writeConfig, ['data/*.*']);
 
       const data = fs.readFileSync(writeConfigToPath(writeConfig), 'utf8');
 

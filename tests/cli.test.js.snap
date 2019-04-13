@@ -85,7 +85,7 @@ exports[`CLI should output result as tsv 1`] = `
 "
 `;
 
-exports[`CLI should print result as JSON 1`] = `
+exports[`CLI should print result as JSON and support path wrapped by quotes 1`] = `
 "{
   \\"node_modules/browserify/node_modules/browser-pack/_prelude.js\\": 463,
   \\"dist/bar.js\\": 2854,

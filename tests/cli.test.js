@@ -20,8 +20,8 @@ describe('CLI', function() {
     }
   });
 
-  it('should print result as JSON', async function() {
-    const result = await execute(SCRIPT_PATH, ['data/foo.min.inline-map.js', '--json']);
+  it('should print result as JSON and support path wrapped by quotes', async function() {
+    const result = await execute(SCRIPT_PATH, ["'data/foo.min.inline-map.js'", '--json']);
 
     expect(result).to.matchSnapshot();
   });
