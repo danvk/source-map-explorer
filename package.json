@@ -8,10 +8,10 @@
   },
   "scripts": {
     "pretest": "npm run build",
-    "test": "mocha --opts tests/mocha.opts",
+    "test": "cross-env NODE_ENV=test mocha --opts tests/mocha.opts",
     "test:update-snapshots": "cross-env SNAPSHOT_UPDATE=1 npm run test",
     "preview-package": "preview && source-map-explorer",
-    "coverage": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text npm test",
+    "coverage": "nyc --reporter=lcov --reporter=text npm test",
     "lint": "eslint src/**/*.* tests/*.* --fix",
     "check-types": "tsc",
     "build:clean": "rimraf dist",
