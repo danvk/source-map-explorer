@@ -4,6 +4,21 @@ import concat from 'concat-stream';
 
 const PATH = process.env.PATH;
 
+/**
+ * Set current directory to ./tests so that all paths can be set as relative to test folder
+ */
+export function setTestFolder() {
+  const originalCwd = process.cwd();
+
+  before(function() {
+    process.chdir(__dirname);
+  });
+
+  after(function() {
+    process.chdir(originalCwd);
+  });
+}
+
 /*
   `createProcess` and `execute` are from
   https://gist.github.com/zorrodg/c349cf54a3f6d0a9ba62e0f4066f31cb
@@ -40,7 +55,7 @@ function createProcess(processPath, args = []) {
  * @param {string} processPath Path of the process to execute
  * @param {Array} args Arguments to the command
  */
-function execute(processPath, args = []) {
+export function execute(processPath, args = []) {
   const childProcess = createProcess(processPath, args);
   childProcess.stdin.setEncoding('utf-8');
 
@@ -57,7 +72,3 @@ function execute(processPath, args = []) {
     );
   });
 }
-
-module.exports = {
-  execute,
-};

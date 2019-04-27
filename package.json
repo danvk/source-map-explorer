@@ -1,23 +1,25 @@
 {
   "name": "source-map-explorer",
-  "version": "1.8.0",
+  "version": "2.0.0",
   "description": "Analyze and debug space usage through source maps",
-  "main": "index.js",
+  "main": "dist/index.js",
   "bin": {
     "source-map-explorer": "dist/cli.js"
   },
   "scripts": {
     "pretest": "npm run build",
-    "test": "mocha tests/*.test.js --require ./tests/babel-register.js",
-    "test:update-snapshots": "cross-env CHAI_JEST_SNAPSHOT_UPDATE_ALL=true npm run test",
-    "coverage": "nyc --reporter=lcov mocha",
-    "lint": "eslint src/**/*.* --fix",
+    "test": "mocha --opts tests/mocha.opts",
+    "test:update-snapshots": "cross-env SNAPSHOT_UPDATE=1 npm run test",
+    "preview-package": "preview && source-map-explorer",
+    "coverage": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text npm test",
+    "lint": "eslint src/**/*.* tests/*.* --fix",
     "check-types": "tsc",
     "build:clean": "rimraf dist",
     "build:compile": "babel src --out-dir dist --extensions \".ts\" --ignore src/*.d.ts",
     "build:copy": "copyfiles -u 1 src/vendor/*.* src/tree-viz.ejs dist",
     "build:format": "prettier dist/*.js --write",
     "build": "npm-run-all build:* check-types",
+    "watch": "chokidar src/*.* -c \"npm run build\" --silent --initial --debounce=700",
     "prepublish": "npm run build"
   },
   "lint-staged": {
@@ -30,6 +32,22 @@
     "hooks": {
       "pre-commit": "npm run test && lint-staged"
     }
+  },
+  "snap-shot-it": {
+    "useRelativePath": true,
+    "extension": ".snap"
+  },
+  "nyc": {
+    "require": [
+      "@babel/register"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "include": "src",
+    "exclude": "src/cli.ts",
+    "sourceMap": false,
+    "instrument": false
   },
   "repository": {
     "type": "git",
@@ -53,51 +71,61 @@
   ],
   "dependencies": {
     "btoa": "^1.2.1",
+    "chalk": "^2.4.2",
     "convert-source-map": "^1.6.0",
     "ejs": "^2.6.1",
-    "fs-extra": "^7.0.1",
+    "escape-html": "^1.0.3",
     "glob": "^7.1.3",
-    "open": "^6.1.0",
+    "open": "^6.2.0",
     "source-map": "^0.7.3",
     "temp": "^0.9.0",
     "yargs": "^13.2.2"
   },
   "devDependencies": {
-    "@babel/cli": "^7.4.3",
-    "@babel/core": "^7.4.3",
-    "@babel/plugin-proposal-class-properties": "^7.4.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.4.3",
-    "@babel/preset-env": "^7.4.3",
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.4",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
     "@babel/preset-typescript": "^7.3.3",
-    "@babel/register": "^7.4.0",
+    "@babel/register": "^7.4.4",
+    "@smpx/snap-shot-it": "^6.6.1",
     "@types/btoa": "^1.2.3",
+    "@types/chai": "^4.1.7",
+    "@types/chai-as-promised": "^7.1.0",
     "@types/convert-source-map": "^1.5.1",
     "@types/ejs": "^2.6.3",
+    "@types/escape-html": "0.0.20",
     "@types/fs-extra": "^5.0.5",
     "@types/glob": "^7.1.1",
-    "@types/node": "^11.13.2",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^11.x",
     "@types/open": "^6.1.0",
-    "@types/temp": "^0.8.33",
+    "@types/rimraf": "^2.0.2",
+    "@types/temp": "^0.8.34",
     "@types/yargs": "^13.0.0",
-    "@typescript-eslint/eslint-plugin": "^1.6.0",
-    "@typescript-eslint/parser": "^1.6.0",
+    "@typescript-eslint/eslint-plugin": "^1.7.0",
+    "@typescript-eslint/parser": "^1.7.0",
+    "babel-plugin-istanbul": "^5.1.3",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "chai-jest-snapshot": "^2.0.0",
+    "chokidar-cli": "^1.2.2",
     "concat-stream": "^2.0.0",
     "copyfiles": "^2.1.0",
+    "coveralls": "^3.0.3",
     "cross-env": "^5.2.0",
     "cross-spawn": "^6.0.5",
     "eslint": "^5.16.0",
-    "eslint-config-prettier": "^4.1.0",
+    "eslint-config-prettier": "^4.2.0",
     "eslint-plugin-prettier": "^3.0.1",
-    "husky": "^1.3.1",
+    "husky": "^2.1.0",
     "lint-staged": "^8.1.5",
-    "mocha": "^6.1.2",
+    "mocha": "^6.1.4",
     "npm-run-all": "^4.1.5",
-    "nyc": "^13.3.0",
-    "prettier": "^1.16.4",
+    "nyc": "^14.0.0",
+    "package-preview": "^2.0.0",
+    "prettier": "^1.17.0",
     "rimraf": "^2.6.3",
-    "typescript": "^3.4.2"
+    "typescript": "^3.4.5"
   }
 }

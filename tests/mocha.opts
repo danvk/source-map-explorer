@@ -1,0 +1,4 @@
+tests/*.test.ts
+--require ./tests/babel-register.js
+--timeout 999999
+--colors

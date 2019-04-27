@@ -61,7 +61,7 @@ var treeDataMap = <%- JSON.stringify(treeDataMap) %>;
 <script src="data:application/javascript;base64,<%= webtreemapJs %>"></script>
 
 <script>
-  var selectedBundle = '<%= bundles[0].name %>';
+  var selectedBundle = '<%- bundles[0].name %>';
 
   function selectBundle(bundleId) {
     appendTreemap(map, treeDataMap[bundleId]);

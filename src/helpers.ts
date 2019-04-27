@@ -6,12 +6,14 @@ export function getFileContent(file: Buffer | string): string {
   return buffer.toString();
 }
 
-/** Apply a transform to the keys of an object, leaving the values unaffected. */
+/**
+ * Apply a transform to the keys of an object, leaving the values unaffected.
+ */
 export function mapKeys<T>(
   obj: Record<string, T>,
   mapKeyFunc: (key: string) => string
 ): Record<string, T> {
-  return Object.keys(obj).reduce((result, key) => {
+  return Object.keys(obj).reduce<Record<string, T>>((result, key) => {
     const newKey = mapKeyFunc(key);
     result[newKey] = obj[key];
 
@@ -35,6 +37,10 @@ export function formatBytes(bytes: number, decimals = 2, base: 1000 | 1024 = 100
   return `${parseFloat(value.toFixed(decimals))} ${BYTE_SIZES[exponent]}`;
 }
 
+export function formatPercent(value: number, total: number, fractionDigits?: number): string {
+  return ((100.0 * value) / total).toFixed(fractionDigits);
+}
+
 const PATH_SEPARATOR_REGEX = /(\/)/;
 
 /**
@@ -43,7 +49,7 @@ const PATH_SEPARATOR_REGEX = /(\/)/;
  * @param paths List of filenames
  */
 export function getCommonPathPrefix(paths: string[]): string {
-  if (paths.length === 0) return '';
+  if (paths.length < 2) return '';
 
   const A = paths.concat().sort(),
     a1 = A[0].split(PATH_SEPARATOR_REGEX),

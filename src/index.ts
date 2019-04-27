@@ -1,4 +1,5 @@
-import { explore, exploreBundlesAndWriteHtml } from './api';
+import { explore } from './api';
 
-export { exploreBundlesAndWriteHtml };
+export { explore };
+
 export default explore;

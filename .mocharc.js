@@ -1,3 +1,3 @@
 module.exports = {
-  file: ['tests/setup.js']
-}
+  file: ['tests/setup.js'],
+};

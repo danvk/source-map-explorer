@@ -2,5 +2,12 @@
   "presets": [
     "@babel/typescript",
     "@babel/preset-env"
-  ]
+  ],
+  "env": {
+    "test": {
+      "plugins": [
+        "istanbul"
+      ]
+    }
+  }
 }
