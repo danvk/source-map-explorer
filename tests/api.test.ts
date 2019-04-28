@@ -3,9 +3,9 @@ import fs from 'fs';
 import rimraf from 'rimraf';
 import snapshot from '@smpx/snap-shot-it';
 
-import { explore, getBundles, Bundle, BundlesAndFileTokens, ExploreOptions } from '../src/api';
+import { explore, getBundles } from '../src/api';
 import { setTestFolder } from './test-helpers';
-import { ErrorCode } from '../src/app-error';
+import { BundlesAndFileTokens, ExploreOptions, ErrorCode, Bundle } from '../src';
 
 describe('api', () => {
   describe('explore', function() {

@@ -3,49 +3,17 @@ import path from 'path';
 import glob from 'glob';
 
 import { generateHtml } from './html';
-import { FileSizes, exploreBundle, UNMAPPED_KEY } from './explore';
-import { AppError, ErrorCode, getErrorMessage } from './app-error';
-
-export type File = string | Buffer;
-
-export type ReplaceMap = Record<string, string>;
-
-/** Represents single bundle */
-export interface Bundle {
-  code: File;
-  map?: File;
-}
-
-export interface ExploreOptions {
-  /** Exclude "unmapped" bytes from the output */
-  onlyMapped?: boolean;
-  /** Generate html */
-  html?: boolean;
-  /** Generate html ans save to specified file path  */
-  file?: string;
-  /** Disable removing prefix shared by all sources */
-  noRoot?: boolean;
-  replaceMap?: ReplaceMap;
-}
-
-export interface ExploreResult {
-  bundles: ExploreBundleResult[];
-  html?: string;
-  errors: ExploreErrorResult[];
-}
-
-export interface ExploreBundleResult extends FileSizes {
-  bundleName: string;
-}
-export interface ExploreErrorResult {
-  bundleName: string;
-  code: string;
-  message: string;
-  error?: NodeJS.ErrnoException;
-  isWarning?: boolean;
-}
-
-export type BundlesAndFileTokens = (Bundle | string)[] | Bundle | string;
+import { exploreBundle, UNMAPPED_KEY } from './explore';
+import { AppError, getErrorMessage } from './app-error';
+import {
+  BundlesAndFileTokens,
+  ExploreOptions,
+  ExploreResult,
+  Bundle,
+  ExploreErrorResult,
+  ExploreBundleResult,
+  ErrorCode,
+} from './index';
 
 /**
  * Analyze bundle(s)

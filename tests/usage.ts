@@ -1,10 +1,17 @@
 import fs from 'fs';
 
-import { explore } from '../dist';
+import {
+  explore,
+  ExploreErrorResult,
+  ExploreResult,
+  ExploreOptions,
+  ExploreBundleResult,
+  Bundle,
+} from '../dist';
 
 // Full example
 
-explore('js/*.*', {
+const options: ExploreOptions = {
   file: './sme-results/2019-04-27.html',
   html: true,
   noRoot: true,
@@ -12,9 +19,11 @@ explore('js/*.*', {
   replaceMap: {
     dist: '',
   },
-})
-  .then(result => {
-    result.errors.forEach(error => {
+};
+
+explore('js/*.*', options)
+  .then((result: ExploreResult) => {
+    result.errors.forEach((error: ExploreErrorResult) => {
       if (error.isWarning) {
         console.log(`Issue during '${error.bundleName}; explore`, error.message);
       } else {
@@ -22,7 +31,7 @@ explore('js/*.*', {
       }
     });
 
-    result.bundles.forEach(bundle => {
+    result.bundles.forEach((bundle: ExploreBundleResult) => {
       console.log(bundle.bundleName);
       console.log(JSON.stringify(bundle.files));
     });
@@ -30,7 +39,7 @@ explore('js/*.*', {
   .catch(error => {
     console.log('Failed to explore');
     if (error.errors) {
-      error.errors.forEach(exploreError => {
+      error.errors.forEach((exploreError: ExploreErrorResult) => {
         console.log(exploreError.bundleName);
         console.log(exploreError.message);
       });
@@ -57,7 +66,9 @@ explore(['js/foo.1*.js', 'js/foo.mi?.js']);
 
 // Specify bundles explicitly
 
-explore({ code: 'foo.min.js', map: 'foo.min.js.map' });
+const bundle: Bundle = { code: 'foo.min.js', map: 'foo.min.js.map' };
+
+explore(bundle);
 
 explore([{ code: 'foo.min.js', map: 'foo.min.js.map' }, { code: 'with-inline-map.js' }]);
 

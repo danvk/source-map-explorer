@@ -1,14 +1,6 @@
 import os from 'os';
 import { formatPercent } from './helpers';
-
-export enum ErrorCode {
-  Unknown = 'Unknown',
-  NoBundles = 'NoBundles',
-  NoSourceMap = 'NoSourceMap',
-  OneSourceSourceMap = 'OneSourceSourceMap',
-  UnmappedBytes = 'UnmappedBytes',
-  CannotSaveFile = 'CannotSaveFile',
-}
+import { ErrorCode } from './index';
 
 // If we need advanced error consider using https://github.com/joyent/node-verror
 export class AppError extends Error {

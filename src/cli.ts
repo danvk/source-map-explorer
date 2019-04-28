@@ -6,8 +6,14 @@ import temp from 'temp';
 import open from 'open';
 import chalk from 'chalk';
 
-import { ExploreOptions, ReplaceMap, explore, ExploreResult, ExploreErrorResult } from './api';
-import { FileSizeMap } from './explore';
+import { explore } from './api';
+import {
+  ExploreOptions,
+  ReplaceMap,
+  FileSizeMap,
+  ExploreResult,
+  ExploreErrorResult,
+} from './index';
 
 /** Parsed CLI arguments */
 interface Arguments {

@@ -2,9 +2,18 @@ import convert from 'convert-source-map';
 import path from 'path';
 import { BasicSourceMapConsumer, IndexedSourceMapConsumer, SourceMapConsumer } from 'source-map';
 
-import { Bundle, ExploreOptions, ExploreBundleResult, File, getBundleName } from './api';
+import { getBundleName } from './api';
 import { getFileContent, mapKeys, getCommonPathPrefix } from './helpers';
-import { AppError, ErrorCode } from './app-error';
+import { AppError } from './app-error';
+import {
+  ErrorCode,
+  File,
+  Bundle,
+  ExploreOptions,
+  ExploreBundleResult,
+  FileSizes,
+  FileSizeMap,
+} from './index';
 
 export const UNMAPPED_KEY = '<unmapped>';
 
@@ -81,14 +90,6 @@ async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<Sour
     consumer,
     codeFileContent,
   };
-}
-
-export type FileSizeMap = Record<string, number>;
-
-export interface FileSizes {
-  files: FileSizeMap;
-  unmappedBytes: number;
-  totalBytes: number;
 }
 
 /** Calculate the number of bytes contributed by each source file */

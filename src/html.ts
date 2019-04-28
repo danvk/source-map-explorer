@@ -4,9 +4,8 @@ import fs from 'fs';
 import path from 'path';
 import escapeHtml from 'escape-html';
 
-import { ExploreBundleResult } from './api';
 import { formatBytes, getCommonPathPrefix, getFileContent, formatPercent } from './helpers';
-import { FileSizeMap } from './explore';
+import { ExploreBundleResult, FileSizeMap } from './index';
 
 /**
  * Generate HTML file content for specified files
