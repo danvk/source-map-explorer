@@ -4,15 +4,24 @@ import yargs from 'yargs';
 import fs from 'fs';
 import temp from 'temp';
 import open from 'open';
+import chalk from 'chalk';
 
-import { explore, exploreBundles, ExploreOptions, ExploreResult, ReplaceMap } from './api';
-import { reportUnmappedBytes, generateHtml, getBundles } from './common';
+import { explore } from './api';
+import {
+  ExploreOptions,
+  ReplaceMap,
+  FileSizeMap,
+  ExploreResult,
+  ExploreErrorResult,
+} from './index';
 
+/** Parsed CLI arguments */
 interface Arguments {
   _: string[];
   json?: boolean;
   tsv?: boolean;
   html?: boolean;
+  file?: string;
   onlyMapped?: boolean;
   noRoot?: boolean;
   replace?: string[];
@@ -26,7 +35,7 @@ function parseArguments(): Arguments {
     .usage('Analyze and debug space usage through source maps.')
     .usage('Usage:')
     .usage(
-      '$0 script.js [script.js.map] [--json | --html | --tsv] [-m | --only-mapped] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--version] [--help | -h]'
+      '$0 script.js [script.js.map] [--json | --html | --tsv | --file map.html] [-m | --only-mapped] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--version] [--help | -h]'
     )
     .example('$0 script.js script.js.map', 'Explore bundle')
     .example('$0 script.js', 'Explore bundle with inline source map')
@@ -36,17 +45,23 @@ function parseArguments(): Arguments {
       json: {
         type: 'boolean',
         description: 'Output JSON (on stdout) instead of generating HTML and opening the browser.',
-        conflicts: ['tsv', 'html'],
+        conflicts: ['tsv', 'html', 'file'],
       },
       tsv: {
         type: 'boolean',
         description: 'Output TSV (on stdout) instead of generating HTML and opening the browser.',
-        conflicts: ['json', 'html'],
+        conflicts: ['json', 'html', 'file'],
       },
       html: {
         type: 'boolean',
         description: 'Output HTML (on stdout) rather than opening a browser.',
-        conflicts: ['json', 'tsv'],
+        conflicts: ['json', 'tsv', 'file'],
+      },
+      file: {
+        type: 'string',
+        normalize: true,
+        description: 'Save HTML output to specified file.',
+        conflicts: ['json', 'tsv', 'html'],
       },
 
       'only-mapped': {
@@ -66,7 +81,7 @@ function parseArguments(): Arguments {
         type: 'string',
         array: true,
         description:
-          'Apply a simple find/replace on source file names. This can be used to fix some oddities with paths which appear in the source map  generation process. Accepts regular expressions.',
+          'Apply a simple find/replace on source file names. This can be used to fix some oddities with paths which appear in the source map generation process. Accepts regular expressions.',
         implies: 'with',
       },
       with: {
@@ -76,14 +91,14 @@ function parseArguments(): Arguments {
         implies: 'replace',
       },
     })
-    .group(['json', 'tsv', 'html'], 'Output:')
+    .group(['json', 'tsv', 'html', 'file'], 'Output:')
     .group(['replace', 'with'], 'Replace:')
     .help('h')
     .alias('h', 'help')
     .showHelpOnFail(false, 'Specify --help for available options')
     .wrap(null) // Do not limit line length
     .parserConfiguration({
-      'boolean-negation': false,
+      'boolean-negation': false, // Allow --no-root
     })
     .check(argv => {
       if (argv.replace && argv.with && argv.replace.length !== argv.with.length) {
@@ -101,9 +116,24 @@ function parseArguments(): Arguments {
   return argv;
 }
 
+export function logError(message: string, error?: Error): void {
+  if (error) {
+    console.error(chalk.red(message), error);
+  } else {
+    console.error(chalk.red(message));
+  }
+}
+
+export function logWarn(message: string): void {
+  console.warn(chalk.yellow(message));
+}
+
+export function logInfo(message: string): void {
+  console.log(chalk.green(message));
+}
+
 /**
  * Create options object for `explore` method
- * @param  argv CLI arguments
  */
 function getExploreOptions(argv: Arguments): ExploreOptions {
   let html = true;
@@ -111,24 +141,58 @@ function getExploreOptions(argv: Arguments): ExploreOptions {
     html = false;
   }
 
+  let replaceMap: ReplaceMap | undefined;
   const replaceItems = argv.replace;
-  const replaceWithItems = argv.with;
+  const withItems = argv.with;
 
-  const replace =
-    replaceItems && replaceWithItems
-      ? replaceItems.reduce<ReplaceMap>((result, item, index) => {
-          result[item] = replaceWithItems[index];
+  if (replaceItems && withItems) {
+    replaceMap = replaceItems.reduce<ReplaceMap>((result, item, index) => {
+      result[item] = withItems[index];
 
-          return result;
-        }, {})
-      : undefined;
+      return result;
+    }, {});
+  }
 
   return {
-    onlyMapped: argv.onlyMapped,
     html,
+    file: argv.file,
+    replaceMap,
+    onlyMapped: argv.onlyMapped,
     noRoot: argv.noRoot,
-    replace,
   };
+}
+
+interface JsonResult {
+  results: {
+    bundleName: string;
+    files: FileSizeMap;
+  }[];
+}
+
+function outputJson(result: ExploreResult): void {
+  const jsonResultObject: JsonResult = {
+    results: result.bundles.map(({ bundleName, files }) => ({
+      bundleName,
+      files,
+    })),
+  };
+
+  console.log(JSON.stringify(jsonResultObject, null, '  '));
+}
+
+function outputTsv(result: ExploreResult): void {
+  console.log('Source\tSize');
+
+  result.bundles.forEach((bundle, index) => {
+    if (index > 0) {
+      // Separate bundles by empty line
+      console.log();
+    }
+
+    Object.entries(bundle.files).forEach(([source, size]) => {
+      console.log(`${size}\t${source}`);
+    });
+  });
 }
 
 /**
@@ -144,78 +208,76 @@ function writeToHtml(html?: string): void {
   fs.writeFileSync(tempName, html);
 
   open(tempName, { wait: false }).catch(error => {
-    console.error('Unable to open web browser. ' + error);
-    console.error(
-      'Either run with --html, --json or --tsv, or view HTML for the visualization at:'
+    logError('Unable to open web browser.', error);
+    logError(
+      'Either run with --html, --json, --tsv, --file, or view HTML for the visualization at:'
     );
-    console.error(tempName);
+    logError(tempName);
+  });
+}
+
+function outputErrors({ errors }: ExploreResult): void {
+  if (errors.length === 0) {
+    return;
+  }
+
+  // Group errors by bundle name
+  const groupedErrors = errors.reduce<Record<string, ExploreErrorResult[]>>((result, error) => {
+    const key = error.bundleName;
+
+    if (result[key]) {
+      result[key].push(error);
+    } else {
+      result[key] = [error];
+    }
+
+    return result;
+  }, {});
+
+  Object.entries(groupedErrors).forEach(([bundleName, errors]) => {
+    console.group(bundleName);
+
+    const hasManyErrors = errors.length > 1;
+    errors.forEach((error, index) => {
+      const message = `${hasManyErrors ? `${index + 1}. ` : ''}${error.message}`;
+
+      if (error.isWarning) {
+        logWarn(message);
+      } else {
+        logError(message);
+      }
+    });
+
+    console.groupEnd();
   });
 }
 
 if (require.main === module) {
   const argv = parseArguments();
 
-  const bundles = getBundles(argv._);
-
-  if (bundles.length === 0) {
-    throw new Error('No file(s) found');
-  }
-
   const exploreOptions = getExploreOptions(argv);
 
-  if (bundles.length === 1) {
-    const { codePath, mapPath } = bundles[0];
-
-    explore(codePath, mapPath, exploreOptions)
-      .then(result => {
-        reportUnmappedBytes(result);
-
-        if (argv.json) {
-          console.log(JSON.stringify(result.files, null, '  '));
-          process.exit(0);
-        } else if (argv.tsv) {
-          console.log('Source\tSize');
-          Object.keys(result.files).forEach(source => {
-            const size = result.files[source];
-            console.log(`${size}\t${source}`);
-          });
-          process.exit(0);
-        } else if (argv.html) {
-          console.log(result.html);
-          process.exit(0);
-        }
-
-        writeToHtml(result.html);
-      })
-      .catch(error => {
-        if (error.code === 'ENOENT') {
-          console.error(`File not found! -- ${error.message}`);
-        } else {
-          console.error(error.message);
-        }
-
-        process.exit(1);
-      });
-  } else {
-    exploreBundles(bundles).then(results => {
-      const successResults = results.filter(
-        (result): result is ExploreResult => result.hasOwnProperty('files')
-      );
-
-      if (successResults.length === 0) {
-        throw new Error('There were errors');
-      }
-
-      successResults.forEach(reportUnmappedBytes);
-
-      const html = generateHtml(successResults);
-
-      // Check args instead of exploreOptions.html because it always true
-      if (argv.html) {
-        console.log(html);
+  explore(argv._, exploreOptions)
+    .then(result => {
+      if (argv.json) {
+        outputJson(result);
+      } else if (argv.tsv) {
+        outputTsv(result);
+      } else if (argv.html) {
+        console.log(result.html);
+      } else if (argv.file) {
+        logInfo(`HTML saved to ${argv.file}`);
+        outputErrors(result);
       } else {
-        writeToHtml(html);
+        writeToHtml(result.html);
+        outputErrors(result);
+      }
+    })
+    .catch(error => {
+      if (error.errors) {
+        outputErrors(error);
+      } else {
+        logError('Failed to explore', error);
       }
     });
-  }
 }

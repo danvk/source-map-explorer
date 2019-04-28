@@ -1,6 +1,13 @@
 sudo: false  # Use container-based infrastructure
+
 language: node_js
+
 node_js:
-  - "8"
   - "10"
   - "11"
+
+jobs:
+  include:
+    - stage: Produce Coverage
+      node_js: node
+      script: nyc npm test && nyc report --reporter=text-lcov | coveralls
