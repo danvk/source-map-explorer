@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/danvk/source-map-explorer.svg?branch=v1.1.0)](https://travis-ci.org/danvk/source-map-explorer) [![NPM version](http://img.shields.io/npm/v/source-map-explorer.svg)](https://www.npmjs.org/package/source-map-explorer)
+[![Coverage Status](https://coveralls.io/repos/github/danvk/source-map-explorer/badge.svg)](https://coveralls.io/github/danvk/source-map-explorer)
 # source-map-explorer
 Analyze and debug JavaScript (or Sass or LESS) code bloat through source maps.
 
@@ -12,7 +13,7 @@ Use:
 
     source-map-explorer bundle.min.js
     source-map-explorer bundle.min.js bundle.min.js.map
-    source-map-explorer '*.js'
+    source-map-explorer *.js
 
 This will open up a visualization of how the space is used in your minified bundle:
 
@@ -30,9 +31,17 @@ in the bundle (perhaps because of out-of-date dependencies).
     ```
     source-map-explorer --json foo.min.js
     {
-      "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-      "bar.js": 62,
-      "foo.js": 137
+      "results": [
+        {
+          "bundleName": "tests\\data\\foo.min.js",
+          "files": {
+            "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+            "dist/bar.js": 97,
+            "dist/foo.js": 137,
+            "<unmapped>": 0
+          }
+        }
+      ]
     }
     ```
 
@@ -40,9 +49,11 @@ in the bundle (perhaps because of out-of-date dependencies).
 
     ```
     source-map-explorer --tsv foo.min.js
-    Source	Size
-    dist/bar.js	62
-    dist/foo.js	137
+    Source  Size
+    463     node_modules/browserify/node_modules/browser-pack/_prelude.js
+    97      dist/bar.js
+    137     dist/foo.js
+    0       <unmapped>
     ```
 
     If you just want a list of files, you can do `source-map-explorer --tsv foo.min.js | sed 1d | cut -f1`.
@@ -52,7 +63,10 @@ in the bundle (perhaps because of out-of-date dependencies).
     ```
     source-map-explorer --html foo.min.js > tree.html
     ```
-
+* `--file filename`: output HTML to specified file. Parent directories will be created if not exist
+    ```
+    source-map-explorer foo.min.js --file sme-results/tree.html
+    ```
 * `-m`, `--only-mapped`: exclude "unmapped" bytes from the output. This will result in total counts less than the file size.
 
 * `--replace`, `--with`: The paths in source maps sometimes have artifacts that are difficult to get rid of. These flags let you do simple find & replaces on the paths. For example:
@@ -65,68 +79,57 @@ in the bundle (perhaps because of out-of-date dependencies).
 
     These are regular expressions.
 
-* `--noroot`: By default, source-map-explorer finds common prefixes between all source files and eliminates them, since they add complexity to the visualization with no real benefit. But if you want to disable this behavior, set the `--noroot` flag.
+* `--no-root`: By default, source-map-explorer finds common prefixes between all source files and eliminates them, since they add complexity to the visualization with no real benefit. But if you want to disable this behavior, set the `--no-root` flag.
+
+See more at [wiki page][cli wiki]
 
 ## API
-### `explore(filePathOrContent[, sourceMapPathOrContent][, options])`
-* `filePathOrContent` <[string]|[Buffer]> - path to file or Buffer with contents
-* `sourceMapPathOrContent` <[string]|[Buffer]> - path to source map or Buffer with contents
-* `options` <[Object]> Options for generation
-  * `onlyMapped` <[boolean]> (default `false`) See `--only-mapped` option above for details
-  * `html` <[boolean]> (default `false`) When true html will be included in returned object
-  * `noRoot` <[boolean]> (default `false`) See `--noroot` option above for details
-  * `replace` <[Object]<{ [from: [string]]: [string] }>> Mapping for replacement, see `--replace`, `--with` options above for details.
-* returns: <[Object]>
-  * `totalBytes` <[number]> Size of the provided file
-  * `unmappedBytes` <[number]>
-  * `files` <[Object]<{ [sourceFile: [string]]: [number] }>> Map containing filenames from the source map and size in bytes they take inside of provided file. Additional key  `<unmapped>` is included if `options.onlyMapped` is `false`.
-  * `html` <[string]> Contains self-packed html that can be opened in the browser, only if `options.html` is `true`
+### `explore(bundlesAndFileTokens, [options])`
+`bundlesAndFileTokens`:
+* Glob: `dist/js/*.*`
+* Filename: `dist/js/chunk.1.js`
+* Bundle: `{ code: 'dist/js/chunk.1.js', map: 'dist/js/chunk.1.js.map' }` or `{ code: fs.readFileSync('dist/js/chunk.2.js') }`
+* Array of globs, filenames and bundles:
+   ```
+   [
+     'dist/js/chunk.2.*',
+     'dist/js/chunk.1.js', 'dist/js/chunk.1.js.map',
+     { code: 'dist/js/chunk.3.js', map: 'dist/js/chunk.3.js.map' }
+   ]
+   ```  
+`options`:
+* `onlyMapped`: [boolean] (default `false`) - Exclude "unmapped" bytes from the output. This will result in total counts less than the file size
+* `html`: [boolean] (default `false`) - When `true` html will be included in returned object
+* `file`: [string] - Saves result HTML to specified file
+* `noRoot`: [boolean] (default `false`) - See `--no-root` option above for details
+* `replaceMap`: <[Object]<{ [from: [string]]: [string] }>> - Mapping for replacement, see `--replace`, `--with` options above for details.
 
 Example:
 ```javascript
-require('source-map-explorer')('testdata/foo.min.js', { html: true })
+import { explore } from 'source-map-explorer'
+// or import explore from 'source-map-explorer'
+
+explore('tests/data/foo.min.js', { html: true }).then()
 
 // Returns
 {
-  totalBytes: 697,
-  unmappedBytes: 0,
-  files: {
-    'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
-    'dist/bar.js': 97,
-    'dist/foo.js': 137,
-    '<unmapped>': 0
-  },
-  html: '<!doctype html>...'
+  bundles: [{
+    bundleName: 'tests/data/foo.min.js',
+    totalBytes: 697,
+    unmappedBytes: 0,
+    files: {
+      'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
+      'dist/bar.js': 97,
+      'dist/foo.js': 137,
+      '<unmapped>': 0
+    }
+  }],
+  html: '<!doctype html>...',
+  errors: []
 }
 ```
 
-### `exploreBundlesAndWriteHtml(writeConfig, codePath[, mapPath])`
-* `writeConfig` <[Object]> Configuration how to write the html file.
-  * `path` <[string]> Path to write.
-  * `fileName` <[string]> File name to write.
-* `codePath` <[string]> Path to bundle file or glob matching bundle files.
-* `mapPath` <[string]> Path to bundle map file.
-
-Example:
-
-```javascript
-const path = require('path')
-const {exploreBundlesAndWriteHtml} = require('source-map-explorer')
-
-const writePath = path.resolve(__dirname, 'this/path/will/be/ensured/to/exist/ok/thanks')
-const writeConfig = {
-  path: writePath, 
-  fileName: 'source.html'
-}
-
-exploreBundlesAndWriteHtml(writeConfig, 'build/static/js/*.*')
-  .then(() => { 
-    console.log(':)')
-  })
-  .catch(err => {
-    console.err(':(', err)
-  })
-```
+See more at [wiki page][api wiki]
 
 ## Generating source maps
 
@@ -202,3 +205,5 @@ source-map-explorer path/to/foo.min.js{,.map}
 [Object]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object "Object"
 [string]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type "String"
 [number]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type "Number"
+[cli wiki]: https://github.com/danvk/source-map-explorer/wiki/CLI
+[api wiki]: https://github.com/danvk/source-map-explorer/wiki/Node.js-API

@@ -25,7 +25,16 @@ module.exports = {
       'error',
       { blankLine: 'always', prev: '*', next: 'return' },
     ],
+    'no-use-before-define': ['error', { functions: false, classes: true, variables: true }],
     // TypeScript specific
-    '@typescript-eslint/explicit-function-return-type': ['warn', { allowExpressions: true }],
+    '@typescript-eslint/explicit-function-return-type': [
+      'error',
+      { allowExpressions: true, allowTypedFunctionExpressions: true },
+    ],
+    '@typescript-eslint/no-use-before-define': [
+      'error',
+      { functions: false, classes: true, variables: true, typedefs: true },
+    ],
+    '@typescript-eslint/explicit-member-accessibility': ['error', { accessibility: 'no-public' }],
   },
 };

@@ -1,8 +1,8 @@
 module.exports = {
   env: {
-    mocha: true
+    mocha: true,
   },
   rules: {
     'prefer-arrow-callback': 'off',
-  }
+  },
 };

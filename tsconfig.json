@@ -10,8 +10,7 @@
     "outDir": "dist",
     "strict": true,
     "strictBindCallApply": true,
-    "esModuleInterop": true,
-    "noImplicitAny": false // TODO: Remove after source-map update
+    "esModuleInterop": true
   },
   "include": ["src"],
   "exclude": ["src/vendor"]
