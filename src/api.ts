@@ -20,7 +20,7 @@ import {
  */
 export async function explore(
   bundlesAndFileTokens: BundlesAndFileTokens,
-  options?: ExploreOptions
+  options: ExploreOptions = {}
 ): Promise<ExploreResult> {
   const bundles: Bundle[] = [];
   const fileTokens: string[] = [];
@@ -123,7 +123,7 @@ function onExploreError(bundle: Bundle, error: NodeJS.ErrnoException): ExploreEr
 
 function getExploreResult(
   results: (ExploreBundleResult | ExploreErrorResult)[],
-  options: ExploreOptions = {}
+  options: ExploreOptions
 ): ExploreResult {
   const bundles: ExploreBundleResult[] = [];
   const errors: ExploreErrorResult[] = [];

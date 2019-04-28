@@ -22,7 +22,7 @@ export const UNMAPPED_KEY = '<unmapped>';
  */
 export async function exploreBundle(
   bundle: Bundle,
-  options: ExploreOptions = {}
+  options: ExploreOptions
 ): Promise<ExploreBundleResult> {
   const { code, map } = bundle;
 

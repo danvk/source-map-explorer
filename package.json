@@ -1,6 +1,6 @@
 {
   "name": "source-map-explorer",
-  "version": "2.0.0",
+  "version": "2.0.0-beta.0",
   "description": "Analyze and debug space usage through source maps",
   "main": "dist/index.js",
   "bin": {
@@ -45,7 +45,7 @@
       ".ts"
     ],
     "include": "src",
-    "exclude": "src/cli.ts",
+    "exclude": ["src/cli.ts", "src/index.ts"],
     "sourceMap": false,
     "instrument": false
   },
