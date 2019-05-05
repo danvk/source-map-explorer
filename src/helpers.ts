@@ -6,21 +6,6 @@ export function getFileContent(file: Buffer | string): string {
   return buffer.toString();
 }
 
-/**
- * Apply a transform to the keys of an object, leaving the values unaffected.
- */
-export function mapKeys<T>(
-  obj: Record<string, T>,
-  mapKeyFunc: (key: string) => string
-): Record<string, T> {
-  return Object.keys(obj).reduce<Record<string, T>>((result, key) => {
-    const newKey = mapKeyFunc(key);
-    result[newKey] = obj[key];
-
-    return result;
-  }, {});
-}
-
 const BYTE_SIZES = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
 /**

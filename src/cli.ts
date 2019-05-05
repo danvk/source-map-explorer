@@ -5,15 +5,10 @@ import fs from 'fs';
 import temp from 'temp';
 import open from 'open';
 import chalk from 'chalk';
+import { groupBy } from 'lodash';
 
 import { explore } from './api';
-import {
-  ExploreOptions,
-  ReplaceMap,
-  FileSizeMap,
-  ExploreResult,
-  ExploreErrorResult,
-} from './index';
+import { ExploreOptions, ReplaceMap, FileSizeMap, ExploreResult } from './index';
 
 /** Parsed CLI arguments */
 interface Arguments {
@@ -189,10 +184,16 @@ function outputTsv(result: ExploreResult): void {
       console.log();
     }
 
-    Object.entries(bundle.files).forEach(([source, size]) => {
-      console.log(`${size}\t${source}`);
-    });
+    Object.entries(bundle.files)
+      .sort(sortFilesBySize)
+      .forEach(([source, size]) => {
+        console.log(`${source}\t${size}`);
+      });
   });
+}
+
+function sortFilesBySize([, aSize]: [string, number], [, bSize]: [string, number]): number {
+  return bSize - aSize;
 }
 
 /**
@@ -222,17 +223,7 @@ function outputErrors({ errors }: ExploreResult): void {
   }
 
   // Group errors by bundle name
-  const groupedErrors = errors.reduce<Record<string, ExploreErrorResult[]>>((result, error) => {
-    const key = error.bundleName;
-
-    if (result[key]) {
-      result[key].push(error);
-    } else {
-      result[key] = [error];
-    }
-
-    return result;
-  }, {});
+  const groupedErrors = groupBy(errors, 'bundleName');
 
   Object.entries(groupedErrors).forEach(([bundleName, errors]) => {
     console.group(bundleName);

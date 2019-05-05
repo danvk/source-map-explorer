@@ -1,14 +1,14 @@
 exports['CLI should output multiple results as tsv 1'] = `
 Source\tSize
-463\tnode_modules/browserify/node_modules/browser-pack/_prelude.js
-2854\tdist/bar.js
-137\tdist/foo.js
-0\t<unmapped>
+dist/bar.js\t2854
+node_modules/browserify/node_modules/browser-pack/_prelude.js\t463
+dist/foo.js\t137
+<unmapped>\t0
 
-463\tnode_modules/browserify/node_modules/browser-pack/_prelude.js
-97\tdist/bar.js
-137\tdist/foo.js
-0\t<unmapped>
+node_modules/browserify/node_modules/browser-pack/_prelude.js\t463
+dist/foo.js\t137
+dist/bar.js\t97
+<unmapped>\t0
 
 `
 
@@ -90,10 +90,10 @@ var treeDataMap = {"data/inline-map.js":{"name":"/ \u2022 3.45 KB \u2022 100.0%"
 
 exports['CLI should output result as tsv 1'] = `
 Source\tSize
-463\tnode_modules/browserify/node_modules/browser-pack/_prelude.js
-2854\tdist/bar.js
-137\tdist/foo.js
-0\t<unmapped>
+dist/bar.js\t2854
+node_modules/browserify/node_modules/browser-pack/_prelude.js\t463
+dist/foo.js\t137
+<unmapped>\t0
 
 `
 
