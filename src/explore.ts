@@ -1,19 +1,12 @@
 import convert from 'convert-source-map';
 import path from 'path';
 import { BasicSourceMapConsumer, IndexedSourceMapConsumer, SourceMapConsumer } from 'source-map';
+import { mapKeys } from 'lodash';
 
 import { getBundleName } from './api';
-import { getFileContent, mapKeys, getCommonPathPrefix } from './helpers';
+import { getFileContent, getCommonPathPrefix } from './helpers';
 import { AppError } from './app-error';
-import {
-  ErrorCode,
-  File,
-  Bundle,
-  ExploreOptions,
-  ExploreBundleResult,
-  FileSizes,
-  FileSizeMap,
-} from './index';
+import { File, Bundle, ExploreOptions, ExploreBundleResult, FileSizes, FileSizeMap } from './index';
 
 export const UNMAPPED_KEY = '<unmapped>';
 
@@ -76,14 +69,14 @@ async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<Sour
     }
 
     if (!converter) {
-      throw new AppError(ErrorCode.NoSourceMap);
+      throw new AppError({ code: 'NoSourceMap' });
     }
 
     consumer = await new SourceMapConsumer(converter.toJSON());
   }
 
   if (!consumer) {
-    throw new AppError(ErrorCode.NoSourceMap);
+    throw new AppError({ code: 'NoSourceMap' });
   }
 
   return {
@@ -158,7 +151,7 @@ export function adjustSourcePaths(fileSizeMap: FileSizeMap, options: ExploreOpti
     const length = prefix.length;
 
     if (length) {
-      fileSizeMap = mapKeys(fileSizeMap, source => source.slice(length));
+      fileSizeMap = mapKeys(fileSizeMap, (size, source) => source.slice(length));
     }
   }
 
@@ -166,7 +159,7 @@ export function adjustSourcePaths(fileSizeMap: FileSizeMap, options: ExploreOpti
     fileSizeMap = Object.entries(options.replaceMap).reduce((result, [before, after]) => {
       const regexp = new RegExp(before, 'g');
 
-      return mapKeys(result, source => source.replace(regexp, after));
+      return mapKeys(result, (size, source) => source.replace(regexp, after));
     }, fileSizeMap);
   }
 

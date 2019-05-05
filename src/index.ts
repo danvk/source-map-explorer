@@ -14,14 +14,13 @@ export interface FileSizes {
   totalBytes: number;
 }
 
-export enum ErrorCode {
-  Unknown = 'Unknown',
-  NoBundles = 'NoBundles',
-  NoSourceMap = 'NoSourceMap',
-  OneSourceSourceMap = 'OneSourceSourceMap',
-  UnmappedBytes = 'UnmappedBytes',
-  CannotSaveFile = 'CannotSaveFile',
-}
+export type ErrorCode =
+  | 'Unknown'
+  | 'NoBundles'
+  | 'NoSourceMap'
+  | 'OneSourceSourceMap'
+  | 'UnmappedBytes'
+  | 'CannotSaveFile';
 
 export type File = string | Buffer;
 

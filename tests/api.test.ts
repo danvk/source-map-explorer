@@ -5,7 +5,7 @@ import snapshot from '@smpx/snap-shot-it';
 
 import { explore, getBundles } from '../src/api';
 import { setTestFolder } from './test-helpers';
-import { BundlesAndFileTokens, ExploreOptions, ErrorCode, Bundle } from '../src';
+import { BundlesAndFileTokens, ExploreOptions, Bundle } from '../src';
 
 describe('api', () => {
   describe('explore', function() {
@@ -151,7 +151,7 @@ describe('api', () => {
         {
           name: 'should throw when cannot locate sourcemap',
           bundlesAndFileTokens: { code: 'data/no-map.js' },
-          expectedErrorCode: ErrorCode.NoSourceMap,
+          expectedErrorCode: 'NoSourceMap',
         },
       ];
 
@@ -175,13 +175,13 @@ describe('api', () => {
         {
           name: 'should throw when no bundles provided',
           bundlesAndFileTokens: [],
-          expectedErrorCode: ErrorCode.NoBundles,
+          expectedErrorCode: 'NoBundles',
         },
         {
           name: 'should throw when cannot save html to file',
           bundlesAndFileTokens: 'data/inline-map.js',
           options: { file: '?' },
-          expectedErrorCode: ErrorCode.CannotSaveFile,
+          expectedErrorCode: 'CannotSaveFile',
         },
       ];
 
@@ -210,7 +210,7 @@ describe('api', () => {
 
         const error = result.errors[0];
 
-        expect(error.code).to.equal(ErrorCode.OneSourceSourceMap);
+        expect(error.code).to.equal('OneSourceSourceMap');
       });
 
       it('should add warning about unmapped bytes', async function() {
@@ -219,7 +219,7 @@ describe('api', () => {
         const warning = result.errors[0];
 
         expect(warning.isWarning).to.equal(true);
-        expect(warning.code).to.equal(ErrorCode.UnmappedBytes);
+        expect(warning.code).to.equal('UnmappedBytes');
       });
     });
   });

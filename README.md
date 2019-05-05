@@ -50,10 +50,10 @@ in the bundle (perhaps because of out-of-date dependencies).
     ```
     source-map-explorer --tsv foo.min.js
     Source  Size
-    463     node_modules/browserify/node_modules/browser-pack/_prelude.js
-    97      dist/bar.js
-    137     dist/foo.js
-    0       <unmapped>
+    node_modules/browserify/node_modules/browser-pack/_prelude.js  463
+    dist/foo.js  137
+    dist/bar.js  97
+    <unmapped>  0
     ```
 
     If you just want a list of files, you can do `source-map-explorer --tsv foo.min.js | sed 1d | cut -f1`.
