@@ -5,10 +5,11 @@ import fs from 'fs';
 import temp from 'temp';
 import open from 'open';
 import chalk from 'chalk';
-import { groupBy } from 'lodash';
+import { groupBy, isString } from 'lodash';
 
 import { explore } from './api';
 import { ExploreOptions, ReplaceMap, FileSizeMap, ExploreResult } from './index';
+import { AppError, getErrorMessage, ErrorContext } from './app-error';
 
 /** Parsed CLI arguments */
 interface Arguments {
@@ -111,7 +112,11 @@ function parseArguments(): Arguments {
   return argv;
 }
 
-export function logError(message: string, error?: Error): void {
+export function logError(message: string | ErrorContext, error?: Error): void {
+  if (!isString(message)) {
+    message = getErrorMessage(message);
+  }
+
   if (error) {
     console.error(chalk.red(message), error);
   } else {
@@ -199,22 +204,26 @@ function sortFilesBySize([, aSize]: [string, number], [, bSize]: [string, number
 /**
  * Write HTML content to a temporary file and open the file in a browser
  */
-function writeToHtml(html?: string): void {
+async function writeToHtml(html?: string): Promise<void> {
   if (!html) {
     return;
   }
 
-  const tempName = temp.path({ suffix: '.html' });
+  try {
+    const info = temp.openSync({ prefix: 'sme-result-', suffix: '.html' });
+    fs.writeFileSync(info.fd, html);
 
-  fs.writeFileSync(tempName, html);
+    const childProcess = await open(info.path);
 
-  open(tempName, { wait: false }).catch(error => {
-    logError('Unable to open web browser.', error);
-    logError(
-      'Either run with --html, --json, --tsv, --file, or view HTML for the visualization at:'
-    );
-    logError(tempName);
-  });
+    if (childProcess.stderr) {
+      // Catch error output from child process
+      childProcess.stderr.once('data', (data: Buffer) => {
+        logError({ code: 'CannotOpenTempFile', tempFile: info.path, error: data });
+      });
+    }
+  } catch (error) {
+    throw new AppError({ code: 'CannotCreateTempFile' }, error);
+  }
 }
 
 function outputErrors({ errors }: ExploreResult): void {
@@ -260,8 +269,9 @@ if (require.main === module) {
         logInfo(`HTML saved to ${argv.file}`);
         outputErrors(result);
       } else {
-        writeToHtml(result.html);
-        outputErrors(result);
+        writeToHtml(result.html).then(() => {
+          outputErrors(result);
+        });
       }
     })
     .catch(error => {
