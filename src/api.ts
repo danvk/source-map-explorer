@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import glob from 'glob';
-import { partition, flatMap } from 'lodash';
+import { partition, flatMap, isString } from 'lodash';
 
 import { generateHtml } from './html';
 import { exploreBundle, UNMAPPED_KEY } from './explore';
@@ -31,10 +31,7 @@ export async function explore(
   }
 
   // Separate bundles from file tokens
-  const [fileTokens, bundles] = partition(
-    bundlesAndFileTokens,
-    item => typeof item === 'string'
-  ) as [string[], Bundle[]];
+  const [fileTokens, bundles] = partition(bundlesAndFileTokens, isString);
 
   // Get bundles from file tokens
   bundles.push(...getBundles(fileTokens));
@@ -104,10 +101,10 @@ function getExploreResult(
   results: (ExploreBundleResult | ExploreErrorResult)[],
   options: ExploreOptions
 ): ExploreResult {
-  const [bundles, errors] = partition(results, result => 'files' in result) as [
-    ExploreBundleResult[],
-    ExploreErrorResult[]
-  ];
+  const [bundles, errors] = partition(
+    results,
+    (result): result is ExploreBundleResult => 'files' in result
+  );
 
   errors.push(...getPostExploreErrors(bundles));
 

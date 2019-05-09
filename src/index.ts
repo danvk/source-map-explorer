@@ -20,7 +20,9 @@ export type ErrorCode =
   | 'NoSourceMap'
   | 'OneSourceSourceMap'
   | 'UnmappedBytes'
-  | 'CannotSaveFile';
+  | 'CannotSaveFile'
+  | 'CannotCreateTempFile'
+  | 'CannotOpenTempFile';
 
 export type File = string | Buffer;
 

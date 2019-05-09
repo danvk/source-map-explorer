@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { getCommonPathPrefix } from '../src/helpers';
 
-describe('helpers', () => {
+describe('helpers', function() {
   describe('getCommonPathPrefix', function() {
     const tests = [
       { paths: ['abc', 'abcd', 'ab'], expected: '' },

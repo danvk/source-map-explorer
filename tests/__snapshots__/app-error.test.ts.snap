@@ -1,0 +1,36 @@
+exports['app-error getErrorMessage should create message for \'CannotCreateTempFile\' 1'] = `
+Unable to create a temporary HTML file
+`
+
+exports['app-error getErrorMessage should create message for \'CannotOpenTempFile\' 1'] = `
+Unable to open web browser. The system cannot find the file ?C:\\foo.htm
+Either run with --html, --json, --tsv, --file, or view HTML for the visualization at:
+C:\\foo.htm
+`
+
+exports['app-error getErrorMessage should create message for \'CannotSaveFile\' 1'] = `
+Unable to save HTML to file
+`
+
+exports['app-error getErrorMessage should create message for \'NoBundles\' 1'] = `
+No file(s) provided
+`
+
+exports['app-error getErrorMessage should create message for \'NoSourceMap\' 1'] = `
+Unable to find a source map.
+See https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps
+`
+
+exports['app-error getErrorMessage should create message for \'OneSourceSourceMap\' 1'] = `
+Your source map only contains one source (foo.min.js).
+This can happen if you use browserify+uglifyjs, for example, and don't set the --in-source-map flag to uglify.
+See https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps
+`
+
+exports['app-error getErrorMessage should create message for \'UnknownCode\' 1'] = `
+Unknown error
+`
+
+exports['app-error getErrorMessage should create message for \'UnmappedBytes\' 1'] = `
+Unable to map 70/100 bytes (70.00%)
+`
