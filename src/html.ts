@@ -1,8 +1,7 @@
-import btoa from 'btoa';
 import ejs from 'ejs';
 import fs from 'fs';
 import path from 'path';
-import escapeHtml from 'escape-html';
+import { Node } from 'webtreemap/build/webtreemap';
 
 import { formatBytes, getCommonPathPrefix, getFileContent, formatPercent } from './helpers';
 import { ExploreBundleResult, FileSizeMap } from './index';
@@ -11,11 +10,6 @@ import { ExploreBundleResult, FileSizeMap } from './index';
  * Generate HTML file content for specified files
  */
 export function generateHtml(exploreResults: ExploreBundleResult[]): string {
-  const assets = {
-    webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
-    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
-  };
-
   // Create a combined bundle if applicable
   if (exploreResults.length > 1) {
     exploreResults = [makeMergedBundle(exploreResults)].concat(exploreResults);
@@ -28,8 +22,8 @@ export function generateHtml(exploreResults: ExploreBundleResult[]): string {
   }));
 
   // Get webtreemap data to update map on bundle select
-  const treeDataMap = exploreResults.reduce<Record<string, WebTreeMapNode>>((result, data) => {
-    result[data.bundleName] = getWebTreeMapData(data.files);
+  const webTreeDataMap = exploreResults.reduce<Record<string, Node>>((result, data) => {
+    result[data.bundleName] = getWebTreeData(data.files);
 
     return result;
   }, {});
@@ -38,9 +32,8 @@ export function generateHtml(exploreResults: ExploreBundleResult[]): string {
 
   return ejs.render(template, {
     bundles,
-    treeDataMap,
-    webtreemapJs: assets.webtreemapJs,
-    webtreemapCss: assets.webtreemapCss,
+    webTreeDataMap,
+    webTreeMapJs: fs.readFileSync(require.resolve('../node_modules/webtreemap/dist/webtreemap.js')),
   });
 }
 
@@ -77,50 +70,40 @@ function normalizeBundleName(name: string): string {
   return name.replace(ESCAPE_BACKSLASH_REGEX, '\\\\');
 }
 
-interface WebTreeMapNode {
-  name: string;
-  data: {
-    $area: number;
-  };
-  children?: WebTreeMapNode[];
-}
-
 /**
  * Covert file size map to webtreemap data
  */
-function getWebTreeMapData(files: FileSizeMap): WebTreeMapNode {
+function getWebTreeData(files: FileSizeMap): Node {
   const treeData = newNode('/');
 
   for (const source in files) {
     addNode(source, files[source], treeData);
   }
 
-  addSizeToTitle(treeData, treeData.data['$area']);
+  addSizeToTitle(treeData, treeData.size);
 
   return treeData;
 }
 
-function newNode(name: string): WebTreeMapNode {
+function newNode(id: string): Node {
   return {
-    name: escapeHtml(name),
-    data: {
-      $area: 0,
-    },
+    id,
+    size: 0,
   };
 }
 
-function addNode(source: string, size: number, treeData: WebTreeMapNode): void {
+function addNode(source: string, size: number, treeData: Node): void {
   const parts = source.split('/');
   let node = treeData;
 
-  node.data['$area'] += size;
+  node.size += size;
 
   parts.forEach(part => {
     if (!node.children) {
       node.children = [];
     }
 
-    let child = node.children.find(child => child.name === part);
+    let child = node.children.find(child => child.id === part);
 
     if (!child) {
       child = newNode(part);
@@ -128,14 +111,14 @@ function addNode(source: string, size: number, treeData: WebTreeMapNode): void {
     }
 
     node = child;
-    node.data['$area'] += size;
+    node.size += size;
   });
 }
 
-function addSizeToTitle(node: WebTreeMapNode, total: number): void {
-  const size = node.data['$area'];
+function addSizeToTitle(node: Node, total: number): void {
+  const size = node.size;
 
-  node.name += ` • ${formatBytes(size)} • ${formatPercent(size, total, 1)}%`;
+  node.id += ` • ${formatBytes(size)} • ${formatPercent(size, total, 1)}%`;
 
   if (node.children) {
     node.children.forEach(child => {

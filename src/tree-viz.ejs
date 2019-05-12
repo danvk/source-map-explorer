@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="data:text/css;base64,<%= webtreemapCss %>">
   <title><%= bundles[0].name %> - Source Map Explorer</title>
 
   <style>
@@ -36,6 +35,41 @@
       cursor: pointer;
       -webkit-user-select: none;
     }
+
+    .webtreemap-caption {
+      font-size: 11px !important;
+      /* Align verically */
+      padding-top: 4px;
+    }
+
+    .webtreemap-node:hover {
+      background: #ededed !important;
+    }
+
+    .webtreemap-node {
+      /* Level 0 */
+      border-color: #444 !important; 
+    }
+
+    .webtreemap-node > .webtreemap-node {
+      /* Level 1 */
+      border-color: #666 !important;
+    }
+
+    .webtreemap-node > .webtreemap-node > .webtreemap-node {
+      /* Level 2 */
+      border-color: #888 !important;
+    }
+
+    .webtreemap-node > .webtreemap-node > .webtreemap-node > .webtreemap-node {
+      /* Level 3 */
+      border-color: #aaa !important;
+    }
+
+    .webtreemap-node > .webtreemap-node > .webtreemap-node > .webtreemap-node > .webtreemap-node {
+      /* Level 4+ */
+      border-color: #ccc !important;
+    }
   </style>
 </head>
 <body>
@@ -55,20 +89,30 @@
 </body>
 
 <script>
-var treeDataMap = <%- JSON.stringify(treeDataMap) %>;
+var webTreeDataMap = <%- JSON.stringify(webTreeDataMap) %>;
 </script>
 
-<script src="data:application/javascript;base64,<%= webtreemapJs %>"></script>
+<script><%- webTreeMapJs %></script>
 
 <script>
+  var container = document.getElementById('map');
   var selectedBundle = '<%- bundles[0].name %>';
 
+  var webTreeMapOptions = {
+    padding: [20, 5, 5, 5],
+    showChildren: () => true,
+    showNode: () => true
+  };
+
   function selectBundle(bundleId) {
-    appendTreemap(map, treeDataMap[bundleId]);
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+
+    webtreemap.render(container, webTreeDataMap[bundleId], webTreeMapOptions);
+
     document.title = bundleId + ' - Source Map Explorer';
   }
-
-  var map = document.getElementById('map');
 
   <%_ if(bundles.length > 1) { _%>
   var bundleSelect = document.getElementById('bundle-select');
