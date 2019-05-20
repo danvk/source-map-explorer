@@ -28,6 +28,8 @@ export type File = string | Buffer;
 
 export type ReplaceMap = Record<string, string>;
 
+export type OutputFormat = 'json' | 'tsv' | 'html';
+
 /** Represents single bundle */
 export interface Bundle {
   code: File;
@@ -37,18 +39,22 @@ export interface Bundle {
 export interface ExploreOptions {
   /** Exclude "unmapped" bytes from the output */
   onlyMapped?: boolean;
-  /** Generate html */
-  html?: boolean;
-  /** Generate html ans save to specified file path  */
-  file?: string;
+  /** Output result as a string */
+  output?: {
+    format: OutputFormat;
+    /** Filename to save output to */
+    filename?: string;
+  };
   /** Disable removing prefix shared by all sources */
   noRoot?: boolean;
+  /** Replace "what" by "that" map */
   replaceMap?: ReplaceMap;
 }
 
 export interface ExploreResult {
   bundles: ExploreBundleResult[];
-  html?: string;
+  /** Result as a string - either JSON, TSV or HTML */
+  output?: string;
   errors: ExploreErrorResult[];
 }
 

@@ -26,14 +26,18 @@ in the bundle (perhaps because of out-of-date dependencies).
 
 ## Options
 
+There are three output formats available - JSON, TSV and HTML. By default (`source-map-explorer foo.min.js`), source-map-explorer writes HTML to a temporary file and opens it in your default browser. But if one of formats specified (`source-map-explorer foo.min.js --json`) source-map-explorer outputs result in specified format to stdout. If filename specified (`source-map-explorer foo.min.js --json sme/result.json`) result is saved to the file  
+
 * `--json`: output JSON instead of displaying a visualization:
 
     ```
-    source-map-explorer --json foo.min.js
+    source-map-explorer foo.min.js --json
     {
       "results": [
         {
-          "bundleName": "tests\\data\\foo.min.js",
+          "bundleName": "tests/data/foo.min.js",
+          "totalBytes": 697,
+          "unmappedBytes": 0,
           "files": {
             "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
             "dist/bar.js": 97,
@@ -48,7 +52,7 @@ in the bundle (perhaps because of out-of-date dependencies).
 * `--tsv`: output tab-delimited values instead of displaying a visualization:
 
     ```
-    source-map-explorer --tsv foo.min.js
+    source-map-explorer foo.min.js --tsv
     Source  Size
     node_modules/browserify/node_modules/browser-pack/_prelude.js  463
     dist/foo.js  137
@@ -56,17 +60,14 @@ in the bundle (perhaps because of out-of-date dependencies).
     <unmapped>  0
     ```
 
-    If you just want a list of files, you can do `source-map-explorer --tsv foo.min.js | sed 1d | cut -f1`.
+    If you just want a list of files, you can do `source-map-explorer foo.min.js --tsv | sed 1d | cut -f1`.
 
-* `--html`: output HTML to stdout. By default, source-map-explorer writes HTML to a temporary file and opens it in your default browser. If you want to save the output (e.g. to share), pipe it to a file:
+* `--html`: output HTML to stdout. If you want to save the output (e.g. to share), specify filename after `--html`:
 
     ```
-    source-map-explorer --html foo.min.js > tree.html
+    source-map-explorer foo.min.js --html tree.html
     ```
-* `--file filename`: output HTML to specified file. Parent directories will be created if not exist
-    ```
-    source-map-explorer foo.min.js --file sme-results/tree.html
-    ```
+
 * `-m`, `--only-mapped`: exclude "unmapped" bytes from the output. This will result in total counts less than the file size.
 
 * `--replace`, `--with`: The paths in source maps sometimes have artifacts that are difficult to get rid of. These flags let you do simple find & replaces on the paths. For example:
@@ -99,8 +100,9 @@ See more at [wiki page][cli wiki]
    ```  
 `options`:
 * `onlyMapped`: [boolean] (default `false`) - Exclude "unmapped" bytes from the output. This will result in total counts less than the file size
-* `html`: [boolean] (default `false`) - When `true` html will be included in returned object
-* `file`: [string] - Saves result HTML to specified file
+* `output`: [Object] - Output options
+    * `format`: [string] - `'json'`, `'tsv'` or `'html'`
+    * `filename`: [string] - Filename to save output to
 * `noRoot`: [boolean] (default `false`) - See `--no-root` option above for details
 * `replaceMap`: <[Object]<{ [from: [string]]: [string] }>> - Mapping for replacement, see `--replace`, `--with` options above for details.
 
@@ -109,7 +111,7 @@ Example:
 import { explore } from 'source-map-explorer'
 // or import explore from 'source-map-explorer'
 
-explore('tests/data/foo.min.js', { html: true }).then()
+explore('tests/data/foo.min.js', { output: { format: 'html' } }).then()
 
 // Returns
 {
@@ -124,7 +126,7 @@ explore('tests/data/foo.min.js', { html: true }).then()
       '<unmapped>': 0
     }
   }],
-  html: '<!doctype html>...',
+  output: '<!doctype html>...',
   errors: []
 }
 ```

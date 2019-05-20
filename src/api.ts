@@ -1,9 +1,6 @@
-import fs from 'fs';
-import path from 'path';
 import glob from 'glob';
 import { partition, flatMap, isString } from 'lodash';
 
-import { generateHtml } from './html';
 import { exploreBundle, UNMAPPED_KEY } from './explore';
 import { AppError, getErrorMessage } from './app-error';
 import {
@@ -14,6 +11,7 @@ import {
   ExploreErrorResult,
   ExploreBundleResult,
 } from './index';
+import { formatOutput, saveOutputToFile } from './output';
 
 /**
  * Analyze bundle(s)
@@ -51,7 +49,7 @@ export async function explore(
     return Promise.reject(exploreResult);
   }
 
-  saveHtmlToFile(exploreResult, options);
+  saveOutputToFile(exploreResult, options);
 
   return exploreResult;
 }
@@ -108,12 +106,10 @@ function getExploreResult(
 
   errors.push(...getPostExploreErrors(bundles));
 
-  const canGenerateHtml = bundles.length > 0 && (options.html || options.file);
-
   return {
     bundles,
     errors,
-    ...(canGenerateHtml && { html: generateHtml(bundles) }),
+    ...(bundles.length > 0 && { output: formatOutput(bundles, options) }),
   };
 }
 
@@ -145,18 +141,4 @@ function getPostExploreErrors(exploreBundleResults: ExploreBundleResult[]): Expl
   }
 
   return errors;
-}
-
-function saveHtmlToFile(result: ExploreResult, options: ExploreOptions): void {
-  if (result.html && options.file) {
-    try {
-      const filename = options.file;
-      const dir = path.dirname(filename);
-
-      fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(options.file, result.html);
-    } catch (error) {
-      throw new AppError({ code: 'CannotSaveFile' }, error);
-    }
-  }
 }
