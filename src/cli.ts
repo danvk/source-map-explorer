@@ -35,6 +35,8 @@ function parseArguments(): Arguments {
     .example('$0 script.js script.js.map', 'Explore bundle')
     .example('$0 script.js', 'Explore bundle with inline source map')
     .example('$0 dist/js/*.*', 'Explore all bundles inside dist/js folder')
+    .example('$0 script.js --tsv', 'Explore and output result as TSV to stdout')
+    .example('$0 script.js --json result.json', 'Explore and save result as JSON to the file')
     .demandCommand(1, 'At least one js file must be specified')
     .options({
       json: {

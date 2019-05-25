@@ -47,7 +47,7 @@ export interface ExploreOptions {
   };
   /** Disable removing prefix shared by all sources */
   noRoot?: boolean;
-  /** Replace "what" by "that" map */
+  /** Replace "this" by "that" map */
   replaceMap?: ReplaceMap;
 }
 

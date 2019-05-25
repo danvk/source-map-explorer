@@ -26,7 +26,24 @@ in the bundle (perhaps because of out-of-date dependencies).
 
 ## Options
 
-There are three output formats available - JSON, TSV and HTML. By default (`source-map-explorer foo.min.js`), source-map-explorer writes HTML to a temporary file and opens it in your default browser. But if one of formats specified (`source-map-explorer foo.min.js --json`) source-map-explorer outputs result in specified format to stdout. If filename specified (`source-map-explorer foo.min.js --json sme/result.json`) result is saved to the file  
+### Default behavior - write HTML to a temp file and open it in your browser
+```
+source-map-explorer foo.min.js
+```
+
+### Write output in specific formats to stdout
+```
+source-map-explorer foo.min.js --html
+source-map-explorer foo.min.js --json
+source-map-explorer foo.min.js --tsv
+```
+
+### Write output in specific formats to a file
+```
+source-map-explorer foo.min.js --html result.html
+source-map-explorer foo.min.js --json result.json
+source-map-explorer foo.min.js --tsv result.tsv
+```
 
 * `--json`: output JSON instead of displaying a visualization:
 
