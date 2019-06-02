@@ -87,10 +87,10 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.4",
+    "@babel/core": "^7.4.5",
     "@babel/plugin-proposal-class-properties": "^7.4.4",
     "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
-    "@babel/preset-env": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
     "@babel/preset-typescript": "^7.3.3",
     "@babel/register": "^7.4.4",
     "@smpx/snap-shot-it": "^6.6.1",
@@ -101,8 +101,8 @@
     "@types/ejs": "^2.6.3",
     "@types/escape-html": "0.0.20",
     "@types/glob": "^7.1.1",
-    "@types/lodash": "^4.14.130",
-    "@types/mocha": "^5.2.6",
+    "@types/lodash": "^4.14.133",
+    "@types/mocha": "^5.2.7",
     "@types/node": "^12.x",
     "@types/open": "^6.1.0",
     "@types/rimraf": "^2.0.2",
@@ -130,6 +130,6 @@
     "package-preview": "^2.0.0",
     "prettier": "^1.17.1",
     "rimraf": "^2.6.3",
-    "typescript": "^3.4.5"
+    "typescript": "^3.5.1"
   }
 }
