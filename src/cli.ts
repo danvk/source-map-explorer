@@ -8,16 +8,15 @@ import chalk from 'chalk';
 import { groupBy, isString } from 'lodash';
 
 import { explore } from './api';
-import { ExploreOptions, ReplaceMap, FileSizeMap, ExploreResult } from './index';
+import { ExploreOptions, ReplaceMap, ExploreResult } from './index';
 import { AppError, getErrorMessage, ErrorContext } from './app-error';
 
 /** Parsed CLI arguments */
 interface Arguments {
   _: string[];
-  json?: boolean;
-  tsv?: boolean;
-  html?: boolean;
-  file?: string;
+  json?: string;
+  tsv?: string;
+  html?: string;
   onlyMapped?: boolean;
   noRoot?: boolean;
   replace?: string[];
@@ -31,33 +30,32 @@ function parseArguments(): Arguments {
     .usage('Analyze and debug space usage through source maps.')
     .usage('Usage:')
     .usage(
-      '$0 script.js [script.js.map] [--json | --html | --tsv | --file map.html] [-m | --only-mapped] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--version] [--help | -h]'
+      '$0 script.js [script.js.map] [--json [result.json] | --html [result.html] | --tsv [result.csv]] [-m | --only-mapped] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--version] [--help | -h]'
     )
     .example('$0 script.js script.js.map', 'Explore bundle')
     .example('$0 script.js', 'Explore bundle with inline source map')
     .example('$0 dist/js/*.*', 'Explore all bundles inside dist/js folder')
+    .example('$0 script.js --tsv', 'Explore and output result as TSV to stdout')
+    .example('$0 script.js --json result.json', 'Explore and save result as JSON to the file')
     .demandCommand(1, 'At least one js file must be specified')
     .options({
       json: {
-        type: 'boolean',
-        description: 'Output JSON (on stdout) instead of generating HTML and opening the browser.',
-        conflicts: ['tsv', 'html', 'file'],
+        type: 'string',
+        description:
+          'If filename specified save output as JSON to specified file otherwise output to stdout.',
+        conflicts: ['tsv', 'html'],
       },
       tsv: {
-        type: 'boolean',
-        description: 'Output TSV (on stdout) instead of generating HTML and opening the browser.',
-        conflicts: ['json', 'html', 'file'],
+        type: 'string',
+        description:
+          'If filename specified save output as TSV to specified file otherwise output to stdout.',
+        conflicts: ['json', 'html'],
       },
       html: {
-        type: 'boolean',
-        description: 'Output HTML (on stdout) rather than opening a browser.',
-        conflicts: ['json', 'tsv', 'file'],
-      },
-      file: {
         type: 'string',
-        normalize: true,
-        description: 'Save HTML output to specified file.',
-        conflicts: ['json', 'tsv', 'html'],
+        description:
+          'If filename specified save output as HTML to specified file otherwise output to stdout rather than opening a browser.',
+        conflicts: ['json', 'tsv'],
       },
 
       'only-mapped': {
@@ -136,11 +134,6 @@ export function logInfo(message: string): void {
  * Create options object for `explore` method
  */
 function getExploreOptions(argv: Arguments): ExploreOptions {
-  let html = true;
-  if (argv.json || argv.tsv) {
-    html = false;
-  }
-
   let replaceMap: ReplaceMap | undefined;
   const replaceItems = argv.replace;
   const withItems = argv.with;
@@ -154,57 +147,21 @@ function getExploreOptions(argv: Arguments): ExploreOptions {
   }
 
   return {
-    html,
-    file: argv.file,
+    output: {
+      // By default CLI needs result in HTML in order to create a temporary file
+      format: isString(argv.json) ? 'json' : isString(argv.tsv) ? 'tsv' : 'html',
+      filename: argv.json || argv.tsv || argv.html,
+    },
     replaceMap,
     onlyMapped: argv.onlyMapped,
     noRoot: argv.noRoot,
   };
 }
 
-interface JsonResult {
-  results: {
-    bundleName: string;
-    files: FileSizeMap;
-  }[];
-}
-
-function outputJson(result: ExploreResult): void {
-  const jsonResultObject: JsonResult = {
-    results: result.bundles.map(({ bundleName, files }) => ({
-      bundleName,
-      files,
-    })),
-  };
-
-  console.log(JSON.stringify(jsonResultObject, null, '  '));
-}
-
-function outputTsv(result: ExploreResult): void {
-  console.log('Source\tSize');
-
-  result.bundles.forEach((bundle, index) => {
-    if (index > 0) {
-      // Separate bundles by empty line
-      console.log();
-    }
-
-    Object.entries(bundle.files)
-      .sort(sortFilesBySize)
-      .forEach(([source, size]) => {
-        console.log(`${source}\t${size}`);
-      });
-  });
-}
-
-function sortFilesBySize([, aSize]: [string, number], [, bSize]: [string, number]): number {
-  return bSize - aSize;
-}
-
 /**
  * Write HTML content to a temporary file and open the file in a browser
  */
-async function writeToHtml(html?: string): Promise<void> {
+async function writeHtmlToTempFile(html?: string): Promise<void> {
   if (!html) {
     return;
   }
@@ -255,21 +212,23 @@ function outputErrors({ errors }: ExploreResult): void {
 if (require.main === module) {
   const argv = parseArguments();
 
-  const exploreOptions = getExploreOptions(argv);
+  const isOutputFormatSpecified = [argv.json, argv.tsv, argv.html].some(isString);
 
-  explore(argv._, exploreOptions)
+  const options = getExploreOptions(argv);
+
+  explore(argv._, options)
     .then(result => {
-      if (argv.json) {
-        outputJson(result);
-      } else if (argv.tsv) {
-        outputTsv(result);
-      } else if (argv.html) {
-        console.log(result.html);
-      } else if (argv.file) {
-        logInfo(`HTML saved to ${argv.file}`);
-        outputErrors(result);
+      if (isOutputFormatSpecified && options.output) {
+        const filename = options.output.filename;
+
+        if (filename) {
+          logInfo(`Output saved to ${filename}`);
+          outputErrors(result);
+        } else {
+          console.log(result.output);
+        }
       } else {
-        writeToHtml(result.html).then(() => {
+        writeHtmlToTempFile(result.output).then(() => {
           outputErrors(result);
         });
       }

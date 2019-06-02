@@ -38,13 +38,18 @@ describe('CLI', function() {
   it('should output result as tsv', async function() {
     const result = await execute(SCRIPT_PATH, ['data/inline-map.js', '--tsv']);
 
-    snapshot(result);
+    expect(result)
+      .to.have.string('Source\tSize')
+      .and.have.string('dist/bar.js\t2854');
   });
 
   it('should output multiple results as tsv', async function() {
     const result = await execute(SCRIPT_PATH, ['data/inline-map.js', 'data/foo.min.js*', '--tsv']);
 
-    snapshot(result);
+    expect(result)
+      .to.have.string('Source\tSize')
+      .and.have.string('dist/bar.js\t2854')
+      .and.have.string('dist/bar.js\t97');
   });
 
   it('should output result as html', async function() {

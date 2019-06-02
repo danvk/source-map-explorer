@@ -98,3 +98,34 @@ exports['api explore should generate data when provided with js file with inline
   ],
   "errors": []
 }
+
+exports['api explore when output format specified should generate JSON 1'] = `
+{
+  "results": [
+    {
+      "bundleName": "data/foo.min.js",
+      "totalBytes": 697,
+      "unmappedBytes": 0,
+      "files": {
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+        "dist/bar.js": 97,
+        "dist/foo.js": 137,
+        "<unmapped>": 0
+      }
+    }
+  ]
+}
+`
+
+exports['api explore when output format specified should generate TSV 1'] = `
+Source\tSize\r
+node_modules/browserify/node_modules/browser-pack/_prelude.js\t463\r
+dist/foo.js\t137\r
+dist/bar.js\t97\r
+<unmapped>\t0\r
+\r
+dist/bar.js\t2854\r
+node_modules/browserify/node_modules/browser-pack/_prelude.js\t463\r
+dist/foo.js\t137\r
+<unmapped>\t0
+`

@@ -4,10 +4,12 @@ import rimraf from 'rimraf';
 import snapshot from '@smpx/snap-shot-it';
 
 import { explore, getBundles } from '../src/api';
-import { setTestFolder } from './test-helpers';
+import { setTestFolder, mockEOL } from './test-helpers';
 import { BundlesAndFileTokens, ExploreOptions, Bundle } from '../src';
 
 describe('api', () => {
+  mockEOL();
+
   describe('explore', function() {
     setTestFolder();
 
@@ -59,72 +61,88 @@ describe('api', () => {
       snapshot(actual);
     });
 
-    describe(`when 'html' option specified`, function() {
-      it('should generate html from buffer', async function() {
+    describe('when output format specified', function() {
+      it('should generate HTML from buffer', async function() {
         const result = await explore(
           { code: fs.readFileSync('data/inline-map.js') },
-          { html: true }
+          { output: { format: 'html' } }
         );
 
         expect(result)
-          .to.have.property('html')
+          .to.have.property('output')
           .that.contains('<title>Buffer - Source Map Explorer</title>')
           .and.contains('"bar.js')
           .and.contains('"foo.js');
       });
 
-      it('should generate html from file', async function() {
-        const result = await explore('data/foo.min.js', { html: true });
+      it('should generate HTML from file', async function() {
+        const result = await explore('data/foo.min.js', { output: { format: 'html' } });
 
         expect(result)
-          .to.have.property('html')
+          .to.have.property('output')
           .that.contains('<title>data/foo.min.js - Source Map Explorer</title>')
           .and.contains('"bar.js')
           .and.contains('"foo.js');
       });
 
-      it('should generate html from multiple files', async function() {
-        const result = await explore(['data/foo.min.js', 'data/inline-map.js'], { html: true });
+      it('should generate HTML from multiple files', async function() {
+        const result = await explore(['data/foo.min.js', 'data/inline-map.js'], {
+          output: { format: 'html' },
+        });
 
         expect(result)
-          .to.have.property('html')
+          .to.have.property('output')
           .that.contains('<title>[combined] - Source Map Explorer</title>')
           .and.contains('"bar.js')
           .and.contains('"foo.js');
       });
+
+      it('should generate TSV', async function() {
+        const result = await explore(['data/foo.min.js', 'data/inline-map.js'], {
+          output: { format: 'tsv' },
+        });
+
+        snapshot(result.output);
+      });
+
+      it('should generate JSON', async function() {
+        const result = await explore('data/foo.min.js', { output: { format: 'json' } });
+
+        snapshot(result.output);
+      });
     });
 
-    describe(`when 'file' option specified`, function() {
+    describe(`when output filename specified`, function() {
       const tests: {
         name: string;
-        file: string;
+        filename: string;
         cleanPath?: string;
       }[] = [
         {
           name: 'should save html to file',
-          file: 'sme-result.html',
+          filename: 'sme-result.html',
         },
         {
           name: 'should save html to file creating nested directories',
-          file: './tmp/nested/sme-result.html',
+          filename: './tmp/nested/sme-result.html',
           cleanPath: './tmp',
         },
       ];
 
-      tests.forEach(function({ name, file, cleanPath }) {
+      tests.forEach(function({ name, filename, cleanPath }) {
         it(name, async function() {
           await explore('data/inline-map.js', {
-            file,
+            output: { format: 'html', filename },
           });
 
-          expect(fs.existsSync(file)).to.eq(true);
+          expect(fs.existsSync(filename)).to.eq(true);
 
-          const htmlContent = fs.readFileSync(file).toString();
+          const htmlContent = fs.readFileSync(filename).toString();
           expect(htmlContent).to.have.string(
             '<title>data/inline-map.js - Source Map Explorer</title>'
           );
 
-          rimraf.sync(cleanPath || file);
+          rimraf.sync(cleanPath || filename);
         });
       });
     });
@@ -180,7 +198,7 @@ describe('api', () => {
         {
           name: 'should throw when cannot save html to file',
           bundlesAndFileTokens: 'data/inline-map.js',
-          options: { file: '?' },
+          options: { output: { format: 'html', filename: '?' } },
           expectedErrorCode: 'CannotSaveFile',
         },
       ];

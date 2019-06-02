@@ -1,6 +1,7 @@
 import { existsSync } from 'fs';
 import spawn from 'cross-spawn';
 import concat from 'concat-stream';
+import os from 'os';
 
 const PATH = process.env.PATH;
 
@@ -16,6 +17,23 @@ export function setTestFolder() {
 
   after(function() {
     process.chdir(originalCwd);
+  });
+}
+
+export function mockEOL() {
+  const originalEOL = os.EOL;
+
+  before(function() {
+    // Unify EOL for snapshots
+    Object.defineProperty(os, 'EOL', {
+      value: '\r\n',
+    });
+  });
+
+  after(function() {
+    Object.defineProperty(os, 'EOL', {
+      value: originalEOL,
+    });
   });
 }
 
