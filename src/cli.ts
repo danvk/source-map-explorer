@@ -167,15 +167,15 @@ async function writeHtmlToTempFile(html?: string): Promise<void> {
   }
 
   try {
-    const info = temp.openSync({ prefix: 'sme-result-', suffix: '.html' });
-    fs.writeFileSync(info.fd, html);
+    const tempFile = temp.path({ prefix: 'sme-result-', suffix: '.html' });
+    fs.writeFileSync(tempFile, html);
 
-    const childProcess = await open(info.path);
+    const childProcess = await open(tempFile);
 
     if (childProcess.stderr) {
       // Catch error output from child process
-      childProcess.stderr.once('data', (data: Buffer) => {
-        logError({ code: 'CannotOpenTempFile', tempFile: info.path, error: data });
+      childProcess.stderr.once('data', (error: Buffer) => {
+        logError({ code: 'CannotOpenTempFile', tempFile, error });
       });
     }
   } catch (error) {
