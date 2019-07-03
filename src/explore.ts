@@ -1,6 +1,7 @@
 import convert from 'convert-source-map';
 import path from 'path';
 import { BasicSourceMapConsumer, IndexedSourceMapConsumer, SourceMapConsumer } from 'source-map';
+import gzipSize from 'gzip-size';
 import { mapKeys } from 'lodash';
 
 import { getBundleName } from './api';
@@ -94,14 +95,14 @@ function computeGeneratedFileSizes(sourceMapData: SourceMapData): FileSizes {
   let totalBytes = 0;
 
   for (let i = 0; i < spans.length; i++) {
-    const { numChars, source } = spans[i];
+    const { source, gzippedSize } = spans[i];
 
-    totalBytes += numChars;
+    totalBytes += gzippedSize;
 
     if (source === null) {
-      unmappedBytes += numChars;
+      unmappedBytes += gzippedSize;
     } else {
-      files[source] = (files[source] || 0) + numChars;
+      files[source] = (files[source] || 0) + gzippedSize;
     }
   }
 
@@ -114,7 +115,9 @@ function computeGeneratedFileSizes(sourceMapData: SourceMapData): FileSizes {
 
 interface Span {
   source: string | null;
+  chars: string;
   numChars: number;
+  gzippedSize: number;
 }
 
 function computeSpans(sourceMapData: SourceMapData): Span[] {
@@ -134,10 +137,14 @@ function computeSpans(sourceMapData: SourceMapData): Span[] {
       const { source } = consumer.originalPositionFor({ line, column });
 
       if (source !== lastSource) {
+        if (spans[spans.length - 1]) {
+          spans[spans.length - 1].gzippedSize = gzipSize.sync(spans[spans.length - 1].chars);
+        }
         lastSource = source;
-        spans.push({ source, numChars: 1 });
+        spans.push({ source, numChars: 1, chars: '', gzippedSize: 0 });
       } else {
         spans[spans.length - 1].numChars += 1;
+        spans[spans.length - 1].chars += codeFileContent.charAt(column);
       }
     }
   }

@@ -2,12 +2,12 @@ exports['api explore should accept buffer with inline map 1'] = {
   "bundles": [
     {
       "bundleName": "Buffer",
-      "totalBytes": 3454,
+      "totalBytes": 489,
       "unmappedBytes": 0,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 2854,
-        "dist/foo.js": 137,
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 292,
+        "dist/bar.js": 77,
+        "dist/foo.js": 120,
         "<unmapped>": 0
       }
     }
@@ -19,12 +19,12 @@ exports['api explore should accept buffers with js and map 1'] = {
   "bundles": [
     {
       "bundleName": "Buffer",
-      "totalBytes": 697,
+      "totalBytes": 489,
       "unmappedBytes": 0,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 97,
-        "dist/foo.js": 137,
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 292,
+        "dist/bar.js": 77,
+        "dist/foo.js": 120,
         "<unmapped>": 0
       }
     }
@@ -36,12 +36,12 @@ exports['api explore should generate data respecting onlyMapped and replace opti
   "bundles": [
     {
       "bundleName": "data/foo.min.js",
-      "totalBytes": 697,
+      "totalBytes": 489,
       "unmappedBytes": 0,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "hello/bar.js": 97,
-        "hello/foo.js": 137
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 292,
+        "hello/bar.js": 77,
+        "hello/foo.js": 120
       }
     }
   ],
@@ -52,12 +52,12 @@ exports['api explore should generate data when provided with file with reference
   "bundles": [
     {
       "bundleName": "data/foo.min.js",
-      "totalBytes": 697,
+      "totalBytes": 489,
       "unmappedBytes": 0,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 97,
-        "dist/foo.js": 137,
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 292,
+        "dist/bar.js": 77,
+        "dist/foo.js": 120,
         "<unmapped>": 0
       }
     }
@@ -69,12 +69,12 @@ exports['api explore should generate data when provided with file with separated
   "bundles": [
     {
       "bundleName": "data/no-map.js",
-      "totalBytes": 662,
+      "totalBytes": 369,
       "unmappedBytes": 0,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 62,
-        "dist/foo.js": 137,
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 292,
+        "dist/bar.js": 77,
+        "dist/foo.js": 0,
         "<unmapped>": 0
       }
     }
@@ -86,12 +86,12 @@ exports['api explore should generate data when provided with js file with inline
   "bundles": [
     {
       "bundleName": "data/inline-map.js",
-      "totalBytes": 3454,
+      "totalBytes": 489,
       "unmappedBytes": 0,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 2854,
-        "dist/foo.js": 137,
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 292,
+        "dist/bar.js": 77,
+        "dist/foo.js": 120,
         "<unmapped>": 0
       }
     }
@@ -104,12 +104,12 @@ exports['api explore when output format specified should generate JSON 1'] = `
   "results": [
     {
       "bundleName": "data/foo.min.js",
-      "totalBytes": 697,
+      "totalBytes": 489,
       "unmappedBytes": 0,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 97,
-        "dist/foo.js": 137,
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 292,
+        "dist/bar.js": 77,
+        "dist/foo.js": 120,
         "<unmapped>": 0
       }
     }
@@ -119,13 +119,13 @@ exports['api explore when output format specified should generate JSON 1'] = `
 
 exports['api explore when output format specified should generate TSV 1'] = `
 Source\tSize\r
-node_modules/browserify/node_modules/browser-pack/_prelude.js\t463\r
-dist/foo.js\t137\r
-dist/bar.js\t97\r
+node_modules/browserify/node_modules/browser-pack/_prelude.js\t292\r
+dist/foo.js\t120\r
+dist/bar.js\t77\r
 <unmapped>\t0\r
 \r
-dist/bar.js\t2854\r
-node_modules/browserify/node_modules/browser-pack/_prelude.js\t463\r
-dist/foo.js\t137\r
+node_modules/browserify/node_modules/browser-pack/_prelude.js\t292\r
+dist/foo.js\t120\r
+dist/bar.js\t77\r
 <unmapped>\t0
 `
