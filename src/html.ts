@@ -24,21 +24,27 @@ export function generateHtml(exploreResults: ExploreBundleResult[]): string {
   // Get bundles info to generate select element
   const bundles = exploreResults.map(data => ({
     name: normalizeBundleName(data.bundleName),
-    size: formatBytes(data.totalBytes),
+    sizes: { gzip: formatBytes(data.totalBytes.gzip), stat: formatBytes(data.totalBytes.stat) },
   }));
 
-  // Get webtreemap data to update map on bundle select
-  const treeDataMap = exploreResults.reduce<Record<string, WebTreeMapNode>>((result, data) => {
-    result[data.bundleName] = getWebTreeMapData(data.files);
+  const treeDataMaps = {
+    gzip: exploreResults.reduce<Record<string, WebTreeMapNode>>((result, data) => {
+      result[data.bundleName] = getWebTreeMapData(data.gzipFiles);
 
-    return result;
-  }, {});
+      return result;
+    }, {}),
+    stat: exploreResults.reduce<Record<string, WebTreeMapNode>>((result, data) => {
+      result[data.bundleName] = getWebTreeMapData(data.statFiles);
+
+      return result;
+    }, {}),
+  };
 
   const template = getFileContent(path.join(__dirname, 'tree-viz.ejs'));
 
   return ejs.render(template, {
     bundles,
-    treeDataMap,
+    treeDataMaps,
     webtreemapJs: assets.webtreemapJs,
     webtreemapCss: assets.webtreemapCss,
   });
@@ -48,26 +54,32 @@ export function generateHtml(exploreResults: ExploreBundleResult[]): string {
  * Create a combined result where each of the inputs is a separate node under the root
  */
 function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleResult {
-  let totalBytes = 0;
-  const files: FileSizeMap = {};
+  const totalBytes = { gzip: 0, stat: 0 };
+  const statFiles: FileSizeMap = {};
+  const gzipFiles: FileSizeMap = {};
 
   // Remove any common prefix to keep the visualization as simple as possible.
   const commonPrefix = getCommonPathPrefix(exploreResults.map(r => r.bundleName));
 
   for (const result of exploreResults) {
-    totalBytes += result.totalBytes;
+    totalBytes.gzip += result.totalBytes.gzip;
+    totalBytes.stat += result.totalBytes.stat;
 
     const prefix = result.bundleName.slice(commonPrefix.length);
-    Object.entries(result.files).forEach(([fileName, size]) => {
-      files[`${prefix}/${fileName}`] = size;
+    Object.entries(result.gzipFiles).forEach(([fileName, size]) => {
+      gzipFiles[`${prefix}/${fileName}`] = size;
+    });
+    Object.entries(result.statFiles).forEach(([fileName, size]) => {
+      statFiles[`${prefix}/${fileName}`] = size;
     });
   }
 
   return {
     bundleName: '[combined]',
     totalBytes,
-    unmappedBytes: 0,
-    files,
+    unmappedBytes: { gzip: 0, stat: 0 },
+    statFiles,
+    gzipFiles,
   };
 }
 const ESCAPE_BACKSLASH_REGEX = /\\/g;

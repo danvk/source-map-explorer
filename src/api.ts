@@ -101,7 +101,7 @@ function getExploreResult(
 ): ExploreResult {
   const [bundles, errors] = partition(
     results,
-    (result): result is ExploreBundleResult => 'files' in result
+    (result): result is ExploreBundleResult => 'gzipFiles' in result
   );
 
   errors.push(...getPostExploreErrors(bundles));
@@ -117,10 +117,10 @@ function getPostExploreErrors(exploreBundleResults: ExploreBundleResult[]): Expl
   const errors: ExploreErrorResult[] = [];
 
   for (const result of exploreBundleResults) {
-    const { bundleName, files, totalBytes } = result;
+    const { bundleName, gzipFiles, totalBytes } = result;
 
     // Check if source map contains only one file - this make result useless when exploring single bundle
-    const filenames = Object.keys(files).filter(filename => filename !== UNMAPPED_KEY);
+    const filenames = Object.keys(gzipFiles).filter(filename => filename !== UNMAPPED_KEY);
     if (filenames.length === 1) {
       errors.push({
         bundleName,
@@ -129,13 +129,17 @@ function getPostExploreErrors(exploreBundleResults: ExploreBundleResult[]): Expl
       });
     }
 
-    const unmappedBytes = files[UNMAPPED_KEY];
+    const unmappedBytes = gzipFiles[UNMAPPED_KEY];
     if (unmappedBytes) {
       errors.push({
         bundleName,
         isWarning: true,
         code: 'UnmappedBytes',
-        message: getErrorMessage({ code: 'UnmappedBytes', unmappedBytes, totalBytes }),
+        message: getErrorMessage({
+          code: 'UnmappedBytes',
+          unmappedBytes,
+          totalBytes: totalBytes.gzip,
+        }),
       });
     }
   }

@@ -9,9 +9,16 @@ export default explore;
 export type FileSizeMap = Record<string, number>;
 
 export interface FileSizes {
-  files: FileSizeMap;
-  unmappedBytes: number;
-  totalBytes: number;
+  statFiles: FileSizeMap;
+  gzipFiles: FileSizeMap;
+  unmappedBytes: {
+    gzip: number;
+    stat: number;
+  };
+  totalBytes: {
+    gzip: number;
+    stat: number;
+  };
 }
 
 export type ErrorCode =

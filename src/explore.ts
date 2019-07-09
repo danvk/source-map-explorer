@@ -24,12 +24,14 @@ export async function exploreBundle(
 
   const sizes = computeGeneratedFileSizes(sourceMapData);
 
-  const files = adjustSourcePaths(sizes.files, options);
+  const gzipFiles = adjustSourcePaths(sizes.gzipFiles, options);
+  const statFiles = adjustSourcePaths(sizes.statFiles, options);
 
   const { totalBytes, unmappedBytes } = sizes;
 
   if (!options.onlyMapped) {
-    files[UNMAPPED_KEY] = unmappedBytes;
+    gzipFiles[UNMAPPED_KEY] = unmappedBytes.gzip;
+    statFiles[UNMAPPED_KEY] = unmappedBytes.stat;
   }
 
   // Free Wasm data
@@ -39,7 +41,8 @@ export async function exploreBundle(
     bundleName: getBundleName(bundle),
     totalBytes,
     unmappedBytes,
-    files,
+    gzipFiles,
+    statFiles,
   };
 }
 
@@ -90,24 +93,35 @@ async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<Sour
 function computeGeneratedFileSizes(sourceMapData: SourceMapData): FileSizes {
   const spans = computeSpans(sourceMapData);
 
-  const files: FileSizeMap = {};
-  let unmappedBytes = 0;
-  let totalBytes = 0;
+  const statFiles: FileSizeMap = {};
+  const gzipFiles: FileSizeMap = {};
+  const unmappedBytes = {
+    stat: 0,
+    gzip: 0,
+  };
+  const totalBytes = {
+    stat: 0,
+    gzip: 0,
+  };
 
   for (let i = 0; i < spans.length; i++) {
-    const { source, gzippedSize } = spans[i];
+    const { source, gzippedSize, numChars } = spans[i];
 
-    totalBytes += gzippedSize;
+    totalBytes.gzip += gzippedSize;
+    totalBytes.stat += numChars;
 
     if (source === null) {
-      unmappedBytes += gzippedSize;
+      unmappedBytes.gzip += gzippedSize;
+      unmappedBytes.stat += numChars;
     } else {
-      files[source] = (files[source] || 0) + gzippedSize;
+      gzipFiles[source] = (gzipFiles[source] || 0) + gzippedSize;
+      statFiles[source] = (statFiles[source] || 0) + numChars;
     }
   }
 
   return {
-    files,
+    statFiles,
+    gzipFiles,
     unmappedBytes,
     totalBytes,
   };

@@ -2,12 +2,24 @@ exports['api explore should accept buffer with inline map 1'] = {
   "bundles": [
     {
       "bundleName": "Buffer",
-      "totalBytes": 489,
-      "unmappedBytes": 0,
-      "files": {
+      "totalBytes": {
+        "stat": 3454,
+        "gzip": 489
+      },
+      "unmappedBytes": {
+        "stat": 0,
+        "gzip": 0
+      },
+      "gzipFiles": {
         "node_modules/browserify/node_modules/browser-pack/_prelude.js": 292,
         "dist/bar.js": 77,
         "dist/foo.js": 120,
+        "<unmapped>": 0
+      },
+      "statFiles": {
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+        "dist/bar.js": 2854,
+        "dist/foo.js": 137,
         "<unmapped>": 0
       }
     }
@@ -19,12 +31,24 @@ exports['api explore should accept buffers with js and map 1'] = {
   "bundles": [
     {
       "bundleName": "Buffer",
-      "totalBytes": 489,
-      "unmappedBytes": 0,
-      "files": {
+      "totalBytes": {
+        "stat": 697,
+        "gzip": 489
+      },
+      "unmappedBytes": {
+        "stat": 0,
+        "gzip": 0
+      },
+      "gzipFiles": {
         "node_modules/browserify/node_modules/browser-pack/_prelude.js": 292,
         "dist/bar.js": 77,
         "dist/foo.js": 120,
+        "<unmapped>": 0
+      },
+      "statFiles": {
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+        "dist/bar.js": 97,
+        "dist/foo.js": 137,
         "<unmapped>": 0
       }
     }
@@ -36,12 +60,23 @@ exports['api explore should generate data respecting onlyMapped and replace opti
   "bundles": [
     {
       "bundleName": "data/foo.min.js",
-      "totalBytes": 489,
-      "unmappedBytes": 0,
-      "files": {
+      "totalBytes": {
+        "stat": 697,
+        "gzip": 489
+      },
+      "unmappedBytes": {
+        "stat": 0,
+        "gzip": 0
+      },
+      "gzipFiles": {
         "node_modules/browserify/node_modules/browser-pack/_prelude.js": 292,
         "hello/bar.js": 77,
         "hello/foo.js": 120
+      },
+      "statFiles": {
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+        "hello/bar.js": 97,
+        "hello/foo.js": 137
       }
     }
   ],
@@ -52,12 +87,24 @@ exports['api explore should generate data when provided with file with reference
   "bundles": [
     {
       "bundleName": "data/foo.min.js",
-      "totalBytes": 489,
-      "unmappedBytes": 0,
-      "files": {
+      "totalBytes": {
+        "stat": 697,
+        "gzip": 489
+      },
+      "unmappedBytes": {
+        "stat": 0,
+        "gzip": 0
+      },
+      "gzipFiles": {
         "node_modules/browserify/node_modules/browser-pack/_prelude.js": 292,
         "dist/bar.js": 77,
         "dist/foo.js": 120,
+        "<unmapped>": 0
+      },
+      "statFiles": {
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+        "dist/bar.js": 97,
+        "dist/foo.js": 137,
         "<unmapped>": 0
       }
     }
@@ -69,12 +116,24 @@ exports['api explore should generate data when provided with file with separated
   "bundles": [
     {
       "bundleName": "data/no-map.js",
-      "totalBytes": 369,
-      "unmappedBytes": 0,
-      "files": {
+      "totalBytes": {
+        "stat": 662,
+        "gzip": 369
+      },
+      "unmappedBytes": {
+        "stat": 0,
+        "gzip": 0
+      },
+      "gzipFiles": {
         "node_modules/browserify/node_modules/browser-pack/_prelude.js": 292,
         "dist/bar.js": 77,
         "dist/foo.js": 0,
+        "<unmapped>": 0
+      },
+      "statFiles": {
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+        "dist/bar.js": 62,
+        "dist/foo.js": 137,
         "<unmapped>": 0
       }
     }
@@ -86,12 +145,24 @@ exports['api explore should generate data when provided with js file with inline
   "bundles": [
     {
       "bundleName": "data/inline-map.js",
-      "totalBytes": 489,
-      "unmappedBytes": 0,
-      "files": {
+      "totalBytes": {
+        "stat": 3454,
+        "gzip": 489
+      },
+      "unmappedBytes": {
+        "stat": 0,
+        "gzip": 0
+      },
+      "gzipFiles": {
         "node_modules/browserify/node_modules/browser-pack/_prelude.js": 292,
         "dist/bar.js": 77,
         "dist/foo.js": 120,
+        "<unmapped>": 0
+      },
+      "statFiles": {
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+        "dist/bar.js": 2854,
+        "dist/foo.js": 137,
         "<unmapped>": 0
       }
     }
@@ -104,12 +175,24 @@ exports['api explore when output format specified should generate JSON 1'] = `
   "results": [
     {
       "bundleName": "data/foo.min.js",
-      "totalBytes": 489,
-      "unmappedBytes": 0,
-      "files": {
+      "totalBytes": {
+        "stat": 697,
+        "gzip": 489
+      },
+      "unmappedBytes": {
+        "stat": 0,
+        "gzip": 0
+      },
+      "gzipFiles": {
         "node_modules/browserify/node_modules/browser-pack/_prelude.js": 292,
         "dist/bar.js": 77,
         "dist/foo.js": 120,
+        "<unmapped>": 0
+      },
+      "statFiles": {
+        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
+        "dist/bar.js": 97,
+        "dist/foo.js": 137,
         "<unmapped>": 0
       }
     }

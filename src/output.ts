@@ -35,7 +35,7 @@ function outputAsTsv(results: ExploreBundleResult[]): string {
       lines.push('');
     }
 
-    Object.entries(bundle.files)
+    Object.entries(bundle.gzipFiles)
       .sort(sortFilesBySize)
       .forEach(([source, size]) => {
         lines.push(`${source}\t${size}`);
