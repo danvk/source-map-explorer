@@ -25,6 +25,10 @@ Here's a [demo][] with a more complex bundle.
 Here's [another demo][] where you can see a bug: there are two copies of React
 in the bundle (perhaps because of out-of-date dependencies).
 
+## Requirements
+
+- Node 10 or later
+
 ## Options
 
 ### Default behavior - write HTML to a temp file and open it in your browser
