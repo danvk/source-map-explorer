@@ -217,14 +217,11 @@ describe('api', () => {
         const result = await explore(['data/foo.min.js', 'data/no-map.js']);
 
         expect(result.bundles.length).to.eq(1);
-        expect(result.errors.length).to.eq(1);
+        expect(result.errors.length).to.eq(2);
       });
 
       it('should add error when used with bad sourcemap', async function() {
-        const result = await explore({
-          code: 'data/no-map.js',
-          map: 'data/foo.min.no-map.bad-map.js.map',
-        });
+        const result = await explore('data/foo.min.no-map.bad-map.js');
 
         const error = result.errors[0];
 
@@ -283,6 +280,10 @@ describe('api', () => {
           {
             code: 'data/foo.min.js',
             map: 'data/foo.min.js.map',
+          },
+          {
+            code: 'data/foo.min.no-map.bad-map.js',
+            map: 'data/foo.min.no-map.bad-map.js.map',
           },
           {
             code: 'data/inline-map.js',
