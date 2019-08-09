@@ -21,7 +21,7 @@ export async function exploreBundle(
 
   const sourceMapData = await loadSourceMap(code, map);
 
-  const sizes = computeGeneratedFileSizes(sourceMapData);
+  const sizes = computeFileSizeMapOptimized(sourceMapData);
 
   const files = adjustSourcePaths(sizes.files, options);
 
@@ -85,64 +85,61 @@ async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<Sour
   };
 }
 
-/** Calculate the number of bytes contributed by each source file */
-function computeGeneratedFileSizes(sourceMapData: SourceMapData): FileSizes {
-  const spans = computeSpans(sourceMapData);
-
+function computeFileSizeMapOptimized(sourceMapData: SourceMapData): FileSizes {
+  const { consumer, codeFileContent } = sourceMapData;
+  const lines = codeFileContent.split('\n');
   const files: FileSizeMap = {};
-  let unmappedBytes = 0;
-  let totalBytes = 0;
+  let mappedBytes = 0;
 
-  for (let i = 0; i < spans.length; i++) {
-    const { numChars, source } = spans[i];
+  consumer.computeColumnSpans();
 
-    totalBytes += numChars;
-
-    if (source === null) {
-      unmappedBytes += numChars;
-    } else {
-      files[source] = (files[source] || 0) + numChars;
+  consumer.eachMapping((m: any) => {
+    // lines are 1-based
+    const line = lines[m.generatedLine - 1];
+    if (line == null) {
+      throw new AppError({
+        code: 'InvalidMappingLine',
+        generatedLine: m.generatedLine,
+        maxLine: lines.length,
+      });
     }
-  }
 
+    // columns are 0-based
+    if (m.generatedColumn >= line.length) {
+      throw new AppError({
+        code: 'InvalidMappingColumn',
+        generatedLine: m.generatedLine,
+        generatedColumn: m.generatedColumn,
+        maxColumn: line.length,
+      });
+    }
+
+    let mappingLength: number = 0;
+    if (m.lastGeneratedColumn != null) {
+      if (m.lastGeneratedColumn >= line.length) {
+        throw new AppError({
+          code: 'InvalidMappingColumn',
+          generatedLine: m.generatedLine,
+          generatedColumn: m.lastGeneratedColumn,
+          maxColumn: line.length,
+        });
+      }
+      mappingLength = m.lastGeneratedColumn - m.generatedColumn + 1;
+    } else {
+      mappingLength = line.length - m.generatedColumn;
+    }
+    files[m.source] = (files[m.source] || 0) + mappingLength;
+    mappedBytes += mappingLength;
+  });
+
+  // Doesn't count newlines as original version didn't count newlines
+  let totalBytes = codeFileContent.length - lines.length + 1;
+  const unmappedBytes = totalBytes - mappedBytes;
   return {
     files,
     unmappedBytes,
     totalBytes,
   };
-}
-
-interface Span {
-  source: string | null;
-  numChars: number;
-}
-
-function computeSpans(sourceMapData: SourceMapData): Span[] {
-  const { consumer, codeFileContent } = sourceMapData;
-
-  const lines = codeFileContent.split('\n');
-  const spans: Span[] = [];
-  let numChars = 0;
-
-  let lastSource: string | null | undefined = undefined; // not a string, not null
-
-  for (let line = 1; line <= lines.length; line++) {
-    const lineText = lines[line - 1];
-    const numCols = lineText.length;
-
-    for (let column = 0; column < numCols; column++, numChars++) {
-      const { source } = consumer.originalPositionFor({ line, column });
-
-      if (source !== lastSource) {
-        lastSource = source;
-        spans.push({ source, numChars: 1 });
-      } else {
-        spans[spans.length - 1].numChars += 1;
-      }
-    }
-  }
-
-  return spans;
 }
 
 export function adjustSourcePaths(fileSizeMap: FileSizeMap, options: ExploreOptions): FileSizeMap {

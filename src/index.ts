@@ -20,6 +20,8 @@ export type ErrorCode =
   | 'NoSourceMap'
   | 'OneSourceSourceMap'
   | 'UnmappedBytes'
+  | 'InvalidMappingLine'
+  | 'InvalidMappingColumn'
   | 'CannotSaveFile'
   | 'CannotCreateTempFile'
   | 'CannotOpenTempFile';
