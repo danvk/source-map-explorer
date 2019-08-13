@@ -6,8 +6,8 @@ exports['api explore should accept buffer with inline map 1'] = {
       "unmappedBytes": 2309,
       "files": {
         "node_modules/browser-pack/_prelude.js": 478,
-        "dist/bar.js": 104,
-        "dist/foo.js": 97,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
         "<unmapped>": 2309
       }
     }
@@ -30,8 +30,8 @@ exports['api explore should accept buffers with js and map 1'] = {
       "unmappedBytes": 36,
       "files": {
         "node_modules/browser-pack/_prelude.js": 478,
-        "dist/bar.js": 104,
-        "dist/foo.js": 97,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
         "<unmapped>": 36
       }
     }
@@ -54,8 +54,8 @@ exports['api explore should generate data respecting onlyMapped and replace opti
       "unmappedBytes": 36,
       "files": {
         "node_modules/browser-pack/_prelude.js": 478,
-        "hello/bar.js": 104,
-        "hello/foo.js": 97
+        "src/bar.js": 104,
+        "src/foo.js": 97
       }
     }
   ],
@@ -70,8 +70,8 @@ exports['api explore should generate data when provided with file with reference
       "unmappedBytes": 36,
       "files": {
         "node_modules/browser-pack/_prelude.js": 478,
-        "dist/bar.js": 104,
-        "dist/foo.js": 97,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
         "<unmapped>": 36
       }
     }
@@ -94,8 +94,8 @@ exports['api explore should generate data when provided with file with separated
       "unmappedBytes": 1,
       "files": {
         "node_modules/browser-pack/_prelude.js": 478,
-        "dist/bar.js": 104,
-        "dist/foo.js": 97,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
         "<unmapped>": 1
       }
     }
@@ -118,8 +118,8 @@ exports['api explore should generate data when provided with js file with inline
       "unmappedBytes": 2309,
       "files": {
         "node_modules/browser-pack/_prelude.js": 478,
-        "dist/bar.js": 104,
-        "dist/foo.js": 97,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
         "<unmapped>": 2309
       }
     }
@@ -143,8 +143,8 @@ exports['api explore when output format specified should generate JSON 1'] = `
       "unmappedBytes": 36,
       "files": {
         "node_modules/browser-pack/_prelude.js": 478,
-        "dist/bar.js": 104,
-        "dist/foo.js": 97,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
         "<unmapped>": 36
       }
     }
@@ -155,12 +155,12 @@ exports['api explore when output format specified should generate JSON 1'] = `
 exports['api explore when output format specified should generate TSV 1'] = `
 Source\tSize\r
 node_modules/browser-pack/_prelude.js\t478\r
-dist/bar.js\t104\r
-dist/foo.js\t97\r
+src/bar.js\t104\r
+src/foo.js\t97\r
 <unmapped>\t36\r
 \r
 <unmapped>\t2309\r
 node_modules/browser-pack/_prelude.js\t478\r
-dist/bar.js\t104\r
-dist/foo.js\t97
+src/bar.js\t104\r
+src/foo.js\t97
 `

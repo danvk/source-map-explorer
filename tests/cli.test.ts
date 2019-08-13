@@ -40,7 +40,7 @@ describe('CLI', function() {
 
     expect(result)
       .to.have.string('Source\tSize')
-      .and.have.string('dist/bar.js\t104');
+      .and.have.string('src/bar.js\t104');
   });
 
   it('should output multiple results as tsv', async function() {
