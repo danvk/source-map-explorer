@@ -4,4 +4,5 @@
 node_modules
 dist
 tests/data
+tests/generate-data/src
 *vendor*
