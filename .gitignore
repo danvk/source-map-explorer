@@ -32,5 +32,3 @@ node_modules
 .vscode
 
 dist
-
-!tests/generate-data/dist

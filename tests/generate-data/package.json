@@ -17,6 +17,6 @@
     "minify:url-1234": "terser dist/foo.js -c --source-map \"content=inline,url='foo.1234.js.map'\" -o ../data/foo.1234.js",
     "minify:no-comment": "terser dist/foo.js -c --source-map \"content=inline\" -o ../data/no-map.js",
     "minify:one-source": "terser dist/foo.js -c --source-map \"url='foo.min.no-map.bad-map.js.map'\" -o ../data/foo.min.no-map.bad-map.js",
-    "build-all": "npm run build && npm-run-all minify:* && rimraf dist/foo.js"
+    "build-all": "npm run build && npm-run-all minify:*"
   }
 }
