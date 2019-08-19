@@ -2,46 +2,60 @@ exports['api explore should accept buffer with inline map 1'] = {
   "bundles": [
     {
       "bundleName": "Buffer",
-      "totalBytes": 3454,
-      "unmappedBytes": 0,
+      "totalBytes": 2988,
+      "unmappedBytes": 2309,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 2854,
-        "dist/foo.js": 137,
-        "<unmapped>": 0
+        "node_modules/browser-pack/_prelude.js": 478,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "<unmapped>": 2309
       }
     }
   ],
-  "errors": []
+  "errors": [
+    {
+      "bundleName": "Buffer",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 2309/2988 bytes (77.28%)"
+    }
+  ]
 }
 
 exports['api explore should accept buffers with js and map 1'] = {
   "bundles": [
     {
       "bundleName": "Buffer",
-      "totalBytes": 697,
-      "unmappedBytes": 0,
+      "totalBytes": 715,
+      "unmappedBytes": 36,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 97,
-        "dist/foo.js": 137,
-        "<unmapped>": 0
+        "node_modules/browser-pack/_prelude.js": 478,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "<unmapped>": 36
       }
     }
   ],
-  "errors": []
+  "errors": [
+    {
+      "bundleName": "Buffer",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 36/715 bytes (5.03%)"
+    }
+  ]
 }
 
 exports['api explore should generate data respecting onlyMapped and replace options 1'] = {
   "bundles": [
     {
       "bundleName": "data/foo.min.js",
-      "totalBytes": 697,
-      "unmappedBytes": 0,
+      "totalBytes": 715,
+      "unmappedBytes": 36,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "hello/bar.js": 97,
-        "hello/foo.js": 137
+        "node_modules/browser-pack/_prelude.js": 478,
+        "src/bar.js": 104,
+        "src/foo.js": 97
       }
     }
   ],
@@ -52,51 +66,72 @@ exports['api explore should generate data when provided with file with reference
   "bundles": [
     {
       "bundleName": "data/foo.min.js",
-      "totalBytes": 697,
-      "unmappedBytes": 0,
+      "totalBytes": 715,
+      "unmappedBytes": 36,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 97,
-        "dist/foo.js": 137,
-        "<unmapped>": 0
+        "node_modules/browser-pack/_prelude.js": 478,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "<unmapped>": 36
       }
     }
   ],
-  "errors": []
+  "errors": [
+    {
+      "bundleName": "data/foo.min.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 36/715 bytes (5.03%)"
+    }
+  ]
 }
 
 exports['api explore should generate data when provided with file with separated map file 1'] = {
   "bundles": [
     {
       "bundleName": "data/no-map.js",
-      "totalBytes": 662,
-      "unmappedBytes": 0,
+      "totalBytes": 680,
+      "unmappedBytes": 1,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 62,
-        "dist/foo.js": 137,
-        "<unmapped>": 0
+        "node_modules/browser-pack/_prelude.js": 478,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "<unmapped>": 1
       }
     }
   ],
-  "errors": []
+  "errors": [
+    {
+      "bundleName": "data/no-map.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 1/680 bytes (0.15%)"
+    }
+  ]
 }
 
 exports['api explore should generate data when provided with js file with inline map 1'] = {
   "bundles": [
     {
       "bundleName": "data/inline-map.js",
-      "totalBytes": 3454,
-      "unmappedBytes": 0,
+      "totalBytes": 2988,
+      "unmappedBytes": 2309,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 2854,
-        "dist/foo.js": 137,
-        "<unmapped>": 0
+        "node_modules/browser-pack/_prelude.js": 478,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "<unmapped>": 2309
       }
     }
   ],
-  "errors": []
+  "errors": [
+    {
+      "bundleName": "data/inline-map.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 2309/2988 bytes (77.28%)"
+    }
+  ]
 }
 
 exports['api explore when output format specified should generate JSON 1'] = `
@@ -104,13 +139,13 @@ exports['api explore when output format specified should generate JSON 1'] = `
   "results": [
     {
       "bundleName": "data/foo.min.js",
-      "totalBytes": 697,
-      "unmappedBytes": 0,
+      "totalBytes": 715,
+      "unmappedBytes": 36,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 97,
-        "dist/foo.js": 137,
-        "<unmapped>": 0
+        "node_modules/browser-pack/_prelude.js": 478,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "<unmapped>": 36
       }
     }
   ]
@@ -119,13 +154,13 @@ exports['api explore when output format specified should generate JSON 1'] = `
 
 exports['api explore when output format specified should generate TSV 1'] = `
 Source\tSize\r
-node_modules/browserify/node_modules/browser-pack/_prelude.js\t463\r
-dist/foo.js\t137\r
-dist/bar.js\t97\r
-<unmapped>\t0\r
+node_modules/browser-pack/_prelude.js\t478\r
+src/bar.js\t104\r
+src/foo.js\t97\r
+<unmapped>\t36\r
 \r
-dist/bar.js\t2854\r
-node_modules/browserify/node_modules/browser-pack/_prelude.js\t463\r
-dist/foo.js\t137\r
-<unmapped>\t0
+<unmapped>\t2309\r
+node_modules/browser-pack/_prelude.js\t478\r
+src/bar.js\t104\r
+src/foo.js\t97
 `

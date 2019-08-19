@@ -40,7 +40,7 @@ describe('CLI', function() {
 
     expect(result)
       .to.have.string('Source\tSize')
-      .and.have.string('dist/bar.js\t2854');
+      .and.have.string('src/bar.js\t104');
   });
 
   it('should output multiple results as tsv', async function() {
@@ -48,8 +48,8 @@ describe('CLI', function() {
 
     expect(result)
       .to.have.string('Source\tSize')
-      .and.have.string('dist/bar.js\t2854')
-      .and.have.string('dist/bar.js\t97');
+      .and.have.string('<unmapped>\t2309')
+      .and.have.string('<unmapped>\t36');
   });
 
   it('should output result as html', async function() {
