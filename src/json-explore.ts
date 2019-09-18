@@ -52,12 +52,13 @@ function popPath(pos?: number) {
   const fullPath = path.map(s => s.key).join('/');
   const {start} = path.pop()!;
   pos = pos === undefined ? lexer.index : pos;
+  // console.log(`${fullPath}: ${start + 1}-${pos + 1} = ${pos - start + 1}`);
   sizes[fullPath] = (sizes[fullPath] || 0) + (pos - start + 1);
 }
 
-function addToken(key: string, length: number) {
-  pushPath(key, 1);
-  popPath(length);
+function addToken(key: string, pos: number, length: number) {
+  pushPath(key, pos);
+  popPath(pos + length - 1);
 }
 
 function nextSkipWhitepace(lex: Lexer): Token {
@@ -94,7 +95,7 @@ function parseArray(lex: Lexer) {
   while (true) {
     pushPath('*', tok.offset);
     parseValue(tok, lex);
-    popPath();
+    popPath(lex.index - 1);
     tok = nextSkipWhitepace(lex);
     if (tok.type === ']') {
       break;
@@ -115,7 +116,7 @@ function parseObject(lex: Lexer) {
       throw new Error(`c Unexpected token ${tok.type}`);
     }
     const key = tok.value.slice(1, -1);  // strip quotes
-    addToken('<keys>', tok.text.length);
+    addToken('<keys>', tok.offset, tok.text.length);
     tok = nextSkipWhitepace(lex);
     if (tok.type !== ':') {
       throw new Error(`d Unexpected token ${tok.type}`);
@@ -123,7 +124,7 @@ function parseObject(lex: Lexer) {
     tok = nextSkipWhitepace(lex);
     pushPath(key, tok.offset);
     parseValue(tok, lex);
-    popPath();
+    popPath(lex.index - 1);
     tok = nextSkipWhitepace(lex);
     if (tok.type === '}') {
       break;
