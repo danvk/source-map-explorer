@@ -75,11 +75,9 @@
   "dependencies": {
     "btoa": "^1.2.1",
     "chalk": "^2.4.2",
-    "clarinet": "^0.12.3",
     "convert-source-map": "^1.6.0",
     "ejs": "^2.6.2",
     "escape-html": "^1.0.3",
-    "esprima": "^4.0.1",
     "glob": "^7.1.4",
     "lodash": "^4.17.11",
     "moo": "^0.5.0",
@@ -133,7 +131,6 @@
     "package-preview": "^2.0.0",
     "prettier": "^1.18.2",
     "rimraf": "^2.6.3",
-    "ts-node": "^8.4.1",
     "typescript": "^3.5.2"
   }
 }

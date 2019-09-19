@@ -1,5 +1,0 @@
-totalBytes: 53
-<keys>: 14
-name: 5
-values: 19
-values/*: 12
