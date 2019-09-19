@@ -7,6 +7,7 @@ import { getBundleName } from './api';
 import { getFileContent, getCommonPathPrefix } from './helpers';
 import { AppError } from './app-error';
 import { File, Bundle, ExploreOptions, ExploreBundleResult, FileSizes, FileSizeMap } from './index';
+import { exploreJson } from './json-explore';
 
 export const UNMAPPED_KEY = '<unmapped>';
 
@@ -18,6 +19,10 @@ export async function exploreBundle(
   options: ExploreOptions
 ): Promise<ExploreBundleResult> {
   const { code, map } = bundle;
+
+  if (typeof code === 'string' && code.endsWith('json')) {
+    return exploreJson(code);
+  }
 
   const sourceMapData = await loadSourceMap(code, map);
 

@@ -1,6 +1,7 @@
 import * as fs from 'fs';
-import { FileSizeMap } from 'src';
-const moo = require('moo');
+import moo from 'moo';
+
+import { FileSizeMap, ExploreBundleResult } from 'src';
 
 const symbols = {
   '{': '{',
@@ -9,30 +10,17 @@ const symbols = {
   ']': ']',
   ',': ',',
   ':': ':',
-  space: {match: /\s+/, lineBreaks: true},
+  space: { match: /\s+/, lineBreaks: true },
   NUMBER: /-?(?:[0-9]|[1-9][0-9]+)(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)?\b/,
-  STRING: /"(?:\\["bfnrt\/\\]|\\u[a-fA-F0-9]{4}|[^"\\])*"/,
+  STRING: /"(?:\\["bfnrt/\\]|\\u[a-fA-F0-9]{4}|[^"\\])*"/,
   TRUE: /true\b/,
   FALSE: /false\b/,
   NULL: /null\b/,
 } as const;
 
-const lexer = moo.compile(symbols) as Lexer;
-
-interface Token {
-  type: keyof typeof symbols;
-  value: string;
-  /** Start of this token */
-  offset: number;
-  text: string;
-}
-
-interface Lexer {
-  [Symbol.iterator]: Token;
-  next(): Token;
-  index: number;
-  reset(text: string): void;
-}
+const lexer = moo.compile(symbols);
+type Lexer = typeof lexer;
+type Token = ReturnType<Lexer['next']>;
 
 interface Segment {
   key: string;
@@ -40,23 +28,27 @@ interface Segment {
   end?: number;
 }
 
-let path: Segment[] = [];
-let sizes: FileSizeMap = {};
+const path: Segment[] = [];
+const sizes: FileSizeMap = {};
 
-function pushPath(key: string, pos?: number) {
+function pushPath(key: string, pos?: number): void {
   pos = pos === undefined ? lexer.index : pos;
-  path.push({key, start: pos});
+  path.push({ key, start: pos });
 }
 
-function popPath(pos?: number) {
+function popPath(pos?: number): void {
   const fullPath = path.map(s => s.key).join('/');
-  const {start} = path.pop()!;
+  const x = path.pop();
+  if (!x) {
+    throw new Error('Impossible');
+  }
+  const { start } = x;
   pos = pos === undefined ? lexer.index : pos;
   // console.log(`${fullPath}: ${start + 1}-${pos + 1} = ${pos - start + 1}`);
   sizes[fullPath] = (sizes[fullPath] || 0) + (pos - start + 1);
 }
 
-function addToken(key: string, pos: number, length: number) {
+function addToken(key: string, pos: number, length: number): void {
   pushPath(key, pos);
   popPath(pos + length - 1);
 }
@@ -66,10 +58,11 @@ function nextSkipWhitepace(lex: Lexer): Token {
   while (tok.type === 'space') {
     tok = lex.next();
   }
+
   return tok;
 }
 
-function parseValue(tok: Token, lex: Lexer) {
+function parseValue(tok: Token, lex: Lexer): void {
   if (tok.type === '{') {
     // start object
     parseObject(lex);
@@ -89,10 +82,9 @@ function parseValue(tok: Token, lex: Lexer) {
   }
 }
 
-function parseArray(lex: Lexer) {
+function parseArray(lex: Lexer): void {
   let tok = nextSkipWhitepace(lex);
-  let i = 0;
-  while (true) {
+  for (;;) {
     pushPath('*', tok.offset);
     parseValue(tok, lex);
     popPath(lex.index - 1);
@@ -101,7 +93,6 @@ function parseArray(lex: Lexer) {
       break;
     } else if (tok.type === ',') {
       tok = nextSkipWhitepace(lex);
-      i++;
       continue;
     } else {
       throw new Error(`b Unexpected token ${tok.type}`);
@@ -109,13 +100,13 @@ function parseArray(lex: Lexer) {
   }
 }
 
-function parseObject(lex: Lexer) {
+function parseObject(lex: Lexer): void {
   let tok = nextSkipWhitepace(lex);
-  while (true) {
+  for (;;) {
     if (tok.type !== 'STRING') {
       throw new Error(`c Unexpected token ${tok.type}`);
     }
-    const key = tok.value.slice(1, -1);  // strip quotes
+    const key = tok.value.slice(1, -1); // strip quotes
     addToken('<keys>', tok.offset, tok.text.length);
     tok = nextSkipWhitepace(lex);
     if (tok.type !== ':') {
@@ -137,10 +128,36 @@ function parseObject(lex: Lexer) {
   }
 }
 
-// lexer.reset(fs.readFileSync('/tmp/test.json', 'utf8'));
-// lexer.reset(fs.readFileSync('examples/test.json', 'utf8'));
-// lexer.reset(fs.readFileSync('/tmp/daylight_views.geojson', 'utf8'));
-lexer.reset(fs.readFileSync(process.argv[2], 'utf8'));
+export function leafify(counts: Record<string, number>): Record<string, number> {
+  const childSizes: Record<string, number> = {};
+  for (const [path, count] of Object.entries(counts)) {
+    const parts = path.split('/');
+    if (parts.length > 1) {
+      const parent = parts.slice(0, -1).join('/');
+      childSizes[parent] = (childSizes[parent] || 0) + count;
+    }
+  }
 
-parseValue(nextSkipWhitepace(lexer), lexer);
-console.log(sizes);
+  for (const [path] of Object.entries(counts)) {
+    if (path in childSizes) {
+      const v = childSizes[path];
+      counts[path] -= v;
+    }
+  }
+
+  return counts;
+}
+
+export function exploreJson(path: string): ExploreBundleResult {
+  const json = fs.readFileSync(path, 'utf8');
+  lexer.reset(json);
+  parseValue(nextSkipWhitepace(lexer), lexer);
+  leafify(sizes);
+
+  return {
+    files: sizes,
+    unmappedBytes: 0,
+    totalBytes: json.length,
+    bundleName: path,
+  };
+}
