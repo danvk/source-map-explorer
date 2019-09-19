@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { leafify } from '../src/json-explore';
 
 describe('json-explore', function() {
-  it.only('should leafify', () => {
+  it('should leafify', () => {
     expect(
       leafify({
         'a/b/c': 12,
