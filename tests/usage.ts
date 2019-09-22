@@ -36,7 +36,7 @@ explore('js/*.*', options)
       console.log(JSON.stringify(bundle.files));
     });
   })
-  .catch(error => {
+  .catch((error: any) => {
     console.log('Failed to explore');
     if (error.errors) {
       error.errors.forEach((exploreError: ExploreErrorResult) => {

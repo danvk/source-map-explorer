@@ -1,6 +1,6 @@
 import snapshot from '@smpx/snap-shot-it';
 
-import { getErrorMessage } from '../src/app-error';
+import { getErrorMessage, ErrorContext } from '../src/app-error';
 
 describe('app-error', function() {
   describe('getErrorMessage', function() {
@@ -28,7 +28,7 @@ describe('app-error', function() {
 
     tests.forEach(function(context) {
       it(`should create message for '${context.code}'`, function() {
-        snapshot(getErrorMessage(context as any));
+        snapshot(getErrorMessage(context as ErrorContext));
       });
     });
   });
