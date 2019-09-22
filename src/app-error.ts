@@ -88,12 +88,16 @@ See ${SOURCE_MAP_INFO_URL}`;
 
     case 'InvalidMappingLine': {
       const { generatedLine, maxLine } = context;
-      return `Your source map refers to generated line ${generatedLine}, but the source only contains ${maxLine} line(s).\nCheck that you are using the correct source map.`;
+
+      return `Your source map refers to generated line ${generatedLine}, but the source only contains ${maxLine} line(s).
+Check that you are using the correct source map.`;
     }
 
     case 'InvalidMappingColumn': {
       const { generatedLine, generatedColumn, maxColumn } = context;
-      return `Your source map refers to generated column ${generatedColumn} on line ${generatedLine}, but the source only contains ${maxColumn} column(s) on that line.\nCheck that you are using the correct source map.`;
+
+      return `Your source map refers to generated column ${generatedColumn} on line ${generatedLine}, but the source only contains ${maxColumn} column(s) on that line.
+Check that you are using the correct source map.`;
     }
 
     case 'CannotSaveFile':

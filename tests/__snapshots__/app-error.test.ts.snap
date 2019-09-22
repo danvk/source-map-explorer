@@ -12,6 +12,16 @@ exports['app-error getErrorMessage should create message for \'CannotSaveFile\' 
 Unable to save HTML to file
 `
 
+exports['app-error getErrorMessage should create message for \'InvalidMappingColumn\' 1'] = `
+Your source map refers to generated column 81 on line 60, but the source only contains 80 column(s) on that line.
+Check that you are using the correct source map.
+`
+
+exports['app-error getErrorMessage should create message for \'InvalidMappingLine\' 1'] = `
+Your source map refers to generated line 60, but the source only contains 57 line(s).
+Check that you are using the correct source map.
+`
+
 exports['app-error getErrorMessage should create message for \'NoBundles\' 1'] = `
 No file(s) provided
 `

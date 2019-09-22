@@ -85,6 +85,7 @@ async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<Sour
   };
 }
 
+/** Calculate the number of bytes contributed by each source file */
 function computeFileSizeMapOptimized(sourceMapData: SourceMapData): FileSizes {
   const { consumer, codeFileContent } = sourceMapData;
   const lines = codeFileContent.split('\n');
@@ -93,51 +94,51 @@ function computeFileSizeMapOptimized(sourceMapData: SourceMapData): FileSizes {
 
   consumer.computeColumnSpans();
 
-  consumer.eachMapping((m: any) => {
-    // lines are 1-based
-    const line = lines[m.generatedLine - 1];
-    if (line == null) {
+  consumer.eachMapping(({ source, generatedLine, generatedColumn, lastGeneratedColumn }) => {
+    // Lines are 1-based
+    const line = lines[generatedLine - 1];
+    if (line === null) {
       throw new AppError({
         code: 'InvalidMappingLine',
-        generatedLine: m.generatedLine,
+        generatedLine: generatedLine,
         maxLine: lines.length,
       });
     }
 
-    // columns are 0-based
-    if (m.generatedColumn >= line.length) {
+    // Columns are 0-based
+    if (generatedColumn >= line.length) {
       throw new AppError({
         code: 'InvalidMappingColumn',
-        generatedLine: m.generatedLine,
-        generatedColumn: m.generatedColumn,
+        generatedLine: generatedLine,
+        generatedColumn: generatedColumn,
         maxColumn: line.length,
       });
     }
 
-    let mappingLength: number = 0;
-    if (m.lastGeneratedColumn != null) {
-      if (m.lastGeneratedColumn >= line.length) {
+    let mappingLength = 0;
+    if (lastGeneratedColumn !== null) {
+      if (lastGeneratedColumn >= line.length) {
         throw new AppError({
           code: 'InvalidMappingColumn',
-          generatedLine: m.generatedLine,
-          generatedColumn: m.lastGeneratedColumn,
+          generatedLine: generatedLine,
+          generatedColumn: lastGeneratedColumn,
           maxColumn: line.length,
         });
       }
-      mappingLength = m.lastGeneratedColumn - m.generatedColumn + 1;
+      mappingLength = lastGeneratedColumn - generatedColumn + 1;
     } else {
-      mappingLength = line.length - m.generatedColumn;
+      mappingLength = line.length - generatedColumn;
     }
-    files[m.source] = (files[m.source] || 0) + mappingLength;
+    files[source] = (files[source] || 0) + mappingLength;
     mappedBytes += mappingLength;
   });
 
-  // Doesn't count newlines as original version didn't count newlines
-  let totalBytes = codeFileContent.length - lines.length + 1;
-  const unmappedBytes = totalBytes - mappedBytes;
+  // Don't count newlines as original version didn't count newlines
+  const totalBytes = codeFileContent.length - lines.length + 1;
+
   return {
     files,
-    unmappedBytes,
+    unmappedBytes: totalBytes - mappedBytes,
     totalBytes,
   };
 }

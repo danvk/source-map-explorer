@@ -73,3 +73,10 @@ export interface ExploreErrorResult {
 }
 
 export type BundlesAndFileTokens = (Bundle | string)[] | Bundle | string;
+
+// TODO: Remove when https://github.com/mozilla/source-map/pull/374 is merged
+declare module 'source-map' {
+  export interface MappingItem {
+    lastGeneratedColumn: number | null;
+  }
+}
