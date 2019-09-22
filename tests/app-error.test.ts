@@ -9,6 +9,13 @@ describe('app-error', function() {
       { code: 'NoSourceMap' },
       { code: 'OneSourceSourceMap', filename: 'foo.min.js' },
       { code: 'UnmappedBytes', totalBytes: 100, unmappedBytes: 70 },
+      { code: 'InvalidMappingLine', generatedLine: 60, maxLine: 57 },
+      {
+        code: 'InvalidMappingColumn',
+        generatedLine: 60,
+        generatedColumn: 81,
+        maxColumn: 80,
+      },
       { code: 'CannotSaveFile' },
       { code: 'CannotCreateTempFile' },
       {

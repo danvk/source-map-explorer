@@ -36,6 +36,19 @@ interface UnmappedBytesErrorContext {
   unmappedBytes: number;
 }
 
+interface InvalidMappingLineErrorContext {
+  code: 'InvalidMappingLine';
+  generatedLine: number;
+  maxLine: number;
+}
+
+interface InvalidMappingColumnErrorContext {
+  code: 'InvalidMappingColumn';
+  generatedLine: number;
+  generatedColumn: number;
+  maxColumn: number;
+}
+
 interface CannotOpenTempFileErrorContext {
   code: 'CannotOpenTempFile';
   error: Buffer;
@@ -46,6 +59,8 @@ export type ErrorContext =
   | CommonErrorContext
   | OneSourceSourceMapErrorContext
   | UnmappedBytesErrorContext
+  | InvalidMappingLineErrorContext
+  | InvalidMappingColumnErrorContext
   | CannotOpenTempFileErrorContext;
 
 export function getErrorMessage(context: ErrorContext): string {
@@ -69,6 +84,20 @@ See ${SOURCE_MAP_INFO_URL}`;
       const bytesString = formatPercent(unmappedBytes, totalBytes, 2);
 
       return `Unable to map ${unmappedBytes}/${totalBytes} bytes (${bytesString}%)`;
+    }
+
+    case 'InvalidMappingLine': {
+      const { generatedLine, maxLine } = context;
+
+      return `Your source map refers to generated line ${generatedLine}, but the source only contains ${maxLine} line(s).
+Check that you are using the correct source map.`;
+    }
+
+    case 'InvalidMappingColumn': {
+      const { generatedLine, generatedColumn, maxColumn } = context;
+
+      return `Your source map refers to generated column ${generatedColumn} on line ${generatedLine}, but the source only contains ${maxColumn} column(s) on that line.
+Check that you are using the correct source map.`;
     }
 
     case 'CannotSaveFile':
