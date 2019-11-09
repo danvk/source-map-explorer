@@ -12,8 +12,10 @@ import {
 // Full example
 
 const options: ExploreOptions = {
-  file: './sme-results/2019-04-27.html',
-  html: true,
+  output: {
+    format: 'html',
+    filename: './sme-results/2019-04-27.html',
+  },
   noRoot: true,
   onlyMapped: true,
   replaceMap: {
@@ -36,7 +38,7 @@ explore('js/*.*', options)
       console.log(JSON.stringify(bundle.files));
     });
   })
-  .catch((error: any) => {
+  .catch((error: ExploreResult) => {
     console.log('Failed to explore');
     if (error.errors) {
       error.errors.forEach((exploreError: ExploreErrorResult) => {
