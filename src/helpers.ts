@@ -7,16 +7,18 @@ export function getFileContent(file: Buffer | string): string {
 }
 
 const BYTE_SIZES = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+// Bytes
+const SIZE_BASE = 1024;
 
 /**
  * Format number of bytes as string
  * Source @see https://stackoverflow.com/a/18650828/388951
  */
-export function formatBytes(bytes: number, decimals = 2, base: 1000 | 1024 = 1000): string {
+export function formatBytes(bytes: number, decimals = 2): string {
   if (bytes === 0) return `0 ${BYTE_SIZES[0]}`;
 
-  const exponent = Math.floor(Math.log(bytes) / Math.log(base));
-  const value = bytes / Math.pow(base, exponent);
+  const exponent = Math.floor(Math.log(bytes) / Math.log(SIZE_BASE));
+  const value = bytes / Math.pow(SIZE_BASE, exponent);
 
   // `parseFloat` removes trailing zero
   return `${parseFloat(value.toFixed(decimals))} ${BYTE_SIZES[exponent]}`;
