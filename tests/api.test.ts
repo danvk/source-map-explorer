@@ -228,6 +228,16 @@ describe('api', () => {
         expect(error.code).to.equal('OneSourceSourceMap');
       });
 
+      it('should throw if source map reference column beyond generated last column in line', async function() {
+        try {
+          await explore('data/invalid-map-column.js');
+        } catch (errorResult) {
+          const error = errorResult.errors[0];
+
+          expect(error.code).to.equal('InvalidMappingColumn');
+        }
+      });
+
       it('should add warning about unmapped bytes', async function() {
         const result = await explore('data/with-unmapped.js');
 
@@ -289,6 +299,15 @@ describe('api', () => {
             code: 'data/inline-map.js',
             map: undefined,
           },
+          {
+            code: 'data/invalid-map-column.js',
+            map: undefined,
+          },
+          {
+            code: 'data/invalid-map-line.js',
+            map: undefined,
+          },
+          { code: 'data/map-reference-eol.js', map: undefined },
           {
             code: 'data/no-map.js',
             map: 'data/no-map.js.map',
