@@ -201,7 +201,8 @@ describe('api', () => {
         {
           name: 'should throw when cannot save html to file',
           bundlesAndFileTokens: 'data/inline-map.js',
-          options: { output: { format: 'html', filename: '?' } },
+          // `/` supposed to be invalid filename on both Linux and Windows
+          options: { output: { format: 'html', filename: '/' } },
           expectedErrorCode: 'CannotSaveFile',
         },
       ];
