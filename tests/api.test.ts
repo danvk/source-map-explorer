@@ -171,6 +171,11 @@ describe('api', () => {
           bundlesAndFileTokens: { code: 'data/no-map.js' },
           expectedErrorCode: 'NoSourceMap',
         },
+        {
+          name: 'should throw if source map reference column beyond generated last column in line',
+          bundlesAndFileTokens: 'data/invalid-map-column.js',
+          expectedErrorCode: 'InvalidMappingColumn',
+        },
       ];
 
       bundleErrorTests.forEach(function({
@@ -180,12 +185,10 @@ describe('api', () => {
         expectedErrorCode,
       }) {
         it(name, async function() {
-          try {
-            await explore(bundlesAndFileTokens, options);
-          } catch (result) {
+          await expect(explore(bundlesAndFileTokens, options)).to.be.rejected.then(result => {
             const error = result.errors[0];
             expect(error.code).to.equal(expectedErrorCode);
-          }
+          });
         });
       });
 
@@ -198,18 +201,17 @@ describe('api', () => {
         {
           name: 'should throw when cannot save html to file',
           bundlesAndFileTokens: 'data/inline-map.js',
-          options: { output: { format: 'html', filename: '?' } },
+          // `/` supposed to be invalid filename on both Linux and Windows
+          options: { output: { format: 'html', filename: '/' } },
           expectedErrorCode: 'CannotSaveFile',
         },
       ];
 
       appErrorTests.forEach(function({ name, bundlesAndFileTokens, options, expectedErrorCode }) {
         it(name, async function() {
-          try {
-            await explore(bundlesAndFileTokens, options);
-          } catch (error) {
+          await expect(explore(bundlesAndFileTokens, options)).to.be.rejected.then(error => {
             expect(error.code).to.equal(expectedErrorCode);
-          }
+          });
         });
       });
 
@@ -289,6 +291,15 @@ describe('api', () => {
             code: 'data/inline-map.js',
             map: undefined,
           },
+          {
+            code: 'data/invalid-map-column.js',
+            map: undefined,
+          },
+          {
+            code: 'data/invalid-map-line.js',
+            map: undefined,
+          },
+          { code: 'data/map-reference-eol.js', map: undefined },
           {
             code: 'data/no-map.js',
             map: 'data/no-map.js.map',
