@@ -171,6 +171,11 @@ describe('api', () => {
           bundlesAndFileTokens: { code: 'data/no-map.js' },
           expectedErrorCode: 'NoSourceMap',
         },
+        {
+          name: 'should throw if source map reference column beyond generated last column in line',
+          bundlesAndFileTokens: 'data/invalid-map-column.js',
+          expectedErrorCode: 'InvalidMappingColumn',
+        },
       ];
 
       bundleErrorTests.forEach(function({
@@ -180,12 +185,10 @@ describe('api', () => {
         expectedErrorCode,
       }) {
         it(name, async function() {
-          try {
-            await explore(bundlesAndFileTokens, options);
-          } catch (result) {
+          await expect(explore(bundlesAndFileTokens, options)).to.be.rejected.then(result => {
             const error = result.errors[0];
             expect(error.code).to.equal(expectedErrorCode);
-          }
+          });
         });
       });
 
@@ -205,11 +208,9 @@ describe('api', () => {
 
       appErrorTests.forEach(function({ name, bundlesAndFileTokens, options, expectedErrorCode }) {
         it(name, async function() {
-          try {
-            await explore(bundlesAndFileTokens, options);
-          } catch (error) {
+          await expect(explore(bundlesAndFileTokens, options)).to.be.rejected.then(error => {
             expect(error.code).to.equal(expectedErrorCode);
-          }
+          });
         });
       });
 
@@ -226,16 +227,6 @@ describe('api', () => {
         const error = result.errors[0];
 
         expect(error.code).to.equal('OneSourceSourceMap');
-      });
-
-      it('should throw if source map reference column beyond generated last column in line', async function() {
-        try {
-          await explore('data/invalid-map-column.js');
-        } catch (errorResult) {
-          const error = errorResult.errors[0];
-
-          expect(error.code).to.equal('InvalidMappingColumn');
-        }
       });
 
       it('should add warning about unmapped bytes', async function() {
