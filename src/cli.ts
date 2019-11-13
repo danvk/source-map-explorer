@@ -85,7 +85,7 @@ function parseArguments(): Arguments {
         implies: 'replace',
       },
     })
-    .group(['json', 'tsv', 'html', 'file'], 'Output:')
+    .group(['json', 'tsv', 'html'], 'Output:')
     .group(['replace', 'with'], 'Replace:')
     .help('h')
     .alias('h', 'help')
