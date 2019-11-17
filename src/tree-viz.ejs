@@ -44,8 +44,8 @@
     <div id="header">
       <label for="bundle-select">Bundle:&nbsp;</label>
       <select id="bundle-select">
-      <%_ bundles.forEach((bundle) => { _%>
-        <option value="<%= bundle.name %>"><%= bundle.name %> (<%= bundle.size %>)</option>
+      <%_ bundles.forEach((bundle, index) => { _%>
+        <option value="<%= index %>"><%= bundle.name %> (<%= bundle.size %>)</option>
       <%_ }); _%>
       </select>
     </div>
@@ -55,33 +55,35 @@
 </body>
 
 <script>
-var treeDataMap = <%- JSON.stringify(treeDataMap) %>;
+const treeDataMap = <%- JSON.stringify(treeDataMap) %>;
 </script>
 
 <script src="data:application/javascript;base64,<%= webtreemapJs %>"></script>
 
 <script>
-  var selectedBundle = '<%- bundles[0].name %>';
+  let selectedBundleId = '<%- 0 %>';
 
   function selectBundle(bundleId) {
-    appendTreemap(map, treeDataMap[bundleId]);
-    document.title = bundleId + ' - Source Map Explorer';
+    const bundle = treeDataMap[bundleId];
+
+    appendTreemap(map, bundle.data);
+    document.title = bundle.name + ' - Source Map Explorer';
   }
 
-  var map = document.getElementById('map');
+  const map = document.getElementById('map');
 
   <%_ if(bundles.length > 1) { _%>
-  var bundleSelect = document.getElementById('bundle-select');
+  const bundleSelect = document.getElementById('bundle-select');
   bundleSelect.addEventListener('change', function(event) {
-    selectedBundle = bundleSelect.value;
-    selectBundle(selectedBundle);
+    selectedBundleId = bundleSelect.value;
+    selectBundle(selectedBundleId);
   })
   <%_ } _%>
 
   window.addEventListener('resize', function() {
-    selectBundle(selectedBundle);
+    selectBundle(selectedBundleId);
   });
 
-  selectBundle(selectedBundle);
+  selectBundle(selectedBundleId);
 </script>
 <html>

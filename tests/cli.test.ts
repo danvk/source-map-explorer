@@ -57,4 +57,10 @@ describe('CLI', function() {
 
     snapshot(result);
   });
+
+  it('should multiple bundles output result as html', async function() {
+    const result = await execute(SCRIPT_PATH, ['data/inline-map.js', 'data/foo.min.js', '--html']);
+
+    snapshot(result);
+  });
 });

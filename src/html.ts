@@ -23,16 +23,22 @@ export function generateHtml(exploreResults: ExploreBundleResult[]): string {
 
   // Get bundles info to generate select element
   const bundles = exploreResults.map(data => ({
-    name: normalizeBundleName(data.bundleName),
+    name: data.bundleName,
     size: formatBytes(data.totalBytes),
   }));
 
   // Get webtreemap data to update map on bundle select
-  const treeDataMap = exploreResults.reduce<Record<string, WebTreeMapNode>>((result, data) => {
-    result[data.bundleName] = getWebTreeMapData(data.files);
+  const treeDataMap = exploreResults.reduce<Record<string, { name: string; data: WebTreeMapNode }>>(
+    (result, data, index) => {
+      result[index] = {
+        name: data.bundleName,
+        data: getWebTreeMapData(data.files),
+      };
 
-    return result;
-  }, {});
+      return result;
+    },
+    {}
+  );
 
   const template = getFileContent(path.join(__dirname, 'tree-viz.ejs'));
 
@@ -69,12 +75,6 @@ function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleR
     unmappedBytes: 0,
     files,
   };
-}
-const ESCAPE_BACKSLASH_REGEX = /\\/g;
-
-/** Replaces `\` by `\\` in Windows path so that string is escaped when inserted in template */
-function normalizeBundleName(name: string): string {
-  return name.replace(ESCAPE_BACKSLASH_REGEX, '\\\\');
 }
 
 interface WebTreeMapNode {
