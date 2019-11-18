@@ -21,6 +21,7 @@ interface Arguments {
   noRoot?: boolean;
   replace?: string[];
   with?: string[];
+  coverage?: string;
 }
 
 function parseArguments(): Arguments {
@@ -39,6 +40,11 @@ function parseArguments(): Arguments {
     .example('$0 script.js --json result.json', 'Explore and save result as JSON to the file')
     .demandCommand(1, 'At least one js file must be specified')
     .options({
+      coverage: {
+        type: 'string',
+        description:
+          'If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed',
+      },
       json: {
         type: 'string',
         description:
@@ -152,6 +158,7 @@ function getExploreOptions(argv: Arguments): ExploreOptions {
       format: isString(argv.json) ? 'json' : isString(argv.tsv) ? 'tsv' : 'html',
       filename: argv.json || argv.tsv || argv.html,
     },
+    coverage: argv.coverage,
     replaceMap,
     onlyMapped: argv.onlyMapped,
     noRoot: argv.noRoot,

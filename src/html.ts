@@ -5,7 +5,7 @@ import path from 'path';
 import escapeHtml from 'escape-html';
 
 import { formatBytes, getCommonPathPrefix, getFileContent, formatPercent } from './helpers';
-import { ExploreBundleResult, FileSizeMap } from './index';
+import { ExploreBundleResult, FileSizeMap, FileCoverageMap } from './index';
 
 /**
  * Generate HTML file content for specified files
@@ -32,14 +32,13 @@ export function generateHtml(exploreResults: ExploreBundleResult[]): string {
     (result, data, index) => {
       result[index] = {
         name: data.bundleName,
-        data: getWebTreeMapData(data.files),
+        data: getWebTreeMapData(data),
       };
 
       return result;
     },
     {}
   );
-
   const template = getFileContent(path.join(__dirname, 'tree-viz.ejs'));
 
   return ejs.render(template, {
@@ -56,6 +55,7 @@ export function generateHtml(exploreResults: ExploreBundleResult[]): string {
 function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleResult {
   let totalBytes = 0;
   const files: FileSizeMap = {};
+  const filesCoverage: FileSizeMap = {};
 
   // Remove any common prefix to keep the visualization as simple as possible.
   const commonPrefix = getCommonPathPrefix(exploreResults.map(r => r.bundleName));
@@ -67,6 +67,9 @@ function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleR
     Object.entries(result.files).forEach(([fileName, size]) => {
       files[`${prefix}/${fileName}`] = size;
     });
+    Object.entries(result.filesCoverage).forEach(([fileName, size]) => {
+      filesCoverage[`${prefix}/${fileName}`] = size;
+    });
   }
 
   return {
@@ -74,6 +77,7 @@ function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleR
     totalBytes,
     unmappedBytes: 0,
     files,
+    filesCoverage,
   };
 }
 
@@ -81,6 +85,7 @@ interface WebTreeMapNode {
   name: string;
   data: {
     $area: number;
+    coveredSize?: number;
   };
   children?: WebTreeMapNode[];
 }
@@ -88,11 +93,13 @@ interface WebTreeMapNode {
 /**
  * Covert file size map to webtreemap data
  */
-function getWebTreeMapData(files: FileSizeMap): WebTreeMapNode {
+function getWebTreeMapData(data: ExploreBundleResult): WebTreeMapNode {
+  const files: FileSizeMap = data.files;
+  const filesCoverage: FileCoverageMap = data.filesCoverage;
   const treeData = newNode('/');
 
   for (const source in files) {
-    addNode(source, files[source], treeData);
+    addNode(source, files[source], filesCoverage[source], treeData);
   }
 
   addSizeToTitle(treeData, treeData.data['$area']);
@@ -105,15 +112,27 @@ function newNode(name: string): WebTreeMapNode {
     name: escapeHtml(name),
     data: {
       $area: 0,
+      coveredSize: undefined,
     },
   };
 }
 
-function addNode(source: string, size: number, treeData: WebTreeMapNode): void {
+function addNode(
+  source: string,
+  size: number,
+  coveredSize: number | undefined,
+  treeData: WebTreeMapNode
+): void {
   const parts = source.split('/');
   let node = treeData;
 
   node.data['$area'] += size;
+  if (undefined !== coveredSize) {
+    if (node.data.coveredSize === undefined) {
+      node.data['coveredSize'] = 0;
+    }
+    node.data.coveredSize += coveredSize;
+  }
 
   parts.forEach(part => {
     if (!node.children) {
@@ -129,6 +148,12 @@ function addNode(source: string, size: number, treeData: WebTreeMapNode): void {
 
     node = child;
     node.data['$area'] += size;
+    if (undefined !== coveredSize) {
+      if (node.data.coveredSize === undefined) {
+        node.data['coveredSize'] = 0;
+      }
+      node.data.coveredSize += coveredSize;
+    }
   });
 }
 

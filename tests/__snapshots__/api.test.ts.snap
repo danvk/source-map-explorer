@@ -9,7 +9,8 @@ exports['api explore should accept buffer with inline map 1'] = {
         "src/bar.js": 104,
         "src/foo.js": 97,
         "<unmapped>": 2309
-      }
+      },
+      "filesCoverage": {}
     }
   ],
   "errors": [
@@ -33,7 +34,8 @@ exports['api explore should accept buffers with js and map 1'] = {
         "src/bar.js": 104,
         "src/foo.js": 97,
         "<unmapped>": 36
-      }
+      },
+      "filesCoverage": {}
     }
   ],
   "errors": [
@@ -56,7 +58,8 @@ exports['api explore should generate data respecting onlyMapped and replace opti
         "node_modules/browser-pack/_prelude.js": 480,
         "src/bar.js": 104,
         "src/foo.js": 97
-      }
+      },
+      "filesCoverage": {}
     }
   ],
   "errors": []
@@ -73,7 +76,8 @@ exports['api explore should generate data when provided with file with reference
         "src/bar.js": 104,
         "src/foo.js": 97,
         "<unmapped>": 36
-      }
+      },
+      "filesCoverage": {}
     }
   ],
   "errors": [
@@ -97,7 +101,8 @@ exports['api explore should generate data when provided with file with separated
         "src/bar.js": 104,
         "src/foo.js": 97,
         "<unmapped>": 1
-      }
+      },
+      "filesCoverage": {}
     }
   ],
   "errors": [
@@ -121,7 +126,8 @@ exports['api explore should generate data when provided with js file with inline
         "src/bar.js": 104,
         "src/foo.js": 97,
         "<unmapped>": 2309
-      }
+      },
+      "filesCoverage": {}
     }
   ],
   "errors": [
@@ -146,7 +152,8 @@ exports['api explore when output format specified should generate JSON 1'] = `
         "src/bar.js": 104,
         "src/foo.js": 97,
         "<unmapped>": 36
-      }
+      },
+      "filesCoverage": {}
     }
   ]
 }

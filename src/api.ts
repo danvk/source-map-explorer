@@ -12,6 +12,8 @@ import {
   ExploreBundleResult,
 } from './index';
 import { formatOutput, saveOutputToFile } from './output';
+import fs from 'fs';
+import url from 'url';
 
 /**
  * Analyze bundle(s)
@@ -34,12 +36,36 @@ export async function explore(
   // Get bundles from file tokens
   bundles.push(...getBundles(fileTokens));
 
+  let coverageData;
+  if (options.coverage) {
+    coverageData = JSON.parse(fs.readFileSync(options.coverage).toString('utf8')).map(node => ({
+      ...node,
+      url: url.parse(node.url).path,
+    }));
+  }
+
   const results = await Promise.all(
-    bundles.map(bundle =>
-      exploreBundle(bundle, options).catch<ExploreErrorResult>(error =>
-        onExploreError(bundle, error)
-      )
-    )
+    bundles.map(bundle => {
+      let coverageDataForBundle;
+      if (coverageData) {
+        coverageDataForBundle = coverageData.find(
+          node => node.url !== '/' && bundle.code.includes(node.url)
+        );
+        if (!coverageDataForBundle) {
+          throw new Error(
+            `Could not find coverage data for ${
+              bundle.code
+            }, does the file name match? Examples that were found: ${coverageData
+              .map(n => n.url)
+              .join(', ')}`
+          );
+        }
+      }
+
+      return exploreBundle(bundle, options, coverageDataForBundle).catch<ExploreErrorResult>(
+        error => onExploreError(bundle, error)
+      );
+    })
   );
 
   const exploreResult = getExploreResult(results, options);

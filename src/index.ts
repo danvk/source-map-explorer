@@ -7,9 +7,11 @@ export default explore;
 // Export all interfaces from index.ts to avoid type exports in compiled js code. See https://github.com/babel/babel/issues/8361
 
 export type FileSizeMap = Record<string, number>;
+export type FileCoverageMap = Record<string, number>;
 
 export interface FileSizes {
   files: FileSizeMap;
+  filesCoverage: FileCoverageMap;
   unmappedBytes: number;
   totalBytes: number;
 }
@@ -38,6 +40,10 @@ export interface Bundle {
   map?: File;
 }
 
+export interface CoverageData {
+  ranges: [{ start: number; end: number }];
+}
+
 export interface ExploreOptions {
   /** Exclude "unmapped" bytes from the output */
   onlyMapped?: boolean;
@@ -51,6 +57,7 @@ export interface ExploreOptions {
   noRoot?: boolean;
   /** Replace "this" by "that" map */
   replaceMap?: ReplaceMap;
+  coverage?: string;
 }
 
 export interface ExploreResult {

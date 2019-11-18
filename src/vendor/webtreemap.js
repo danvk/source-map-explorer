@@ -1,3 +1,33 @@
+const percentColors = [
+  { percent: 0.0, color: { r: 0xff, g: 0x00, b: 0 } },
+  { percent: 0.5, color: { r: 0xff, g: 0xff, b: 0 } },
+  { percent: 1.0, color: { r: 0x00, g: 0xff, b: 0 } } ];
+
+const getColorForPercentage = function(percent) {
+  let i = 1
+  for (; i < percentColors.length - 1; i++) {
+      if (percent < percentColors[i].percent) {
+          break;
+      }
+  }
+  const lowerColor = percentColors[i - 1];
+  const upperColor = percentColors[i];
+  const rangeWithinColors = upperColor.percent - lowerColor.percent;
+  const rangePercent = (percent - lowerColor.percent) / rangeWithinColors;
+  const percentLower = 1 - rangePercent;
+  const percentUpper = rangePercent;
+  const color = {
+      r: Math.floor(lowerColor.color.r * percentLower + upperColor.color.r * percentUpper),
+      g: Math.floor(lowerColor.color.g * percentLower + upperColor.color.g * percentUpper),
+      b: Math.floor(lowerColor.color.b * percentLower + upperColor.color.b * percentUpper)
+  };
+  return 'rgb(' + [color.r, color.g, color.b].join(',') + ')';
+}
+
+function colorize(child) {
+  child.dom.style.backgroundColor = getColorForPercentage(child.data.coveredSize/child.data.$area)
+}
+
 // Vendored from https://github.com/rmmh/webtreemap/blob/9fa0c066a10ea4402d960b0c6c1a432846ac7fc4/webtreemap.js
 
 // Copyright 2013 Google Inc. All Rights Reserved.
@@ -170,6 +200,7 @@ function layout(tree, level, width, height) {
       if (child.dom) {
         child.dom.style.zIndex = 0;
         position(child.dom, -2, -2, 0, 0);
+        colorize(child)
       }
       continue;
     }
@@ -212,6 +243,7 @@ function layout(tree, level, width, height) {
       width = Math.round(width);
       height = Math.round(height);
       position(child.dom, x, y, width, height);
+      colorize(child)
       if ('children' in child) {
         layout(child, level + 1, width, height);
       }

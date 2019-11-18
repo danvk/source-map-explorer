@@ -6,7 +6,17 @@ import { mapKeys } from 'lodash';
 import { getBundleName } from './api';
 import { getFileContent, getCommonPathPrefix } from './helpers';
 import { AppError } from './app-error';
-import { File, Bundle, ExploreOptions, ExploreBundleResult, FileSizes, FileSizeMap } from './index';
+import {
+  File,
+  Bundle,
+  ExploreOptions,
+  ExploreBundleResult,
+  FileSizes,
+  FileSizeMap,
+  CoverageData,
+} from './index';
+
+import { findCoveredBytes } from './find-ranges';
 
 export const UNMAPPED_KEY = '<unmapped>';
 
@@ -15,15 +25,17 @@ export const UNMAPPED_KEY = '<unmapped>';
  */
 export async function exploreBundle(
   bundle: Bundle,
-  options: ExploreOptions
+  options: ExploreOptions,
+  coverageData: CoverageData
 ): Promise<ExploreBundleResult> {
   const { code, map } = bundle;
 
   const sourceMapData = await loadSourceMap(code, map);
 
-  const sizes = computeFileSizes(sourceMapData);
+  const sizes = computeFileSizes(sourceMapData, coverageData);
 
   const files = adjustSourcePaths(sizes.files, options);
+  const filesCoverage = adjustSourcePaths(sizes.filesCoverage, options);
 
   const { totalBytes, unmappedBytes } = sizes;
 
@@ -39,6 +51,7 @@ export async function exploreBundle(
     totalBytes,
     unmappedBytes,
     files,
+    filesCoverage,
   };
 }
 
@@ -117,7 +130,7 @@ function checkInvalidMappingColumn({
 }
 
 /** Calculate the number of bytes contributed by each source file */
-function computeFileSizes(sourceMapData: SourceMapData): FileSizes {
+function computeFileSizes(sourceMapData: SourceMapData, coverageData: CoverageData): FileSizes {
   const { consumer, codeFileContent } = sourceMapData;
   const eol = detectEOL(codeFileContent);
   // Assume only one EOL is used
@@ -127,6 +140,8 @@ function computeFileSizes(sourceMapData: SourceMapData): FileSizes {
   let mappedBytes = 0;
 
   consumer.computeColumnSpans();
+
+  const moduleRanges: { module: string; start: number; end: number }[] = [];
 
   consumer.eachMapping(({ source, generatedLine, generatedColumn, lastGeneratedColumn }) => {
     // Lines are 1-based
@@ -155,21 +170,26 @@ function computeFileSizes(sourceMapData: SourceMapData): FileSizes {
         line,
         eol,
       });
-
       mappingLength = lastGeneratedColumn - generatedColumn + 1;
     } else {
       mappingLength = line.length - generatedColumn;
     }
-
     files[source] = (files[source] || 0) + mappingLength;
+    moduleRanges.push({
+      module: source,
+      start: generatedColumn,
+      end: lastGeneratedColumn || generatedColumn + line.length - 1,
+    });
     mappedBytes += mappingLength;
   });
 
+  const filesCoverage = coverageData ? findCoveredBytes(coverageData.ranges, moduleRanges) : {};
   // Don't count newlines as original version didn't count newlines
   const totalBytes = codeFileContent.length - lines.length + 1;
 
   return {
     files,
+    filesCoverage,
     unmappedBytes: totalBytes - mappedBytes,
     totalBytes,
   };

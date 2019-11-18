@@ -65,7 +65,6 @@ const treeDataMap = <%- JSON.stringify(treeDataMap) %>;
 
   function selectBundle(bundleId) {
     const bundle = treeDataMap[bundleId];
-
     appendTreemap(map, bundle.data);
     document.title = bundle.name + ' - Source Map Explorer';
   }
