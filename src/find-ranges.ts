@@ -1,3 +1,4 @@
+// Finds overlaps in arrays of byte ranges, using ratcheting pointers instead of nested loops for O(n) runtime instead of O(n^2)
 export function findCoveredBytes(coveredRanges, moduleRanges): { [module: string]: number } {
   const sortedCoverageRanges = coveredRanges.sort((a, b) => a.start - b.start);
   const sortedModuleRanges = moduleRanges.sort((a, b) => a.start - b.start);
