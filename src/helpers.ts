@@ -49,3 +49,25 @@ export function getCommonPathPrefix(paths: string[]): string {
 
   return a1.slice(0, i).join('');
 }
+
+export function getFirstRegexMatch(regex: RegExp, string: string): string {
+  const match = string.match(regex);
+
+  return match ? match[0] : '';
+}
+
+/**
+ * Get `subString` occurrences count in `string`
+ */
+export function getOccurrencesCount(subString: string, string: string): number {
+  let count = 0;
+  let position = string.indexOf(subString);
+  const subStringLength = subString.length;
+
+  while (position !== -1) {
+    count += 1;
+    position = string.indexOf(subString, position + subStringLength);
+  }
+
+  return count;
+}

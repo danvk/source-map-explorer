@@ -46,6 +46,17 @@ describe('api', () => {
       snapshot(actual);
     });
 
+    it('should generate data excluding source map bytes', async function() {
+      const actual = await explore(
+        ['data/inline-map.js', { code: 'data/foo.min.js', map: 'data/foo.min.js.map' }],
+        {
+          excludeSourceMapComment: true,
+        }
+      );
+
+      snapshot(actual);
+    });
+
     it('should accept buffer with inline map', async function() {
       const actual = await explore({ code: fs.readFileSync('data/inline-map.js') });
 
@@ -175,6 +186,11 @@ describe('api', () => {
           name: 'should throw if source map reference column beyond generated last column in line',
           bundlesAndFileTokens: 'data/invalid-map-column.js',
           expectedErrorCode: 'InvalidMappingColumn',
+        },
+        {
+          name: 'should throw if source map reference more lines than available in source',
+          bundlesAndFileTokens: 'data/invalid-map-line.js',
+          expectedErrorCode: 'InvalidMappingLine',
         },
       ];
 

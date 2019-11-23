@@ -4,11 +4,17 @@ import { BasicSourceMapConsumer, IndexedSourceMapConsumer, SourceMapConsumer } f
 import { mapKeys } from 'lodash';
 
 import { getBundleName } from './api';
-import { getFileContent, getCommonPathPrefix } from './helpers';
+import {
+  getFileContent,
+  getCommonPathPrefix,
+  getFirstRegexMatch,
+  getOccurrencesCount,
+} from './helpers';
 import { AppError } from './app-error';
 import { File, Bundle, ExploreOptions, ExploreBundleResult, FileSizes, FileSizeMap } from './index';
 
-export const UNMAPPED_KEY = '<unmapped>';
+export const UNMAPPED_KEY = '[unmapped]';
+export const SOURCE_MAP_COMMENT_KEY = '[sourceMappingURL]';
 
 /**
  * Analyze a bundle
@@ -21,11 +27,15 @@ export async function exploreBundle(
 
   const sourceMapData = await loadSourceMap(code, map);
 
-  const sizes = computeFileSizes(sourceMapData);
+  const sizes = computeFileSizes(sourceMapData, options);
 
   const files = adjustSourcePaths(sizes.files, options);
 
-  const { totalBytes, unmappedBytes } = sizes;
+  const { totalBytes, unmappedBytes, eolBytes, sourceMapCommentBytes } = sizes;
+
+  if (!options.excludeSourceMapComment) {
+    files[SOURCE_MAP_COMMENT_KEY] = sourceMapCommentBytes;
+  }
 
   if (!options.onlyMapped) {
     files[UNMAPPED_KEY] = unmappedBytes;
@@ -38,6 +48,8 @@ export async function exploreBundle(
     bundleName: getBundleName(bundle),
     totalBytes,
     unmappedBytes,
+    eolBytes,
+    sourceMapCommentBytes,
     files,
   };
 }
@@ -85,8 +97,24 @@ async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<Sour
   };
 }
 
+const COMMENT_REGEX = convert.commentRegex;
+const MAP_FILE_COMMENT_REGEX = convert.mapFileCommentRegex;
+
+/** Extract either source map comment from file content */
+function getSourceMapComment(fileContent: string): string {
+  const sourceMapComment =
+    getFirstRegexMatch(COMMENT_REGEX, fileContent) ||
+    getFirstRegexMatch(MAP_FILE_COMMENT_REGEX, fileContent);
+
+  // Remove trailing EOLs
+  return sourceMapComment.trim();
+}
+
+const LF = '\n';
+const CR_LF = '\r\n';
+
 function detectEOL(content: string): string {
-  return content.includes('\r\n') ? '\r\n' : '\n';
+  return content.includes(CR_LF) ? CR_LF : LF;
 }
 
 interface ComputeFileSizesContext {
@@ -104,7 +132,6 @@ function checkInvalidMappingColumn({
 }: ComputeFileSizesContext): void {
   const maxColumnIndex = line.length - 1;
 
-  // Columns are 0-based
   // Ignore case when source map references EOL character (e.g. https://github.com/microsoft/TypeScript/issues/34695)
   if (generatedColumn > maxColumnIndex && `${line}${eol}`.lastIndexOf(eol) !== generatedColumn) {
     throw new AppError({
@@ -117,11 +144,19 @@ function checkInvalidMappingColumn({
 }
 
 /** Calculate the number of bytes contributed by each source file */
-function computeFileSizes(sourceMapData: SourceMapData): FileSizes {
-  const { consumer, codeFileContent } = sourceMapData;
-  const eol = detectEOL(codeFileContent);
-  // Assume only one EOL is used
-  const lines = codeFileContent.split(eol);
+function computeFileSizes(
+  sourceMapData: SourceMapData,
+  { excludeSourceMapComment }: ExploreOptions
+): FileSizes {
+  const { consumer, codeFileContent: fileContent } = sourceMapData;
+
+  const sourceMapComment = getSourceMapComment(fileContent);
+  // Remove inline source map comment, source map file comment and trailing EOLs
+  const source = fileContent.replace(sourceMapComment, '').trim();
+
+  const eol = detectEOL(fileContent);
+  // Assume only one type of EOL is used
+  const lines = source.split(eol);
 
   const files: FileSizeMap = {};
   let mappedBytes = 0;
@@ -129,7 +164,8 @@ function computeFileSizes(sourceMapData: SourceMapData): FileSizes {
   consumer.computeColumnSpans();
 
   consumer.eachMapping(({ source, generatedLine, generatedColumn, lastGeneratedColumn }) => {
-    // Lines are 1-based
+    // Columns are 0-based, Lines are 1-based
+
     const line = lines[generatedLine - 1];
 
     if (line === undefined) {
@@ -158,20 +194,25 @@ function computeFileSizes(sourceMapData: SourceMapData): FileSizes {
 
       mappingLength = lastGeneratedColumn - generatedColumn + 1;
     } else {
-      mappingLength = line.length - generatedColumn;
+      mappingLength = Buffer.byteLength(line) - generatedColumn;
     }
 
     files[source] = (files[source] || 0) + mappingLength;
     mappedBytes += mappingLength;
   });
 
-  // Don't count newlines as original version didn't count newlines
-  const totalBytes = codeFileContent.length - lines.length + 1;
+  const sourceMapCommentBytes = Buffer.byteLength(sourceMapComment);
+  const eolBytes = getOccurrencesCount(eol, fileContent) * Buffer.byteLength(eol);
+  const totalBytes = Buffer.byteLength(fileContent);
 
   return {
     files,
-    unmappedBytes: totalBytes - mappedBytes,
-    totalBytes,
+    unmappedBytes: totalBytes - mappedBytes - sourceMapCommentBytes - eolBytes,
+    eolBytes,
+    sourceMapCommentBytes,
+    ...(excludeSourceMapComment
+      ? { totalBytes: totalBytes - sourceMapCommentBytes }
+      : { totalBytes }),
   };
 }
 

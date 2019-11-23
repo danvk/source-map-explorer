@@ -7,6 +7,8 @@ import {
   ExploreOptions,
   ExploreBundleResult,
   Bundle,
+  UNMAPPED_KEY,
+  SOURCE_MAP_COMMENT_KEY,
 } from '../dist';
 
 // Full example
@@ -36,6 +38,8 @@ explore('js/*.*', options)
     result.bundles.forEach((bundle: ExploreBundleResult) => {
       console.log(bundle.bundleName);
       console.log(JSON.stringify(bundle.files));
+      console.log(`Unmapped ${bundle.files[UNMAPPED_KEY]}`);
+      console.log(`Source map comment size ${bundle.files[SOURCE_MAP_COMMENT_KEY]}`);
     });
   })
   .catch((error: ExploreResult) => {
