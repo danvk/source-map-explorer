@@ -43,13 +43,39 @@ describe('CLI', function() {
       .and.have.string('src/bar.js\t104');
   });
 
-  it('should output multiple results as tsv', async function() {
-    const result = await execute(SCRIPT_PATH, ['data/inline-map.js', 'data/foo.min.js*', '--tsv']);
+  it('should output result as tsv excluding source map bytes', async function() {
+    const result = await execute(SCRIPT_PATH, [
+      'data/inline-map.js',
+      '--tsv',
+      '--exclude-source-map',
+    ]);
 
     expect(result)
       .to.have.string('Source\tSize')
-      .and.have.string('<unmapped>\t2309')
-      .and.have.string('<unmapped>\t36');
+      .and.have.string('src/bar.js\t104')
+      .and.not.have.string('[sourceMappingURL]\t');
+  });
+
+  it('should output result as tsv excluding unmapped bytes', async function() {
+    const result = await execute(SCRIPT_PATH, ['data/with-unmapped.js', '--tsv', '--only-mapped']);
+
+    expect(result)
+      .to.have.string('Source\tSize')
+      .and.have.string('App.js\t609')
+      .and.not.have.string('[unmapped]\t');
+  });
+
+  it('should output multiple results as tsv', async function() {
+    const result = await execute(SCRIPT_PATH, [
+      'data/inline-map.js',
+      'data/map-reference-eol.js',
+      '--tsv',
+    ]);
+
+    expect(result)
+      .to.have.string('Source\tSize')
+      .and.have.string('src/bar.js\t104')
+      .and.have.string('../generate-data/src/typescript.ts\t52');
   });
 
   it('should output result as html', async function() {

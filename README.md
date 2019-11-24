@@ -58,13 +58,16 @@ source-map-explorer foo.min.js --tsv result.tsv
       "results": [
         {
           "bundleName": "tests/data/foo.min.js",
-          "totalBytes": 697,
-          "unmappedBytes": 0,
+          "totalBytes": 718,
+          "unmappedBytes": 1,
+          "eolBytes": 1,
+          "sourceMapCommentBytes": 35,
           "files": {
-            "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-            "dist/bar.js": 97,
-            "dist/foo.js": 137,
-            "<unmapped>": 0
+            "node_modules/browser-pack/_prelude.js": 480,
+            "src/bar.js": 104,
+            "src/foo.js": 97,
+            "[sourceMappingURL]": 35,
+            "[unmapped]": 1
           }
         }
       ]
@@ -75,11 +78,12 @@ source-map-explorer foo.min.js --tsv result.tsv
 
     ```
     source-map-explorer foo.min.js --tsv
-    Source  Size
-    node_modules/browserify/node_modules/browser-pack/_prelude.js  463
-    dist/foo.js  137
-    dist/bar.js  97
-    <unmapped>  0
+    Source                                  Size
+    node_modules/browser-pack/_prelude.js   480
+    src/bar.js                              104
+    src/foo.js                              97
+    [sourceMappingURL]                      35
+    [unmapped]                              1
     ```
 
     If you just want a list of files, you can do `source-map-explorer foo.min.js --tsv | sed 1d | cut -f1`.
@@ -91,6 +95,8 @@ source-map-explorer foo.min.js --tsv result.tsv
     ```
 
 * `-m`, `--only-mapped`: exclude "unmapped" bytes from the output. This will result in total counts less than the file size.
+
+* `--exclude-source-map`: exclude source map comment size from output. This will result in total counts less than the file size.
 
 * `--replace`, `--with`: The paths in source maps sometimes have artifacts that are difficult to get rid of. These flags let you do simple find & replaces on the paths. For example:
 
@@ -119,9 +125,10 @@ See more at [wiki page][cli wiki]
      'dist/js/chunk.1.js', 'dist/js/chunk.1.js.map',
      { code: 'dist/js/chunk.3.js', map: 'dist/js/chunk.3.js.map' }
    ]
-   ```  
+   ```
 `options`:
 * `onlyMapped`: [boolean] (default `false`) - Exclude "unmapped" bytes from the output. This will result in total counts less than the file size
+* `excludeSourceMapComment`: [boolean] (default `false`) - Exclude source map comment size from output. This will result in total counts less than the file size.
 * `output`: [Object] - Output options
     * `format`: [string] - `'json'`, `'tsv'` or `'html'`
     * `filename`: [string] - Filename to save output to
@@ -139,13 +146,16 @@ explore('tests/data/foo.min.js', { output: { format: 'html' } }).then()
 {
   bundles: [{
     bundleName: 'tests/data/foo.min.js',
-    totalBytes: 697,
-    unmappedBytes: 0,
+    totalBytes: 718,
+    unmappedBytes: 1,
+    eolBytes: 1,
+    sourceMapCommentBytes: 35,
     files: {
-      'node_modules/browserify/node_modules/browser-pack/_prelude.js': 463,
-      'dist/bar.js': 97,
-      'dist/foo.js': 137,
-      '<unmapped>': 0
+      'node_modules/browserify/node_modules/browser-pack/_prelude.js': 480,
+      'dist/bar.js': 104,
+      'dist/foo.js': 97,
+      '[sourceMappingURL]': 35,
+      '[unmapped]': 1
     }
   }],
   output: '<!doctype html>...',
@@ -215,6 +225,9 @@ If this happens, just pass in the source map explicitly, e.g. (in bash or zsh):
 source-map-explorer path/to/foo.min.js{,.map}
 ```
 
+### Other source map tools
+
+[source-map-visualization](https://sokra.github.io/source-map-visualization)
 
 [demo]: https://cdn.rawgit.com/danvk/source-map-explorer/08b0e130cb9345f9061760bf8a8d9136ea60b457/demo.html
 [another demo]: https://cdn.rawgit.com/danvk/source-map-explorer/08b0e130cb9345f9061760bf8a8d9136ea60b457/demo-bug.html
