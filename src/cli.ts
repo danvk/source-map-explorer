@@ -81,7 +81,7 @@ function parseArguments(): Arguments {
         type: 'string',
         array: true,
         description:
-          'Apply a simple find/replace on source file names. This can be used to fix some oddities with paths which appear in the source map generation process. Accepts regular expressions.',
+          'Apply a simple find/replace on source file names. This can be used to fix some oddities with paths that appear in the source map generation process. Accepts regular expressions.',
         implies: 'with',
       },
       with: {
