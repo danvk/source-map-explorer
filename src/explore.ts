@@ -104,7 +104,8 @@ const MAP_FILE_COMMENT_REGEX = convert.mapFileCommentRegex;
 function getSourceMapComment(fileContent: string): string {
   const sourceMapComment =
     getFirstRegexMatch(COMMENT_REGEX, fileContent) ||
-    getFirstRegexMatch(MAP_FILE_COMMENT_REGEX, fileContent);
+    getFirstRegexMatch(MAP_FILE_COMMENT_REGEX, fileContent) ||
+    '';
 
   // Remove trailing EOLs
   return sourceMapComment.trim();

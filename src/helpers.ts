@@ -50,10 +50,10 @@ export function getCommonPathPrefix(paths: string[]): string {
   return a1.slice(0, i).join('');
 }
 
-export function getFirstRegexMatch(regex: RegExp, string: string): string {
+export function getFirstRegexMatch(regex: RegExp, string: string): string | null {
   const match = string.match(regex);
 
-  return match ? match[0] : '';
+  return match ? match[0] : null;
 }
 
 /**

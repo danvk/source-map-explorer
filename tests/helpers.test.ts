@@ -42,7 +42,7 @@ describe('helpers', function() {
   describe('getFirstRegexMatch', function() {
     const tests = [
       { regex: /\/\/.+$/, string: 'const a = 4 // bad var name', expected: '// bad var name' },
-      { regex: /foo/, string: 'A man walks into a bar..', expected: '' },
+      { regex: /foo/, string: 'A man walks into a bar..', expected: null },
     ];
 
     tests.forEach(function({ regex, string, expected }) {
