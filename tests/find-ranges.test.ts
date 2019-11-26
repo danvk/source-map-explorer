@@ -12,49 +12,49 @@ interface Test {
 
 const tests: Test[] = [
   {
-    name: 'handles module coming before range',
+    name: 'should handle module coming before range',
     coveredRanges: [{ start: 3, end: 6 }],
     moduleRanges: [{ module: 'foo', start: 0, end: 2 }],
     expected: {},
   },
   {
-    name: 'handles module coming after range',
+    name: 'should handle module coming after range',
     coveredRanges: [{ start: 3, end: 6 }],
     moduleRanges: [{ module: 'foo', start: 7, end: 8 }],
     expected: {},
   },
   {
-    name: `handles module partially overlapping start of range`,
+    name: `should handle module partially overlapping start of range`,
     coveredRanges: [{ start: 3, end: 6 }],
     moduleRanges: [{ module: 'foo', start: 2, end: 4 }],
     expected: { foo: 2 },
   },
   {
-    name: `handles module partially overlapping end of range`,
+    name: `should handle module partially overlapping end of range`,
     coveredRanges: [{ start: 3, end: 6 }],
     moduleRanges: [{ module: 'foo', start: 5, end: 7 }],
     expected: { foo: 2 },
   },
   {
-    name: 'handles module being within the range',
+    name: 'should handle module being within the range',
     coveredRanges: [{ start: 3, end: 6 }],
     moduleRanges: [{ module: 'foo', start: 4, end: 5 }],
     expected: { foo: 2 },
   },
   {
-    name: 'handles module containing the entire range',
+    name: 'should handle module containing the entire range',
     coveredRanges: [{ start: 3, end: 6 }],
     moduleRanges: [{ module: 'foo', start: 1, end: 10 }],
     expected: { foo: 4 },
   },
   {
-    name: 'handles module matching the entire range',
+    name: 'should handle module matching the entire range',
     coveredRanges: [{ start: 3, end: 6 }],
     moduleRanges: [{ module: 'foo', start: 3, end: 6 }],
     expected: { foo: 4 },
   },
   {
-    name: 'handles multiple ranges',
+    name: 'should handle multiple ranges',
     coveredRanges: [
       { start: 1, end: 2 },
       { start: 3, end: 6 },
@@ -71,7 +71,7 @@ const tests: Test[] = [
 ];
 
 tests.forEach(test => {
-  it('handles module coming before range', () => {
+  it('should handle module coming before range', () => {
     const result = findCoveredBytes(test.coveredRanges, test.moduleRanges);
     expect(result).to.deep.equal(test.expected);
   });
