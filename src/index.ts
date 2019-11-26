@@ -1,6 +1,7 @@
 import { explore } from './api';
+import { UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY } from './explore';
 
-export { explore };
+export { explore, UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY };
 
 export default explore;
 
@@ -13,6 +14,8 @@ export interface FileSizes {
   files: FileSizeMap;
   filesCoverage: FileCoverageMap;
   unmappedBytes: number;
+  eolBytes: number;
+  sourceMapCommentBytes: number;
   totalBytes: number;
 }
 
@@ -52,6 +55,8 @@ export interface CoverageData {
 export interface ExploreOptions {
   /** Exclude "unmapped" bytes from the output */
   onlyMapped?: boolean;
+  /** Exclude source map comment size from output */
+  excludeSourceMapComment?: boolean;
   /** Output result as a string */
   output?: {
     format: OutputFormat;

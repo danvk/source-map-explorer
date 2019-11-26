@@ -76,6 +76,8 @@ function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleR
     bundleName: '[combined]',
     totalBytes,
     unmappedBytes: 0,
+    eolBytes: 0,
+    sourceMapCommentBytes: 0,
     files,
     filesCoverage,
   };
