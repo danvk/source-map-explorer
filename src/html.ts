@@ -127,7 +127,7 @@ function addNode(
   let node = treeData;
 
   node.data['$area'] += size;
-  if (undefined !== coveredSize) {
+  if (coveredSize !== undefined) {
     if (node.data.coveredSize === undefined) {
       node.data['coveredSize'] = 0;
     }

@@ -40,8 +40,13 @@ export interface Bundle {
   map?: File;
 }
 
+export interface CoverageRange {
+  start: number;
+  end: number;
+}
+
 export interface CoverageData {
-  ranges: [{ start: number; end: number }];
+  ranges: CoverageRange[];
 }
 
 export interface ExploreOptions {

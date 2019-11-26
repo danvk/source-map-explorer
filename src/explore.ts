@@ -15,7 +15,6 @@ import {
   FileSizeMap,
   CoverageData,
 } from './index';
-
 import { findCoveredBytes } from './find-ranges';
 
 export const UNMAPPED_KEY = '<unmapped>';
@@ -109,6 +108,12 @@ interface ComputeFileSizesContext {
   eol: string;
 }
 
+export interface ModuleRange {
+  module: string;
+  start: number;
+  end: number;
+}
+
 function checkInvalidMappingColumn({
   generatedLine,
   generatedColumn,
@@ -141,7 +146,7 @@ function computeFileSizes(sourceMapData: SourceMapData, coverageData: CoverageDa
 
   consumer.computeColumnSpans();
 
-  const moduleRanges: { module: string; start: number; end: number }[] = [];
+  const moduleRanges: ModuleRange[] = [];
 
   consumer.eachMapping(({ source, generatedLine, generatedColumn, lastGeneratedColumn }) => {
     // Lines are 1-based

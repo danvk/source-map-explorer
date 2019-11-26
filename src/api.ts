@@ -12,8 +12,8 @@ import {
   ExploreBundleResult,
 } from './index';
 import { formatOutput, saveOutputToFile } from './output';
-import fs from 'fs';
 import url from 'url';
+import { getFileContent } from './helpers';
 
 /**
  * Analyze bundle(s)
@@ -38,7 +38,7 @@ export async function explore(
 
   let coverageData;
   if (options.coverage) {
-    coverageData = JSON.parse(fs.readFileSync(options.coverage).toString('utf8')).map(node => ({
+    coverageData = JSON.parse(getFileContent(options.coverage)).map(node => ({
       ...node,
       url: url.parse(node.url).path,
     }));
@@ -52,12 +52,9 @@ export async function explore(
           node => node.url !== '/' && bundle.code.includes(node.url)
         );
         if (!coverageDataForBundle) {
+          const examples = coverageData.map(n => n.url).join(', ');
           throw new Error(
-            `Could not find coverage data for ${
-              bundle.code
-            }, does the file name match? Examples that were found: ${coverageData
-              .map(n => n.url)
-              .join(', ')}`
+            `Could not find coverage data for ${bundle.code}, does the file name match? Examples that were found: ${examples}`
           );
         }
       }
