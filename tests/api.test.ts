@@ -118,15 +118,15 @@ describe('api', () => {
         filename: string;
         cleanPath?: string;
       }[] = [
-        // {
-        //   name: 'should save html to file',
-        //   filename: 'sme-result.html',
-        // },
-        // {
-        //   name: 'should save html to file creating nested directories',
-        //   filename: './tmp/nested/sme-result.html',
-        //   cleanPath: './tmp',
-        // },
+        {
+          name: 'should save html to file',
+          filename: 'sme-result.html',
+        },
+        {
+          name: 'should save html to file creating nested directories',
+          filename: './tmp/nested/sme-result.html',
+          cleanPath: './tmp',
+        },
       ];
 
       tests.forEach(function({ name, filename, cleanPath }) {
