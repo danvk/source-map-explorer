@@ -2,8 +2,8 @@ import snapshot from '@smpx/snap-shot-it';
 
 import { getErrorMessage, ErrorContext } from '../src/app-error';
 
-describe('app-error', function() {
-  describe('getErrorMessage', function() {
+describe('app-error', () => {
+  describe('getErrorMessage', () => {
     const tests = [
       { code: 'NoBundles' },
       { code: 'NoSourceMap' },
@@ -26,8 +26,8 @@ describe('app-error', function() {
       { code: 'UnknownCode' },
     ];
 
-    tests.forEach(function(context) {
-      it(`should create message for '${context.code}'`, function() {
+    tests.forEach(context => {
+      it(`should create message for '${context.code}'`, () => {
         snapshot(getErrorMessage(context as ErrorContext));
       });
     });

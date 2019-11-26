@@ -16,7 +16,7 @@
     "minify:url": "terser dist/foo.js -c --source-map \"content=inline,url='foo.min.js.map'\" -o ../data/foo.min.js",
     "minify:url-1234": "terser dist/foo.js -c --source-map \"content=inline,url='foo.1234.js.map'\" -o ../data/foo.1234.js",
     "minify:no-comment": "terser dist/foo.js -c --source-map \"content=inline\" -o ../data/no-map.js",
-    "minify:one-source": "terser dist/foo.js -c --source-map \"url='foo.min.no-map.bad-map.js.map'\" -o ../data/foo.min.no-map.bad-map.js",
+    "minify:one-source": "terser src/bar.js -c --source-map \"url=inline\" -o ../data/one-source.js",
     "minify:typescript": "tsc --inlineSourceMap --removeComments src/typescript.ts --outFile ../data/map-reference-eol.js",
     "build-all": "npm run build && npm-run-all minify:*"
   }
