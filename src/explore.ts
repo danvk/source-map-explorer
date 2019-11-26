@@ -40,7 +40,7 @@ export async function exploreBundle(
   const sizes = computeFileSizes(sourceMapData, options, coverageData);
 
   const files = adjustSourcePaths(sizes.files, options);
-  const filesCoverage = adjustSourcePaths(sizes.filesCoverage, options);
+  const filesCoverage = sizes.filesCoverage ? adjustSourcePaths(sizes.filesCoverage, options) : undefined;
 
   const { totalBytes, unmappedBytes, eolBytes, sourceMapCommentBytes } = sizes;
 
@@ -226,7 +226,7 @@ function computeFileSizes(
     mappedBytes += mappingLength;
   });
 
-  const filesCoverage = coverageData ? findCoveredBytes(coverageData.ranges, moduleRanges) : {};
+  const filesCoverage = coverageData ? findCoveredBytes(coverageData.ranges, moduleRanges) : undefined;
   
   const sourceMapCommentBytes = Buffer.byteLength(sourceMapComment);
   const eolBytes = getOccurrencesCount(eol, fileContent) * Buffer.byteLength(eol);

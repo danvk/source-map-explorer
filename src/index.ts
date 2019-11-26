@@ -12,7 +12,7 @@ export type FileCoverageMap = Record<string, number>;
 
 export interface FileSizes {
   files: FileSizeMap;
-  filesCoverage: FileCoverageMap;
+  filesCoverage?: FileCoverageMap;
   unmappedBytes: number;
   eolBytes: number;
   sourceMapCommentBytes: number;

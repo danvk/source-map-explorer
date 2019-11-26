@@ -67,9 +67,11 @@ function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleR
     Object.entries(result.files).forEach(([fileName, size]) => {
       files[`${prefix}/${fileName}`] = size;
     });
-    Object.entries(result.filesCoverage).forEach(([fileName, size]) => {
-      filesCoverage[`${prefix}/${fileName}`] = size;
-    });
+    if (result.filesCoverage) {
+      Object.entries(result.filesCoverage).forEach(([fileName, size]) => {
+        filesCoverage[`${prefix}/${fileName}`] = size;
+      });
+    }
   }
 
   return {
@@ -96,12 +98,13 @@ interface WebTreeMapNode {
  * Covert file size map to webtreemap data
  */
 function getWebTreeMapData(data: ExploreBundleResult): WebTreeMapNode {
-  const files: FileSizeMap = data.files;
-  const filesCoverage: FileCoverageMap = data.filesCoverage;
+  const files = data.files;
+  const filesCoverage = data.filesCoverage;
   const treeData = newNode('/');
 
   for (const source in files) {
-    addNode(source, files[source], filesCoverage[source], treeData);
+    const coveredSize = filesCoverage ? filesCoverage[source] : undefined;
+    addNode(source, files[source], coveredSize, treeData);
   }
 
   addSizeToTitle(treeData, treeData.data['$area']);

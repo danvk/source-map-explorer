@@ -181,8 +181,7 @@ exports['CLI should print multiple results as JSON 1'] = `
         "src/foo.js": 97,
         "[sourceMappingURL]": 2308,
         "[unmapped]": 1
-      },
-      "filesCoverage": {}
+      }
     },
     {
       "bundleName": "data/foo.min.js",
@@ -196,8 +195,7 @@ exports['CLI should print multiple results as JSON 1'] = `
         "src/foo.js": 97,
         "[sourceMappingURL]": 35,
         "[unmapped]": 1
-      },
-      "filesCoverage": {}
+      }
     }
   ]
 }
@@ -219,8 +217,7 @@ exports['CLI should print result as JSON and support path wrapped by quotes 1'] 
         "src/foo.js": 97,
         "[sourceMappingURL]": 2308,
         "[unmapped]": 1
-      },
-      "filesCoverage": {}
+      }
     }
   ]
 }
