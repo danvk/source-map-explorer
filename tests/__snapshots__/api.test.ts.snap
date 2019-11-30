@@ -197,6 +197,32 @@ exports['api explore should generate data when provided with js file with inline
   ]
 }
 
+exports['api explore should give name to "null" source a name 1'] = {
+  "bundles": [
+    {
+      "bundleName": "data/no-source.js",
+      "totalBytes": 1547,
+      "unmappedBytes": 13,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 37,
+      "files": {
+        "../webpack/bootstrap": 1491,
+        "[no source]": 5,
+        "[sourceMappingURL]": 37,
+        "[unmapped]": 13
+      }
+    }
+  ],
+  "errors": [
+    {
+      "bundleName": "data/no-source.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 13/1547 bytes (0.84%)"
+    }
+  ]
+}
+
 exports['api explore when output format specified should generate JSON 1'] = `
 {
   "results": [
