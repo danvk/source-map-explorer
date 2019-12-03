@@ -24,6 +24,7 @@ import { findCoveredBytes } from './find-ranges';
 
 export const UNMAPPED_KEY = '[unmapped]';
 export const SOURCE_MAP_COMMENT_KEY = '[sourceMappingURL]';
+export const NO_SOURCE_KEY = '[no source]';
 
 /**
  * Analyze a bundle
@@ -40,7 +41,9 @@ export async function exploreBundle(
   const sizes = computeFileSizes(sourceMapData, options, coverageData);
 
   const files = adjustSourcePaths(sizes.files, options);
-  const filesCoverage = sizes.filesCoverage ? adjustSourcePaths(sizes.filesCoverage, options) : undefined;
+  const filesCoverage = sizes.filesCoverage
+    ? adjustSourcePaths(sizes.filesCoverage, options)
+    : undefined;
 
   const { totalBytes, unmappedBytes, eolBytes, sourceMapCommentBytes } = sizes;
 
@@ -217,17 +220,22 @@ function computeFileSizes(
     } else {
       mappingLength = Buffer.byteLength(line) - generatedColumn;
     }
-    files[source] = (files[source] || 0) + mappingLength;
+
+    const filename = source === null ? NO_SOURCE_KEY : source;
+    files[filename] = (files[filename] || 0) + mappingLength;
+
     moduleRanges.push({
-      module: source,
+      module: filename,
       start: generatedColumn,
       end: lastGeneratedColumn || generatedColumn + line.length - 1,
     });
     mappedBytes += mappingLength;
   });
 
-  const filesCoverage = coverageData ? findCoveredBytes(coverageData.ranges, moduleRanges) : undefined;
-  
+  const filesCoverage = coverageData
+    ? findCoveredBytes(coverageData.ranges, moduleRanges)
+    : undefined;
+
   const sourceMapCommentBytes = Buffer.byteLength(sourceMapComment);
   const eolBytes = getOccurrencesCount(eol, fileContent) * Buffer.byteLength(eol);
   const totalBytes = Buffer.byteLength(fileContent);
@@ -240,7 +248,7 @@ function computeFileSizes(
     ...(excludeSourceMapComment
       ? { totalBytes: totalBytes - sourceMapCommentBytes }
       : { totalBytes }),
-    filesCoverage
+    filesCoverage,
   };
 }
 

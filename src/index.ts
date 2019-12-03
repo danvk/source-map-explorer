@@ -1,7 +1,7 @@
 import { explore } from './api';
-import { UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY } from './explore';
+import { UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY, NO_SOURCE_KEY } from './explore';
 
-export { explore, UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY };
+export { explore, UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY, NO_SOURCE_KEY };
 
 export default explore;
 

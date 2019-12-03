@@ -11,7 +11,7 @@ interface AdjustSourcePathsTest {
 }
 
 describe('explore', () => {
-  describe('adjustSourcePaths', function() {
+  describe('adjustSourcePaths', () => {
     const tests: AdjustSourcePathsTest[] = [
       {
         name: 'should factor out a common prefix',
@@ -71,8 +71,8 @@ describe('explore', () => {
       },
     ];
 
-    tests.forEach(function({ name, fileSizeMap, options, expected }) {
-      it(name, function() {
+    tests.forEach(({ name, fileSizeMap, options, expected }) => {
+      it(name, () => {
         expect(adjustSourcePaths(fileSizeMap, options)).to.deep.equal(expected);
       });
     });
