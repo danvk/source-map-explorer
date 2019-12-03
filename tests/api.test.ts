@@ -72,6 +72,12 @@ describe('api', () => {
       snapshot(actual);
     });
 
+    it('should give name to "null" source a name', async () => {
+      const actual = await explore('data/no-source.js');
+
+      snapshot(actual);
+    });
+
     describe('when output format specified', () => {
       it('should generate HTML from buffer', async () => {
         const result = await explore(
@@ -233,7 +239,7 @@ describe('api', () => {
         expect(result.errors.length).to.eq(2);
       });
 
-      it('should add one source source map warning when exploring single bundle', async () => {
+      it('should add "one source" source map warning when exploring single bundle', async () => {
         const result = await explore('data/one-source.js');
 
         const warning = result.errors[0];
@@ -242,7 +248,7 @@ describe('api', () => {
         expect(warning.code).to.equal('OneSourceSourceMap');
       });
 
-      it('should not add one source source map warning when exploring multiple bundles', async () => {
+      it('should not add "one source" source map warning when exploring multiple bundles', async () => {
         const result = await explore(['data/one-source.js', 'data/inline-map.js'], {
           onlyMapped: true,
         });
@@ -320,6 +326,7 @@ describe('api', () => {
             code: 'data/no-map.js',
             map: 'data/no-map.js.map',
           },
+          { code: 'data/no-source.js', map: 'data/no-source.js.map' },
           {
             code: 'data/one-source.js',
             map: undefined,

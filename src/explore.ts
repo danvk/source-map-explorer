@@ -15,6 +15,7 @@ import { File, Bundle, ExploreOptions, ExploreBundleResult, FileSizes, FileSizeM
 
 export const UNMAPPED_KEY = '[unmapped]';
 export const SOURCE_MAP_COMMENT_KEY = '[sourceMappingURL]';
+export const NO_SOURCE_KEY = '[no source]';
 
 /**
  * Analyze a bundle
@@ -198,7 +199,8 @@ function computeFileSizes(
       mappingLength = Buffer.byteLength(line) - generatedColumn;
     }
 
-    files[source] = (files[source] || 0) + mappingLength;
+    const filename = source === null ? NO_SOURCE_KEY : source;
+    files[filename] = (files[filename] || 0) + mappingLength;
     mappedBytes += mappingLength;
   });
 
