@@ -16,6 +16,7 @@ import { File, Bundle, ExploreOptions, ExploreBundleResult, FileSizes, FileSizeM
 export const UNMAPPED_KEY = '[unmapped]';
 export const SOURCE_MAP_COMMENT_KEY = '[sourceMappingURL]';
 export const NO_SOURCE_KEY = '[no source]';
+export const EOL_KEY = '[line endings]';
 
 /**
  * Analyze a bundle
@@ -207,6 +208,7 @@ function computeFileSizes(
   const sourceMapCommentBytes = Buffer.byteLength(sourceMapComment);
   const eolBytes = getOccurrencesCount(eol, fileContent) * Buffer.byteLength(eol);
   const totalBytes = Buffer.byteLength(fileContent);
+  files[EOL_KEY] = eolBytes;
 
   return {
     files,

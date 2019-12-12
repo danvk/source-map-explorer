@@ -1,7 +1,7 @@
 import glob from 'glob';
 import { partition, flatMap, isString } from 'lodash';
 
-import { exploreBundle, UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY } from './explore';
+import { exploreBundle, UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY, EOL_KEY } from './explore';
 import { AppError, getErrorMessage } from './app-error';
 import {
   BundlesAndFileTokens,
@@ -113,7 +113,7 @@ function getExploreResult(
   };
 }
 
-const SPECIAL_FILENAMES = [UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY];
+const SPECIAL_FILENAMES = [UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY, EOL_KEY];
 
 function getPostExploreErrors(exploreBundleResults: ExploreBundleResult[]): ExploreErrorResult[] {
   const errors: ExploreErrorResult[] = [];
