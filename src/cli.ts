@@ -41,11 +41,6 @@ function parseArguments(): Arguments {
     .example('$0 script.js --json result.json', 'Explore and save result as JSON to the file')
     .demandCommand(1, 'At least one js file must be specified')
     .options({
-      coverage: {
-        type: 'string',
-        description:
-          'If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed',
-      },
       json: {
         type: 'string',
         description:
@@ -96,6 +91,13 @@ function parseArguments(): Arguments {
         description: 'See --replace.',
         implies: 'replace',
       },
+
+      coverage: {
+        type: 'string',
+        normalize: true,
+        description:
+          'If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed',
+      },
     })
     .group(['json', 'tsv', 'html'], 'Output:')
     .group(['replace', 'with'], 'Replace:')
@@ -117,6 +119,7 @@ function parseArguments(): Arguments {
 
   // Trim extra quotes
   const quoteRegex = /'/g;
+
   argv._ = argv._.map(path => path.replace(quoteRegex, ''));
 
   return argv;
@@ -146,9 +149,19 @@ export function logInfo(message: string): void {
  * Create options object for `explore` method
  */
 function getExploreOptions(argv: Arguments): ExploreOptions {
+  const {
+    json,
+    tsv,
+    html,
+    replace: replaceItems,
+    with: withItems,
+    onlyMapped,
+    excludeSourceMap: excludeSourceMapComment,
+    noRoot,
+    coverage,
+  } = argv;
+
   let replaceMap: ReplaceMap | undefined;
-  const replaceItems = argv.replace;
-  const withItems = argv.with;
 
   if (replaceItems && withItems) {
     replaceMap = replaceItems.reduce<ReplaceMap>((result, item, index) => {
@@ -161,14 +174,14 @@ function getExploreOptions(argv: Arguments): ExploreOptions {
   return {
     output: {
       // By default CLI needs result in HTML in order to create a temporary file
-      format: isString(argv.json) ? 'json' : isString(argv.tsv) ? 'tsv' : 'html',
-      filename: argv.json || argv.tsv || argv.html,
+      format: isString(json) ? 'json' : isString(tsv) ? 'tsv' : 'html',
+      filename: json || tsv || html,
     },
-    coverage: argv.coverage,
     replaceMap,
-    onlyMapped: argv.onlyMapped,
-    excludeSourceMapComment: argv.excludeSourceMap,
-    noRoot: argv.noRoot,
+    onlyMapped,
+    excludeSourceMapComment,
+    noRoot,
+    coverage,
   };
 }
 
@@ -182,6 +195,7 @@ async function writeHtmlToTempFile(html?: string): Promise<void> {
 
   try {
     const tempFile = temp.path({ prefix: 'sme-result-', suffix: '.html' });
+
     fs.writeFileSync(tempFile, html);
 
     const childProcess = await open(tempFile);
@@ -209,6 +223,7 @@ function outputErrors({ errors }: ExploreResult): void {
     console.group(bundleName);
 
     const hasManyErrors = errors.length > 1;
+
     errors.forEach((error, index) => {
       const message = `${hasManyErrors ? `${index + 1}. ` : ''}${error.message}`;
 

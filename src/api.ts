@@ -1,7 +1,7 @@
 import glob from 'glob';
 import { partition, flatMap, isString } from 'lodash';
 
-import { exploreBundle, UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY } from './explore';
+import { exploreBundle, UNMAPPED_KEY, SPECIAL_FILENAMES } from './explore';
 import { AppError, getErrorMessage } from './app-error';
 import {
   BundlesAndFileTokens,
@@ -12,8 +12,7 @@ import {
   ExploreBundleResult,
 } from './index';
 import { formatOutput, saveOutputToFile } from './output';
-import url from 'url';
-import { getFileContent } from './helpers';
+import { addCoverageRanges } from './coverage';
 
 /**
  * Analyze bundle(s)
@@ -36,33 +35,14 @@ export async function explore(
   // Get bundles from file tokens
   bundles.push(...getBundles(fileTokens));
 
-  let coverageData;
-  if (options.coverage) {
-    coverageData = JSON.parse(getFileContent(options.coverage)).map(node => ({
-      ...node,
-      url: url.parse(node.url).path,
-    }));
-  }
+  addCoverageRanges(bundles, options.coverage);
 
   const results = await Promise.all(
-    bundles.map(bundle => {
-      let coverageDataForBundle;
-      if (coverageData) {
-        coverageDataForBundle = coverageData.find(
-          node => node.url !== '/' && bundle.code.includes(node.url)
-        );
-        if (!coverageDataForBundle) {
-          const examples = coverageData.map(n => n.url).join(', ');
-          throw new Error(
-            `Could not find coverage data for ${bundle.code}, does the file name match? Examples that were found: ${examples}`
-          );
-        }
-      }
-
-      return exploreBundle(bundle, options, coverageDataForBundle).catch<ExploreErrorResult>(
-        error => onExploreError(bundle, error)
-      );
-    })
+    bundles.map(bundle =>
+      exploreBundle(bundle, options).catch<ExploreErrorResult>(error =>
+        onExploreError(bundle, error)
+      )
+    )
   );
 
   const exploreResult = getExploreResult(results, options);
@@ -136,8 +116,6 @@ function getExploreResult(
   };
 }
 
-const SPECIAL_FILENAMES = [UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY];
-
 function getPostExploreErrors(exploreBundleResults: ExploreBundleResult[]): ExploreErrorResult[] {
   const errors: ExploreErrorResult[] = [];
 
@@ -151,6 +129,7 @@ function getPostExploreErrors(exploreBundleResults: ExploreBundleResult[]): Expl
       const filenames = Object.keys(files).filter(
         filename => !SPECIAL_FILENAMES.includes(filename)
       );
+
       if (filenames.length === 1) {
         errors.push({
           bundleName,
@@ -161,14 +140,17 @@ function getPostExploreErrors(exploreBundleResults: ExploreBundleResult[]): Expl
       }
     }
 
-    const unmappedBytes = files[UNMAPPED_KEY];
-    if (unmappedBytes) {
-      errors.push({
-        bundleName,
-        isWarning: true,
-        code: 'UnmappedBytes',
-        message: getErrorMessage({ code: 'UnmappedBytes', unmappedBytes, totalBytes }),
-      });
+    if (files[UNMAPPED_KEY] !== undefined) {
+      const { size: unmappedBytes } = files[UNMAPPED_KEY];
+
+      if (unmappedBytes) {
+        errors.push({
+          bundleName,
+          isWarning: true,
+          code: 'UnmappedBytes',
+          message: getErrorMessage({ code: 'UnmappedBytes', unmappedBytes, totalBytes }),
+        });
+      }
     }
   }
 

@@ -5,7 +5,8 @@ import path from 'path';
 import escapeHtml from 'escape-html';
 
 import { formatBytes, getCommonPathPrefix, getFileContent, formatPercent } from './helpers';
-import { ExploreBundleResult, FileSizeMap, FileCoverageMap } from './index';
+import { getColorByPercent } from './coverage';
+import { ExploreBundleResult, FileData, FileDataMap } from './index';
 
 /**
  * Generate HTML file content for specified files
@@ -54,8 +55,7 @@ export function generateHtml(exploreResults: ExploreBundleResult[]): string {
  */
 function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleResult {
   let totalBytes = 0;
-  const files: FileSizeMap = {};
-  const filesCoverage: FileSizeMap = {};
+  const files: FileDataMap = {};
 
   // Remove any common prefix to keep the visualization as simple as possible.
   const commonPrefix = getCommonPathPrefix(exploreResults.map(r => r.bundleName));
@@ -64,24 +64,20 @@ function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleR
     totalBytes += result.totalBytes;
 
     const prefix = result.bundleName.slice(commonPrefix.length);
+
     Object.entries(result.files).forEach(([fileName, size]) => {
       files[`${prefix}/${fileName}`] = size;
     });
-    if (result.filesCoverage) {
-      Object.entries(result.filesCoverage).forEach(([fileName, size]) => {
-        filesCoverage[`${prefix}/${fileName}`] = size;
-      });
-    }
   }
 
   return {
     bundleName: '[combined]',
     totalBytes,
+    mappedBytes: 0,
     unmappedBytes: 0,
     eolBytes: 0,
     sourceMapCommentBytes: 0,
     files,
-    filesCoverage,
   };
 }
 
@@ -90,21 +86,20 @@ interface WebTreeMapNode {
   data: {
     $area: number;
     coveredSize?: number;
+    backgroundColor?: string;
   };
   children?: WebTreeMapNode[];
 }
 
 /**
- * Covert file size map to webtreemap data
+ * Convert file size map to webtreemap data
  */
 function getWebTreeMapData(data: ExploreBundleResult): WebTreeMapNode {
   const files = data.files;
-  const filesCoverage = data.filesCoverage;
   const treeData = newNode('/');
 
   for (const source in files) {
-    const coveredSize = filesCoverage ? filesCoverage[source] : undefined;
-    addNode(source, files[source], coveredSize, treeData);
+    addNode(source, files[source], treeData);
   }
 
   addSizeToTitle(treeData, treeData.data['$area']);
@@ -117,27 +112,34 @@ function newNode(name: string): WebTreeMapNode {
     name: escapeHtml(name),
     data: {
       $area: 0,
-      coveredSize: undefined,
     },
   };
 }
 
-function addNode(
-  source: string,
-  size: number,
-  coveredSize: number | undefined,
-  treeData: WebTreeMapNode
-): void {
+function setNodeData(node: WebTreeMapNode, fileData: FileData): void {
+  const size = node.data['$area'] + fileData.size;
+
+  if (fileData.coveredSize !== undefined) {
+    const coveredSize = (node.data.coveredSize || 0) + fileData.coveredSize;
+
+    node.data.coveredSize = coveredSize;
+    node.data.backgroundColor = getColorByPercent(coveredSize / size);
+  }
+
+  node.data['$area'] = size;
+}
+
+function addNode(source: string, fileData: FileData, treeData: WebTreeMapNode): void {
+  // No need to create nodes with zero size (e.g. '[unmapped]')
+  if (fileData.size === 0) {
+    return;
+  }
+
   const parts = source.split('/');
+
   let node = treeData;
 
-  node.data['$area'] += size;
-  if (coveredSize !== undefined) {
-    if (node.data.coveredSize === undefined) {
-      node.data['coveredSize'] = 0;
-    }
-    node.data.coveredSize += coveredSize;
-  }
+  setNodeData(node, fileData);
 
   parts.forEach(part => {
     if (!node.children) {
@@ -152,20 +154,22 @@ function addNode(
     }
 
     node = child;
-    node.data['$area'] += size;
-    if (undefined !== coveredSize) {
-      if (node.data.coveredSize === undefined) {
-        node.data['coveredSize'] = 0;
-      }
-      node.data.coveredSize += coveredSize;
-    }
+
+    setNodeData(child, fileData);
   });
 }
 
 function addSizeToTitle(node: WebTreeMapNode, total: number): void {
-  const size = node.data['$area'];
+  const { $area: size, coveredSize } = node.data;
 
-  node.name += ` • ${formatBytes(size)} • ${formatPercent(size, total, 1)}%`;
+  const titleParts = [node.name, formatBytes(size), `${formatPercent(size, total, 1)}%`];
+
+  // Add coverage label to leaf nodes only
+  if (coveredSize !== undefined && node.children === undefined) {
+    titleParts.push(`Coverage: ${formatPercent(coveredSize, size, 1)}%`);
+  }
+
+  node.name = titleParts.join(' • ');
 
   if (node.children) {
     node.children.forEach(child => {

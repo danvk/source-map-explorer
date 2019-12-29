@@ -130,6 +130,7 @@
     "nyc": "^14.1.1",
     "package-preview": "^3.0.0",
     "prettier": "^1.19.1",
+    "rewiremock": "^3.13.9",
     "rimraf": "^3.0.0",
     "typescript": "^3.7.2"
   }

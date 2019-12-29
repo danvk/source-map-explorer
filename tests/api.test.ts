@@ -155,6 +155,7 @@ describe('api', () => {
           expect(fs.existsSync(filename)).to.eq(true);
 
           const htmlContent = fs.readFileSync(filename).toString();
+
           expect(htmlContent).to.have.string(
             '<title>data/inline-map.js - Source Map Explorer</title>'
           );
@@ -204,6 +205,7 @@ describe('api', () => {
         it(name, async () => {
           await expect(explore(bundlesAndFileTokens, options)).to.be.rejected.then(result => {
             const error = result.errors[0];
+
             expect(error.code).to.equal(expectedErrorCode);
           });
         });
