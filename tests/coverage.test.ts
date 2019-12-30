@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import rewiremock from './rewiremock';
 
-import { setCoveredSizes } from '../src/coverage';
+import { setCoveredSizes, getColorByPercent } from '../src/coverage';
 import { Bundle, Coverage, CoverageRange, MappingRange, FileDataMap } from '../src';
 
 describe('coverage', () => {
@@ -257,6 +257,27 @@ describe('coverage', () => {
     tests.forEach(({ name, line, files, mappingRanges, coveredRanges, expected }) => {
       it(name, () => {
         expect(setCoveredSizes(line, files, mappingRanges, coveredRanges)).to.deep.equal(expected);
+      });
+    });
+  });
+
+  describe('getColorByPercent', () => {
+    const tests: { name: string; percent: number; expected: string }[] = [
+      {
+        name: 'should return green color',
+        percent: 1,
+        expected: 'rgb(0, 255, 0)',
+      },
+      {
+        name: 'should return red color',
+        percent: 0,
+        expected: 'rgb(255, 0, 0)',
+      },
+    ];
+
+    tests.forEach(({ name, percent, expected }) => {
+      it(name, () => {
+        expect(getColorByPercent(percent)).to.equal(expected);
       });
     });
   });

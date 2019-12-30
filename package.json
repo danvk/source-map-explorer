@@ -1,6 +1,6 @@
 {
   "name": "source-map-explorer",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "Analyze and debug space usage through source maps",
   "main": "dist/index.js",
   "bin": {

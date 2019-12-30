@@ -94,6 +94,11 @@ describe('helpers', () => {
           { start: 31, end: 31, source: 'd' },
         ],
       },
+      {
+        name: 'should return handle single range',
+        ranges: [{ start: 0, end: 128, source: 'foo' }],
+        expected: [{ start: 0, end: 128, source: 'foo' }],
+      },
     ];
 
     tests.forEach(({ name, ranges, expected }) => {

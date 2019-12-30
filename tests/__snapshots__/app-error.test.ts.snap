@@ -2,6 +2,10 @@ exports['app-error getErrorMessage should create message for \'CannotCreateTempF
 Unable to create a temporary HTML file
 `
 
+exports['app-error getErrorMessage should create message for \'CannotOpenCoverageFile\' 1'] = `
+Unable to open/parse coverage file
+`
+
 exports['app-error getErrorMessage should create message for \'CannotOpenTempFile\' 1'] = `
 Unable to open web browser. The system cannot find the file ?C:\\foo.htm
 Either run with --html, --json, --tsv, --file, or view HTML for the visualization at:
@@ -24,6 +28,10 @@ Check that you are using the correct source map.
 
 exports['app-error getErrorMessage should create message for \'NoBundles\' 1'] = `
 No file(s) provided
+`
+
+exports['app-error getErrorMessage should create message for \'NoCoverageMatches\' 1'] = `
+No matched bundles found for coverages
 `
 
 exports['app-error getErrorMessage should create message for \'NoSourceMap\' 1'] = `

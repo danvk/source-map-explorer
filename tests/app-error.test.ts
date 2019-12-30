@@ -23,6 +23,8 @@ describe('app-error', () => {
         error: Buffer.from('The system cannot find the file ?C:\\foo.htm'),
         tempFile: 'C:\\foo.htm',
       },
+      { code: 'CannotOpenCoverageFile' },
+      { code: 'NoCoverageMatches' },
       { code: 'UnknownCode' },
     ];
 
