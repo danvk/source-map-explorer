@@ -78,6 +78,9 @@ source-map-explorer foo.min.js --tsv result.tsv
             },
             "[unmapped]": {
               "size": 1
+            },
+            "[EOLs]": {
+              "size": 1
             }
           }
         }
@@ -95,6 +98,7 @@ source-map-explorer foo.min.js --tsv result.tsv
     src/foo.js                              97
     [sourceMappingURL]                      35
     [unmapped]                              1
+    [EOLs]                                  1
     ```
 
     If you just want a list of files, you can do `source-map-explorer foo.min.js --tsv | sed 1d | cut -f1`.
@@ -170,7 +174,8 @@ explore('tests/data/foo.min.js', { output: { format: 'html' } }).then()
       'dist/bar.js': { size: 104 },
       'dist/foo.js': { size: 97 },
       '[sourceMappingURL]': { size: 35 },
-      '[unmapped]': { size: 1 }
+      '[unmapped]': { size: 1 },
+      '[EOLs]': { size: 1 }
     }
   }],
   output: '<!doctype html>...',
