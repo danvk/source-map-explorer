@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/danvk/source-map-explorer.svg?branch=master)](https://travis-ci.org/danvk/source-map-explorer) [![NPM version](http://img.shields.io/npm/v/source-map-explorer.svg)](https://www.npmjs.org/package/source-map-explorer)
+[![Build Status](https://travis-ci.org/danvk/source-map-explorer.svg?branch=master)](https://travis-ci.org/danvk/source-map-explorer) [![NPM version](https://img.shields.io/npm/v/source-map-explorer.svg)](https://www.npmjs.org/package/source-map-explorer)
 [![Coverage Status](https://coveralls.io/repos/github/danvk/source-map-explorer/badge.svg)](https://coveralls.io/github/danvk/source-map-explorer)
 # source-map-explorer
 Analyze and debug JavaScript (or Sass or LESS) code bloat through source maps.
@@ -59,15 +59,26 @@ source-map-explorer foo.min.js --tsv result.tsv
         {
           "bundleName": "tests/data/foo.min.js",
           "totalBytes": 718,
+          "mappedBytes": 681,
           "unmappedBytes": 1,
           "eolBytes": 1,
           "sourceMapCommentBytes": 35,
           "files": {
-            "node_modules/browser-pack/_prelude.js": 480,
-            "src/bar.js": 104,
-            "src/foo.js": 97,
-            "[sourceMappingURL]": 35,
-            "[unmapped]": 1
+            "node_modules/browser-pack/_prelude.js": {
+              "size": 480
+            },
+            "src/bar.js": {
+              "size": 104
+            },
+            "src/foo.js": {
+              "size": 97
+            },
+            "[sourceMappingURL]": {
+              "size": 35
+            },
+            "[unmapped]": {
+              "size": 1
+            }
           }
         }
       ]
@@ -110,6 +121,8 @@ source-map-explorer foo.min.js --tsv result.tsv
 
 * `--no-root`: By default, source-map-explorer finds common prefixes between all source files and eliminates them, since they add complexity to the visualization with no real benefit. But if you want to disable this behavior, set the `--no-root` flag.
 
+* `--coverage`: If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed
+
 See more at [wiki page][cli wiki]
 
 ## API
@@ -134,6 +147,7 @@ See more at [wiki page][cli wiki]
     * `filename`: [string] - Filename to save output to
 * `noRoot`: [boolean] (default `false`) - See `--no-root` option above for details
 * `replaceMap`: <[Object]<{ [from: [string]]: [string] }>> - Mapping for replacement, see `--replace`, `--with` options above for details.
+* `coverage`: [string] - If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed
 
 Example:
 ```javascript
@@ -148,14 +162,15 @@ explore('tests/data/foo.min.js', { output: { format: 'html' } }).then()
     bundleName: 'tests/data/foo.min.js',
     totalBytes: 718,
     unmappedBytes: 1,
+    mappedBytes: 681,
     eolBytes: 1,
     sourceMapCommentBytes: 35,
     files: {
-      'node_modules/browserify/node_modules/browser-pack/_prelude.js': 480,
-      'dist/bar.js': 104,
-      'dist/foo.js': 97,
-      '[sourceMappingURL]': 35,
-      '[unmapped]': 1
+      'node_modules/browserify/node_modules/browser-pack/_prelude.js': { size: 480 },
+      'dist/bar.js': { size: 104 },
+      'dist/foo.js': { size: 97 },
+      '[sourceMappingURL]': { size: 35 },
+      '[unmapped]': { size: 1 }
     }
   }],
   output: '<!doctype html>...',
@@ -164,6 +179,14 @@ explore('tests/data/foo.min.js', { output: { format: 'html' } }).then()
 ```
 
 See more at [wiki page][api wiki]
+
+## Code coverage heat map
+
+In Google Chrome, you can collect [code coverage stats]( https://developers.google.com/web/tools/chrome-devtools/coverage). `source-map-explorer` accepts path to via `--coverage` argument (or `coverage` API option) and attempts to color code the heat map. This allows you to find the code that is not strictly needed for the initial page load and helps to identify the ideal ways to code split.
+
+Red boxes correspond to code that would only be executed if the user took some action, or if some condition was met. For example, it may be a component inside of a dropdown the user never interacted with, or components that are only needed if the user opens a modal. In cases where the parent is green but the boxes inside are red, that means maybe some "initialization" logic ran, but the inner code never ran. Maybe we mounted a button, but not the other components in that module that are only needed if and when the user clicks the button, in that case, I would have the button trigger the rest of the code to load.
+
+The heat map feature helps you identify the code that is needed for a fast initial page load (green), as well as helps to identify the code that can be (potentially) deferred because it doesn't run until the user interacts with some feature (red).
 
 ## What might contribute to a generated file size
 

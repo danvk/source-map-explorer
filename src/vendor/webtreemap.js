@@ -1,3 +1,7 @@
+function colorize(child) {
+  child.dom.style.backgroundColor = child.data.backgroundColor
+}
+
 // Vendored from https://github.com/rmmh/webtreemap/blob/9fa0c066a10ea4402d960b0c6c1a432846ac7fc4/webtreemap.js
 
 // Copyright 2013 Google Inc. All Rights Reserved.
@@ -170,6 +174,7 @@ function layout(tree, level, width, height) {
       if (child.dom) {
         child.dom.style.zIndex = 0;
         position(child.dom, -2, -2, 0, 0);
+        colorize(child)
       }
       continue;
     }
@@ -212,6 +217,7 @@ function layout(tree, level, width, height) {
       width = Math.round(width);
       height = Math.round(height);
       position(child.dom, x, y, width, height);
+      colorize(child)
       if ('children' in child) {
         layout(child, level + 1, width, height);
       }

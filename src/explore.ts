@@ -8,15 +8,29 @@ import {
   getFileContent,
   getCommonPathPrefix,
   getFirstRegexMatch,
+  detectEOL,
   getOccurrencesCount,
+  mergeRanges,
 } from './helpers';
 import { AppError } from './app-error';
-import { File, Bundle, ExploreOptions, ExploreBundleResult, FileSizes, FileSizeMap } from './index';
+import {
+  File,
+  Bundle,
+  ExploreOptions,
+  ExploreBundleResult,
+  FileSizes,
+  CoverageRange,
+  MappingRange,
+  FileDataMap,
+} from './index';
+import { setCoveredSizes } from './coverage';
 
 export const UNMAPPED_KEY = '[unmapped]';
 export const SOURCE_MAP_COMMENT_KEY = '[sourceMappingURL]';
 export const NO_SOURCE_KEY = '[no source]';
-export const EOL_KEY = '[line endings]';
+export const EOL_KEY = '[EOLs]';
+
+export const SPECIAL_FILENAMES = [UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY, NO_SOURCE_KEY, EOL_KEY];
 
 /**
  * Analyze a bundle
@@ -25,33 +39,20 @@ export async function exploreBundle(
   bundle: Bundle,
   options: ExploreOptions
 ): Promise<ExploreBundleResult> {
-  const { code, map } = bundle;
+  const { code, map, coverageRanges } = bundle;
 
   const sourceMapData = await loadSourceMap(code, map);
 
-  const sizes = computeFileSizes(sourceMapData, options);
+  const sizes = computeFileSizes(sourceMapData, options, coverageRanges);
 
   const files = adjustSourcePaths(sizes.files, options);
-
-  const { totalBytes, unmappedBytes, eolBytes, sourceMapCommentBytes } = sizes;
-
-  if (!options.excludeSourceMapComment) {
-    files[SOURCE_MAP_COMMENT_KEY] = sourceMapCommentBytes;
-  }
-
-  if (!options.onlyMapped) {
-    files[UNMAPPED_KEY] = unmappedBytes;
-  }
 
   // Free Wasm data
   sourceMapData.consumer.destroy();
 
   return {
     bundleName: getBundleName(bundle),
-    totalBytes,
-    unmappedBytes,
-    eolBytes,
-    sourceMapCommentBytes,
+    ...sizes,
     files,
   };
 }
@@ -73,6 +74,7 @@ async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<Sour
 
   if (sourceMapFile) {
     const sourceMapFileContent = getFileContent(sourceMapFile);
+
     consumer = await new SourceMapConsumer(sourceMapFileContent);
   } else {
     // Try to read a source map from a 'sourceMappingURL' comment.
@@ -102,7 +104,9 @@ async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<Sour
 const COMMENT_REGEX = convert.commentRegex;
 const MAP_FILE_COMMENT_REGEX = convert.mapFileCommentRegex;
 
-/** Extract either source map comment from file content */
+/**
+ * Extract either source map comment/file
+ */
 function getSourceMapComment(fileContent: string): string {
   const sourceMapComment =
     getFirstRegexMatch(COMMENT_REGEX, fileContent) ||
@@ -113,30 +117,20 @@ function getSourceMapComment(fileContent: string): string {
   return sourceMapComment.trim();
 }
 
-const LF = '\n';
-const CR_LF = '\r\n';
-
-function detectEOL(content: string): string {
-  return content.includes(CR_LF) ? CR_LF : LF;
-}
-
 interface ComputeFileSizesContext {
   generatedLine: number;
   generatedColumn: number;
   line: string;
-  eol: string;
 }
 
 function checkInvalidMappingColumn({
   generatedLine,
   generatedColumn,
   line,
-  eol,
 }: ComputeFileSizesContext): void {
   const maxColumnIndex = line.length - 1;
 
-  // Ignore case when source map references EOL character (e.g. https://github.com/microsoft/TypeScript/issues/34695)
-  if (generatedColumn > maxColumnIndex && `${line}${eol}`.lastIndexOf(eol) !== generatedColumn) {
+  if (generatedColumn > maxColumnIndex) {
     throw new AppError({
       code: 'InvalidMappingColumn',
       generatedLine,
@@ -146,10 +140,13 @@ function checkInvalidMappingColumn({
   }
 }
 
-/** Calculate the number of bytes contributed by each source file */
+/**
+ * Calculate the number of bytes contributed by each source file
+ */
 function computeFileSizes(
   sourceMapData: SourceMapData,
-  { excludeSourceMapComment }: ExploreOptions
+  options: ExploreOptions,
+  coverageRanges?: CoverageRange[][]
 ): FileSizes {
   const { consumer, codeFileContent: fileContent } = sourceMapData;
 
@@ -161,15 +158,14 @@ function computeFileSizes(
   // Assume only one type of EOL is used
   const lines = source.split(eol);
 
-  const files: FileSizeMap = {};
-  let mappedBytes = 0;
+  const mappingRanges: MappingRange[][] = [];
 
   consumer.computeColumnSpans();
-
   consumer.eachMapping(({ source, generatedLine, generatedColumn, lastGeneratedColumn }) => {
     // Columns are 0-based, Lines are 1-based
 
-    const line = lines[generatedLine - 1];
+    const lineIndex = generatedLine - 1;
+    const line = lines[lineIndex];
 
     if (line === undefined) {
       throw new AppError({
@@ -179,49 +175,94 @@ function computeFileSizes(
       });
     }
 
+    // Ignore mapping referencing EOL character (e.g. https://github.com/microsoft/TypeScript/issues/34695)
+    if (`${line}${eol}`.lastIndexOf(eol) === generatedColumn) {
+      return;
+    }
+
     checkInvalidMappingColumn({
       generatedLine,
       generatedColumn,
       line,
-      eol,
     });
 
-    let mappingLength = 0;
     if (lastGeneratedColumn !== null) {
       checkInvalidMappingColumn({
         generatedLine,
         generatedColumn: lastGeneratedColumn,
         line,
-        eol,
       });
-
-      mappingLength = lastGeneratedColumn - generatedColumn + 1;
-    } else {
-      mappingLength = Buffer.byteLength(line) - generatedColumn;
     }
 
-    const filename = source === null ? NO_SOURCE_KEY : source;
-    files[filename] = (files[filename] || 0) + mappingLength;
-    mappedBytes += mappingLength;
+    const start = generatedColumn;
+    const end = lastGeneratedColumn === null ? line.length - 1 : lastGeneratedColumn;
+
+    const lineRanges = mappingRanges[lineIndex] || [];
+
+    lineRanges.push({
+      start,
+      end,
+      source: source === null ? NO_SOURCE_KEY : source,
+    });
+
+    mappingRanges[lineIndex] = lineRanges;
+  });
+
+  let files: FileDataMap = {};
+  let mappedBytes = 0;
+
+  mappingRanges.forEach((lineRanges, lineIndex) => {
+    const line = lines[lineIndex];
+    const mergedRanges = mergeRanges(lineRanges);
+
+    mergedRanges.forEach(({ start, end, source }) => {
+      // To account unicode measure byte length rather than symbols count
+      const rangeByteLength = Buffer.byteLength(line.substring(start, end + 1));
+
+      if (!files[source]) {
+        files[source] = { size: 0 };
+      }
+
+      files[source].size += rangeByteLength;
+
+      mappedBytes += rangeByteLength;
+    });
+
+    if (coverageRanges) {
+      files = setCoveredSizes(line, files, mergedRanges, coverageRanges[lineIndex]);
+    }
   });
 
   const sourceMapCommentBytes = Buffer.byteLength(sourceMapComment);
   const eolBytes = getOccurrencesCount(eol, fileContent) * Buffer.byteLength(eol);
   const totalBytes = Buffer.byteLength(fileContent);
-  files[EOL_KEY] = eolBytes;
+  const unmappedBytes = totalBytes - mappedBytes - sourceMapCommentBytes - eolBytes;
+
+  if (!options.excludeSourceMapComment) {
+    files[SOURCE_MAP_COMMENT_KEY] = { size: sourceMapCommentBytes };
+  }
+
+  if (!options.onlyMapped) {
+    files[UNMAPPED_KEY] = { size: unmappedBytes };
+  }
+
+  if (eolBytes > 0) {
+    files[EOL_KEY] = { size: eolBytes };
+  }
 
   return {
-    files,
-    unmappedBytes: totalBytes - mappedBytes - sourceMapCommentBytes - eolBytes,
-    eolBytes,
-    sourceMapCommentBytes,
-    ...(excludeSourceMapComment
+    ...(options.excludeSourceMapComment
       ? { totalBytes: totalBytes - sourceMapCommentBytes }
       : { totalBytes }),
+    mappedBytes,
+    unmappedBytes,
+    eolBytes,
+    sourceMapCommentBytes,
+    files,
   };
 }
 
-export function adjustSourcePaths(fileSizeMap: FileSizeMap, options: ExploreOptions): FileSizeMap {
+export function adjustSourcePaths(fileSizeMap: FileDataMap, options: ExploreOptions): FileDataMap {
   if (!options.noRoot) {
     const prefix = getCommonPathPrefix(Object.keys(fileSizeMap));
     const length = prefix.length;
