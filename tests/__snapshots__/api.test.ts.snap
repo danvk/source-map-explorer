@@ -22,6 +22,9 @@ exports['api explore should accept buffer with inline map 1'] = {
         },
         "[unmapped]": {
           "size": 1
+        },
+        "[EOLs]": {
+          "size": 1
         }
       }
     }
@@ -60,6 +63,9 @@ exports['api explore should accept buffers with js and map 1'] = {
         },
         "[unmapped]": {
           "size": 1
+        },
+        "[EOLs]": {
+          "size": 1
         }
       }
     }
@@ -95,6 +101,9 @@ exports['api explore should generate data excluding source map bytes 1'] = {
         },
         "[unmapped]": {
           "size": 1
+        },
+        "[EOLs]": {
+          "size": 1
         }
       }
     },
@@ -116,6 +125,9 @@ exports['api explore should generate data excluding source map bytes 1'] = {
           "size": 97
         },
         "[unmapped]": {
+          "size": 1
+        },
+        "[EOLs]": {
           "size": 1
         }
       }
@@ -158,6 +170,9 @@ exports['api explore should generate data respecting onlyMapped and replace opti
         },
         "[sourceMappingURL]": {
           "size": 35
+        },
+        "[EOLs]": {
+          "size": 1
         }
       }
     }
@@ -188,6 +203,9 @@ exports['api explore should generate data when provided with file with reference
           "size": 35
         },
         "[unmapped]": {
+          "size": 1
+        },
+        "[EOLs]": {
           "size": 1
         }
       }
@@ -265,6 +283,9 @@ exports['api explore should generate data when provided with js file with inline
         },
         "[unmapped]": {
           "size": 1
+        },
+        "[EOLs]": {
+          "size": 1
         }
       }
     }
@@ -300,6 +321,9 @@ exports['api explore should give name to "null" source a name 1'] = {
         },
         "[unmapped]": {
           "size": 13
+        },
+        "[EOLs]": {
+          "size": 1
         }
       }
     }
@@ -345,6 +369,9 @@ exports['api explore when output format specified should generate JSON 1'] = `
         },
         "[unmapped]": {
           "size": 1
+        },
+        "[EOLs]": {
+          "size": 1
         }
       }
     }
@@ -359,10 +386,12 @@ src/bar.js\t104\r
 src/foo.js\t97\r
 [sourceMappingURL]\t35\r
 [unmapped]\t1\r
+[EOLs]\t1\r
 \r
 [sourceMappingURL]\t2308\r
 node_modules/browser-pack/_prelude.js\t480\r
 src/bar.js\t104\r
 src/foo.js\t97\r
-[unmapped]\t1
+[unmapped]\t1\r
+[EOLs]\t1
 `

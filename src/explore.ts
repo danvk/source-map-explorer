@@ -28,8 +28,9 @@ import { setCoveredSizes } from './coverage';
 export const UNMAPPED_KEY = '[unmapped]';
 export const SOURCE_MAP_COMMENT_KEY = '[sourceMappingURL]';
 export const NO_SOURCE_KEY = '[no source]';
+export const EOL_KEY = '[EOLs]';
 
-export const SPECIAL_FILENAMES = [UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY, NO_SOURCE_KEY];
+export const SPECIAL_FILENAMES = [UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY, NO_SOURCE_KEY, EOL_KEY];
 
 /**
  * Analyze a bundle
@@ -243,6 +244,10 @@ function computeFileSizes(
 
   if (!options.onlyMapped) {
     files[UNMAPPED_KEY] = { size: unmappedBytes };
+  }
+
+  if (eolBytes > 0) {
+    files[EOL_KEY] = { size: eolBytes };
   }
 
   return {
