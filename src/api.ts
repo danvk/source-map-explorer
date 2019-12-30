@@ -1,7 +1,7 @@
 import glob from 'glob';
 import { partition, flatMap, isString } from 'lodash';
 
-import { exploreBundle, UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY } from './explore';
+import { exploreBundle, UNMAPPED_KEY, SPECIAL_FILENAMES } from './explore';
 import { AppError, getErrorMessage } from './app-error';
 import {
   BundlesAndFileTokens,
@@ -12,6 +12,7 @@ import {
   ExploreBundleResult,
 } from './index';
 import { formatOutput, saveOutputToFile } from './output';
+import { addCoverageRanges } from './coverage';
 
 /**
  * Analyze bundle(s)
@@ -33,6 +34,8 @@ export async function explore(
 
   // Get bundles from file tokens
   bundles.push(...getBundles(fileTokens));
+
+  addCoverageRanges(bundles, options.coverage);
 
   const results = await Promise.all(
     bundles.map(bundle =>
@@ -113,8 +116,6 @@ function getExploreResult(
   };
 }
 
-const SPECIAL_FILENAMES = [UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY];
-
 function getPostExploreErrors(exploreBundleResults: ExploreBundleResult[]): ExploreErrorResult[] {
   const errors: ExploreErrorResult[] = [];
 
@@ -128,6 +129,7 @@ function getPostExploreErrors(exploreBundleResults: ExploreBundleResult[]): Expl
       const filenames = Object.keys(files).filter(
         filename => !SPECIAL_FILENAMES.includes(filename)
       );
+
       if (filenames.length === 1) {
         errors.push({
           bundleName,
@@ -138,14 +140,17 @@ function getPostExploreErrors(exploreBundleResults: ExploreBundleResult[]): Expl
       }
     }
 
-    const unmappedBytes = files[UNMAPPED_KEY];
-    if (unmappedBytes) {
-      errors.push({
-        bundleName,
-        isWarning: true,
-        code: 'UnmappedBytes',
-        message: getErrorMessage({ code: 'UnmappedBytes', unmappedBytes, totalBytes }),
-      });
+    if (files[UNMAPPED_KEY] !== undefined) {
+      const { size: unmappedBytes } = files[UNMAPPED_KEY];
+
+      if (unmappedBytes) {
+        errors.push({
+          bundleName,
+          isWarning: true,
+          code: 'UnmappedBytes',
+          message: getErrorMessage({ code: 'UnmappedBytes', unmappedBytes, totalBytes }),
+        });
+      }
     }
   }
 

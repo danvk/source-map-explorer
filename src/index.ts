@@ -7,10 +7,16 @@ export default explore;
 
 // Export all interfaces from index.ts to avoid type exports in compiled js code. See https://github.com/babel/babel/issues/8361
 
-export type FileSizeMap = Record<string, number>;
+export interface FileData {
+  size: number;
+  coveredSize?: number;
+}
+
+export type FileDataMap = Record<string, FileData>;
 
 export interface FileSizes {
-  files: FileSizeMap;
+  files: FileDataMap;
+  mappedBytes: number;
   unmappedBytes: number;
   eolBytes: number;
   sourceMapCommentBytes: number;
@@ -27,7 +33,9 @@ export type ErrorCode =
   | 'InvalidMappingColumn'
   | 'CannotSaveFile'
   | 'CannotCreateTempFile'
-  | 'CannotOpenTempFile';
+  | 'CannotOpenTempFile'
+  | 'CannotOpenCoverageFile'
+  | 'NoCoverageMatches';
 
 export type File = string | Buffer;
 
@@ -39,6 +47,7 @@ export type OutputFormat = 'json' | 'tsv' | 'html';
 export interface Bundle {
   code: File;
   map?: File;
+  coverageRanges?: ColumnsRange[][];
 }
 
 export interface ExploreOptions {
@@ -56,6 +65,7 @@ export interface ExploreOptions {
   noRoot?: boolean;
   /** Replace "this" by "that" map */
   replaceMap?: ReplaceMap;
+  coverage?: string;
 }
 
 export interface ExploreResult {
@@ -78,6 +88,33 @@ export interface ExploreErrorResult {
 }
 
 export type BundlesAndFileTokens = (Bundle | string)[] | Bundle | string;
+
+/** Represents inclusive range (e.g. [0,5] six columns) */
+export interface ColumnsRange {
+  /** Fist column index */
+  start: number;
+  /** Last column index */
+  end: number;
+}
+
+export interface MappingRange extends ColumnsRange {
+  source: string;
+}
+
+/** Represents exclusive range (e.g. [0,5) - four columns) */
+export interface Coverage {
+  url: string;
+  ranges: CoverageRange[];
+  /** File content as one line */
+  text: string;
+}
+
+export interface CoverageRange {
+  /** First column index */
+  start: number;
+  /** Column index next after last column index */
+  end: number;
+}
 
 // TODO: Remove when https://github.com/mozilla/source-map/pull/374 is merged
 declare module 'source-map' {

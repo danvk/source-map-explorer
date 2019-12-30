@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { MappingRange } from './index';
 
 export function getFileContent(file: Buffer | string): string {
   const buffer = Buffer.isBuffer(file) ? file : fs.readFileSync(file);
@@ -38,10 +39,10 @@ const PATH_SEPARATOR_REGEX = /(\/)/;
 export function getCommonPathPrefix(paths: string[]): string {
   if (paths.length < 2) return '';
 
-  const A = paths.concat().sort(),
-    a1 = A[0].split(PATH_SEPARATOR_REGEX),
-    a2 = A[A.length - 1].split(PATH_SEPARATOR_REGEX),
-    L = a1.length;
+  const A = paths.concat().sort();
+  const a1 = A[0].split(PATH_SEPARATOR_REGEX);
+  const a2 = A[A.length - 1].split(PATH_SEPARATOR_REGEX);
+  const L = a1.length;
 
   let i = 0;
 
@@ -54,6 +55,13 @@ export function getFirstRegexMatch(regex: RegExp, string: string): string | null
   const match = string.match(regex);
 
   return match ? match[0] : null;
+}
+
+const LF = '\n';
+const CR_LF = '\r\n';
+
+export function detectEOL(content: string): string {
+  return content.includes(CR_LF) ? CR_LF : LF;
 }
 
 /**
@@ -70,4 +78,35 @@ export function getOccurrencesCount(subString: string, string: string): number {
   }
 
   return count;
+}
+
+/**
+ * Merge consecutive ranges with the same source
+ */
+export function mergeRanges(ranges: MappingRange[]): MappingRange[] {
+  const mergedRanges: MappingRange[] = [];
+  const rangesCount = ranges.length;
+
+  if (rangesCount === 1) {
+    return ranges;
+  }
+
+  let { start, end, source } = ranges[0];
+
+  for (let i = 1; i < rangesCount; i += 1) {
+    const isSourceMatch = ranges[i].source === ranges[i - 1].source;
+    const isConsecutive = ranges[i].start - ranges[i - 1].end === 1;
+
+    if (isSourceMatch && isConsecutive) {
+      end = ranges[i].end;
+    } else {
+      mergedRanges.push({ start, end, source });
+
+      ({ start, end, source } = ranges[i]);
+    }
+  }
+
+  mergedRanges.push({ start, end, source });
+
+  return mergedRanges;
 }

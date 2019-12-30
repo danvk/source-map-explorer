@@ -24,7 +24,14 @@ export const SOURCE_MAP_INFO_URL =
   'https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps';
 
 interface CommonErrorContext {
-  code: 'NoBundles' | 'NoSourceMap' | 'CannotSaveFile' | 'CannotCreateTempFile' | 'Unknown';
+  code:
+    | 'NoBundles'
+    | 'NoSourceMap'
+    | 'CannotSaveFile'
+    | 'CannotCreateTempFile'
+    | 'CannotOpenCoverageFile'
+    | 'NoCoverageMatches'
+    | 'Unknown';
 }
 
 interface OneSourceSourceMapErrorContext {
@@ -114,6 +121,14 @@ Check that you are using the correct source map.`;
       return `Unable to open web browser. ${error.toString().trim()}
 Either run with --html, --json, --tsv, --file, or view HTML for the visualization at:
 ${tempFile}`;
+    }
+
+    case 'CannotOpenCoverageFile': {
+      return 'Unable to open/parse coverage file';
+    }
+
+    case 'NoCoverageMatches': {
+      return 'No matched bundles found for coverages';
     }
 
     default:
