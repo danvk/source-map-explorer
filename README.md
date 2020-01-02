@@ -1,5 +1,8 @@
-[![Build Status](https://travis-ci.org/danvk/source-map-explorer.svg?branch=master)](https://travis-ci.org/danvk/source-map-explorer) [![NPM version](https://img.shields.io/npm/v/source-map-explorer.svg)](https://www.npmjs.org/package/source-map-explorer)
+[![Build Status](https://travis-ci.org/danvk/source-map-explorer.svg?branch=master)](https://travis-ci.org/danvk/source-map-explorer)
+[![NPM version](https://img.shields.io/npm/v/source-map-explorer.svg)](https://www.npmjs.org/package/source-map-explorer)
+[![install size](https://packagephobia.now.sh/badge?p=source-map-explorer)](https://packagephobia.now.sh/result?p=source-map-explorer)
 [![Coverage Status](https://coveralls.io/repos/github/danvk/source-map-explorer/badge.svg)](https://coveralls.io/github/danvk/source-map-explorer)
+![NPM](https://img.shields.io/npm/l/source-map-explorer)
 # source-map-explorer
 Analyze and debug JavaScript (or Sass or LESS) code bloat through source maps.
 
