@@ -75,9 +75,17 @@ export function addCoverageRanges(bundles: Bundle[], coverageFilename?: string):
   try {
     const coverages: Coverage[] = JSON.parse(getFileContent(coverageFilename));
 
-    const coveragePaths = coverages.map(({ url }) =>
-      getPathParts(new URL(url).pathname || '').reverse()
-    );
+    const coveragePaths = coverages
+      .map(({ url }) => getPathParts(new URL(url).pathname || '').reverse())
+      /**
+       * Scripts inlined to HTML doc will have the url of the HTML document.
+       * Example: { url: "https://google.com/", ranges: [...] }
+       *
+       * When this happens, we ended up with an empty array. This will cause
+       * for loop below (for (let i = 0; i < partsA.length; i++) )
+       * to never be run. Causing false positive because matchingBundles.length will equal to 1.
+       */
+      .filter(cov => cov.length > 0);
 
     const bundlesPaths = bundles.reduce<[string[], number][]>((result, { code }, index) => {
       if (!Buffer.isBuffer(code)) {
