@@ -53,6 +53,26 @@ describe('coverage', () => {
       expect(bundles[3].coverageRanges).to.deep.equal([[{ start: 0, end: 5 }]]);
     });
 
+    it('should ignore coverage for inline code', () => {
+      const bundles: Bundle[] = [{ code: 'abc/ghi.js' }];
+
+      const coverages: Coverage[] = [
+        { url: 'http://my-site.io', ranges: [{ start: 0, end: 5 }], text: 'hijkl' },
+      ];
+
+      const coverageFileContent = JSON.stringify(coverages);
+
+      const { addCoverageRanges } = rewiremock.proxy('../src/coverage', r => ({
+        './helpers': r.callThrough().with({
+          getFileContent: () => coverageFileContent,
+        }),
+      }));
+
+      expect(() => {
+        addCoverageRanges(bundles, 'coverage.json');
+      }).to.throw('No matched bundles found for coverages');
+    });
+
     it('should convert one-line coverage range to per line ranges', () => {
       const tests = [
         {
