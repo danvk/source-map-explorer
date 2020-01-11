@@ -18,14 +18,18 @@ module.exports = {
   ],
   rules: {
     'func-style': ['error', 'declaration'],
-    'no-console': 0,
+    'object-shorthand': 'error',
     'prefer-arrow-callback': 'error',
-    'prefer-const': 2,
+    'prefer-const': 'error',
     'padding-line-between-statements': [
       'error',
       { blankLine: 'always', prev: '*', next: 'return' },
+      { blankLine: 'always', prev: ['const', 'let'], next: '*' },
+      { blankLine: 'any', prev: ['const', 'let'], next: ['const', 'let'] },
     ],
+    'no-console': 0,
     'no-use-before-define': ['error', { functions: false, classes: true, variables: true }],
+    yoda: 'error',
     // TypeScript specific
     '@typescript-eslint/explicit-function-return-type': [
       'error',

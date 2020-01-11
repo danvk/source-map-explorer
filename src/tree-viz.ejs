@@ -48,21 +48,12 @@
   <div id="content">
     <% if(bundles.length > 1) {%>
     <div id="header">
-      <div>
-        <label for="bundle-select">Bundle:</label>
-        <select id="bundle-select">
-        <%_ bundles.forEach((bundle) => { _%>
-          <option value="<%= bundle.name %>" gzip-size="<%= bundle.sizes.gzip %>" stat-size="<%= bundle.sizes.stat %>"></option>
-        <%_ }); _%>
-        </select>
-      </div>
-      <div>
-        <label for="gzip-select">Size Type:</label>
-        <select id="gzip-select">
-          <option value="gzip">Gzipped</option>
-          <option value="stat">Parsed</option>
-        </select>
-      </div>
+      <label for="bundle-select">Bundle:&nbsp;</label>
+      <select id="bundle-select">
+      <%_ bundles.forEach((bundle, index) => { _%>
+        <option value="<%= index %>"><%= bundle.name %> (<%= bundle.size %>)</option>
+      <%_ }); _%>
+      </select>
     </div>
     <% } %>
     <div id="map"></div>
@@ -70,50 +61,34 @@
 </body>
 
 <script>
-var treeDataMaps = <%- JSON.stringify(treeDataMaps) %>;
+const treeDataMap = <%- JSON.stringify(treeDataMap) %>;
 </script>
 
 <script src="data:application/javascript;base64,<%= webtreemapJs %>"></script>
 
 <script>
-  var selectedBundle = '<%- bundles[0].name %>';
-  var sizeType = 'gzip';
-  var bundleSelect;
+  let selectedBundleId = '<%- 0 %>';
 
-  function updateSizeOptions(sizeType){
-    const options = bundleSelect.querySelectorAll('option')
-    options.forEach(option=>{
-      const name = option.value;
-      const size = option.getAttribute(`${sizeType}-size`);
-      option.textContent = `${name} (${size})`
-    })
+  function selectBundle(bundleId) {
+    const bundle = treeDataMap[bundleId];
+    appendTreemap(map, bundle.data);
+    document.title = bundle.name + ' - Source Map Explorer';
   }
 
-  function selectBundle(bundleId, sizeType) {
-    appendTreemap(map, treeDataMaps[sizeType][bundleId]);
-    updateSizeOptions(sizeType)
-    document.title = bundleId + ' - Source Map Explorer - ' + sizeType;
-  }
-
-  var map = document.getElementById('map');
+  const map = document.getElementById('map');
 
   <%_ if(bundles.length > 1) { _%>
-  bundleSelect = document.getElementById('bundle-select');
+  const bundleSelect = document.getElementById('bundle-select');
   bundleSelect.addEventListener('change', function(event) {
-    selectedBundle = event.target.value;
-    selectBundle(selectedBundle, sizeType);
-  })
-  var gzipSelect = document.getElementById('gzip-select');
-  gzipSelect.addEventListener('change', function(event) {
-    sizeType = event.target.value;
-    selectBundle(selectedBundle, sizeType);
+    selectedBundleId = bundleSelect.value;
+    selectBundle(selectedBundleId);
   })
   <%_ } _%>
 
   window.addEventListener('resize', function() {
-    selectBundle(selectedBundle, sizeType);
+    selectBundle(selectedBundleId);
   });
 
-  selectBundle(selectedBundle, sizeType);
+  selectBundle(selectedBundleId);
 </script>
 <html>

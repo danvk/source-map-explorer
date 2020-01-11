@@ -10,22 +10,22 @@ import { BundlesAndFileTokens, ExploreOptions, Bundle } from '../src';
 describe('api', () => {
   mockEOL();
 
-  describe('explore', function() {
+  describe('explore', () => {
     setTestFolder();
 
-    it('should generate data when provided with js file with inline map', async function() {
+    it('should generate data when provided with js file with inline map', async () => {
       const actual = await explore('data/inline-map.js');
 
       snapshot(actual);
     });
 
-    it('should generate data when provided with file with referenced map', async function() {
+    it('should generate data when provided with file with referenced map', async () => {
       const actual = await explore('data/foo.min.js');
 
       snapshot(actual);
     });
 
-    it('should generate data when provided with file with separated map file', async function() {
+    it('should generate data when provided with file with separated map file', async () => {
       const actual = await explore({
         code: 'data/no-map.js',
         map: 'data/no-map.js.map',
@@ -34,7 +34,7 @@ describe('api', () => {
       snapshot(actual);
     });
 
-    it('should generate data respecting onlyMapped and replace options', async function() {
+    it('should generate data respecting onlyMapped and replace options', async () => {
       const actual = await explore(
         { code: 'data/foo.min.js', map: 'data/foo.min.js.map' },
         {
@@ -46,13 +46,24 @@ describe('api', () => {
       snapshot(actual);
     });
 
-    it('should accept buffer with inline map', async function() {
+    it('should generate data excluding source map bytes', async () => {
+      const actual = await explore(
+        ['data/inline-map.js', { code: 'data/foo.min.js', map: 'data/foo.min.js.map' }],
+        {
+          excludeSourceMapComment: true,
+        }
+      );
+
+      snapshot(actual);
+    });
+
+    it('should accept buffer with inline map', async () => {
       const actual = await explore({ code: fs.readFileSync('data/inline-map.js') });
 
       snapshot(actual);
     });
 
-    it('should accept buffers with js and map', async function() {
+    it('should accept buffers with js and map', async () => {
       const actual = await explore({
         code: fs.readFileSync('data/foo.min.js'),
         map: fs.readFileSync('data/foo.min.js.map'),
@@ -61,8 +72,14 @@ describe('api', () => {
       snapshot(actual);
     });
 
-    describe('when output format specified', function() {
-      it('should generate HTML from buffer', async function() {
+    it('should give name to "null" source a name', async () => {
+      const actual = await explore('data/no-source.js');
+
+      snapshot(actual);
+    });
+
+    describe('when output format specified', () => {
+      it('should generate HTML from buffer', async () => {
         const result = await explore(
           { code: fs.readFileSync('data/inline-map.js') },
           { output: { format: 'html' } }
@@ -75,7 +92,7 @@ describe('api', () => {
           .and.contains('"foo.js');
       });
 
-      it('should generate HTML from file', async function() {
+      it('should generate HTML from file', async () => {
         const result = await explore('data/foo.min.js', { output: { format: 'html' } });
 
         expect(result)
@@ -85,7 +102,7 @@ describe('api', () => {
           .and.contains('"foo.js');
       });
 
-      it('should generate HTML from multiple files', async function() {
+      it('should generate HTML from multiple files', async () => {
         const result = await explore(['data/foo.min.js', 'data/inline-map.js'], {
           output: { format: 'html' },
         });
@@ -97,7 +114,7 @@ describe('api', () => {
           .and.contains('"foo.js');
       });
 
-      it('should generate TSV', async function() {
+      it('should generate TSV', async () => {
         const result = await explore(['data/foo.min.js', 'data/inline-map.js'], {
           output: { format: 'tsv' },
         });
@@ -105,14 +122,14 @@ describe('api', () => {
         snapshot(result.output);
       });
 
-      it('should generate JSON', async function() {
+      it('should generate JSON', async () => {
         const result = await explore('data/foo.min.js', { output: { format: 'json' } });
 
         snapshot(result.output);
       });
     });
 
-    describe(`when output filename specified`, function() {
+    describe(`when output filename specified`, () => {
       const tests: {
         name: string;
         filename: string;
@@ -129,8 +146,8 @@ describe('api', () => {
         },
       ];
 
-      tests.forEach(function({ name, filename, cleanPath }) {
-        it(name, async function() {
+      tests.forEach(({ name, filename, cleanPath }) => {
+        it(name, async () => {
           await explore('data/inline-map.js', {
             output: { format: 'html', filename },
           });
@@ -138,6 +155,7 @@ describe('api', () => {
           expect(fs.existsSync(filename)).to.eq(true);
 
           const htmlContent = fs.readFileSync(filename).toString();
+
           expect(htmlContent).to.have.string(
             '<title>data/inline-map.js - Source Map Explorer</title>'
           );
@@ -171,21 +189,25 @@ describe('api', () => {
           bundlesAndFileTokens: { code: 'data/no-map.js' },
           expectedErrorCode: 'NoSourceMap',
         },
+        {
+          name: 'should throw if source map reference column beyond generated last column in line',
+          bundlesAndFileTokens: 'data/invalid-map-column.js',
+          expectedErrorCode: 'InvalidMappingColumn',
+        },
+        {
+          name: 'should throw if source map reference more lines than available in source',
+          bundlesAndFileTokens: 'data/invalid-map-line.js',
+          expectedErrorCode: 'InvalidMappingLine',
+        },
       ];
 
-      bundleErrorTests.forEach(function({
-        name,
-        bundlesAndFileTokens,
-        options,
-        expectedErrorCode,
-      }) {
-        it(name, async function() {
-          try {
-            await explore(bundlesAndFileTokens, options);
-          } catch (result) {
+      bundleErrorTests.forEach(({ name, bundlesAndFileTokens, options, expectedErrorCode }) => {
+        it(name, async () => {
+          await expect(explore(bundlesAndFileTokens, options)).to.be.rejected.then(result => {
             const error = result.errors[0];
+
             expect(error.code).to.equal(expectedErrorCode);
-          }
+          });
         });
       });
 
@@ -198,40 +220,45 @@ describe('api', () => {
         {
           name: 'should throw when cannot save html to file',
           bundlesAndFileTokens: 'data/inline-map.js',
-          options: { output: { format: 'html', filename: '?' } },
+          // `/` supposed to be invalid filename on both Linux and Windows
+          options: { output: { format: 'html', filename: '/' } },
           expectedErrorCode: 'CannotSaveFile',
         },
       ];
 
-      appErrorTests.forEach(function({ name, bundlesAndFileTokens, options, expectedErrorCode }) {
-        it(name, async function() {
-          try {
-            await explore(bundlesAndFileTokens, options);
-          } catch (error) {
+      appErrorTests.forEach(({ name, bundlesAndFileTokens, options, expectedErrorCode }) => {
+        it(name, async () => {
+          await expect(explore(bundlesAndFileTokens, options)).to.be.rejected.then(error => {
             expect(error.code).to.equal(expectedErrorCode);
-          }
+          });
         });
       });
 
-      it('should not throw if at least one result is successful', async function() {
+      it('should not throw if at least one result is successful', async () => {
         const result = await explore(['data/foo.min.js', 'data/no-map.js']);
 
         expect(result.bundles.length).to.eq(1);
-        expect(result.errors.length).to.eq(1);
+        expect(result.errors.length).to.eq(2);
       });
 
-      it('should add error when used with bad sourcemap', async function() {
-        const result = await explore({
-          code: 'data/no-map.js',
-          map: 'data/foo.min.no-map.bad-map.js.map',
+      it('should add "one source" source map warning when exploring single bundle', async () => {
+        const result = await explore('data/one-source.js');
+
+        const warning = result.errors[0];
+
+        expect(warning.isWarning).to.equal(true);
+        expect(warning.code).to.equal('OneSourceSourceMap');
+      });
+
+      it('should not add "one source" source map warning when exploring multiple bundles', async () => {
+        const result = await explore(['data/one-source.js', 'data/inline-map.js'], {
+          onlyMapped: true,
         });
 
-        const error = result.errors[0];
-
-        expect(error.code).to.equal('OneSourceSourceMap');
+        expect(result.errors).to.have.length(0);
       });
 
-      it('should add warning about unmapped bytes', async function() {
+      it('should add warning about unmapped bytes', async () => {
         const result = await explore('data/with-unmapped.js');
 
         const warning = result.errors[0];
@@ -248,7 +275,7 @@ describe('api', () => {
     expected: Bundle[];
   }
 
-  describe('getBundles', function() {
+  describe('getBundles', () => {
     setTestFolder();
 
     const tests: GetBundlesTest[] = [
@@ -289,8 +316,22 @@ describe('api', () => {
             map: undefined,
           },
           {
+            code: 'data/invalid-map-column.js',
+            map: undefined,
+          },
+          {
+            code: 'data/invalid-map-line.js',
+            map: undefined,
+          },
+          { code: 'data/map-reference-eol.js', map: undefined },
+          {
             code: 'data/no-map.js',
             map: 'data/no-map.js.map',
+          },
+          { code: 'data/no-source.js', map: 'data/no-source.js.map' },
+          {
+            code: 'data/one-source.js',
+            map: undefined,
           },
           {
             code: 'data/with-unmapped.js',
@@ -344,8 +385,8 @@ describe('api', () => {
       },
     ];
 
-    tests.forEach(function({ name, fileTokens, expected }) {
-      it(name, function() {
+    tests.forEach(({ name, fileTokens, expected }) => {
+      it(name, () => {
         expect(getBundles(fileTokens)).to.deep.equal(expected);
       });
     });

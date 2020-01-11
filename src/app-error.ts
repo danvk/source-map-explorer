@@ -8,6 +8,8 @@ export class AppError extends Error {
 
   constructor(errorContext: ErrorContext, error?: NodeJS.ErrnoException) {
     super();
+    // https://github.com/Microsoft/TypeScript/wiki/Breaking-Changes#extending-built-ins-like-error-array-and-map-may-no-longer-work
+    Object.setPrototypeOf(this, AppError.prototype);
 
     const message = getErrorMessage(errorContext);
 
@@ -22,7 +24,14 @@ export const SOURCE_MAP_INFO_URL =
   'https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps';
 
 interface CommonErrorContext {
-  code: 'NoBundles' | 'NoSourceMap' | 'CannotSaveFile' | 'CannotCreateTempFile' | 'Unknown';
+  code:
+    | 'NoBundles'
+    | 'NoSourceMap'
+    | 'CannotSaveFile'
+    | 'CannotCreateTempFile'
+    | 'CannotOpenCoverageFile'
+    | 'NoCoverageMatches'
+    | 'Unknown';
 }
 
 interface OneSourceSourceMapErrorContext {
@@ -36,6 +45,19 @@ interface UnmappedBytesErrorContext {
   unmappedBytes: number;
 }
 
+interface InvalidMappingLineErrorContext {
+  code: 'InvalidMappingLine';
+  generatedLine: number;
+  maxLine: number;
+}
+
+interface InvalidMappingColumnErrorContext {
+  code: 'InvalidMappingColumn';
+  generatedLine: number;
+  generatedColumn: number;
+  maxColumn: number;
+}
+
 interface CannotOpenTempFileErrorContext {
   code: 'CannotOpenTempFile';
   error: Buffer;
@@ -46,6 +68,8 @@ export type ErrorContext =
   | CommonErrorContext
   | OneSourceSourceMapErrorContext
   | UnmappedBytesErrorContext
+  | InvalidMappingLineErrorContext
+  | InvalidMappingColumnErrorContext
   | CannotOpenTempFileErrorContext;
 
 export function getErrorMessage(context: ErrorContext): string {
@@ -71,6 +95,20 @@ See ${SOURCE_MAP_INFO_URL}`;
       return `Unable to map ${unmappedBytes}/${totalBytes} bytes (${bytesString}%)`;
     }
 
+    case 'InvalidMappingLine': {
+      const { generatedLine, maxLine } = context;
+
+      return `Your source map refers to generated line ${generatedLine}, but the source only contains ${maxLine} line(s).
+Check that you are using the correct source map.`;
+    }
+
+    case 'InvalidMappingColumn': {
+      const { generatedLine, generatedColumn, maxColumn } = context;
+
+      return `Your source map refers to generated column ${generatedColumn} on line ${generatedLine}, but the source only contains ${maxColumn} column(s) on that line.
+Check that you are using the correct source map.`;
+    }
+
     case 'CannotSaveFile':
       return 'Unable to save HTML to file';
 
@@ -83,6 +121,14 @@ See ${SOURCE_MAP_INFO_URL}`;
       return `Unable to open web browser. ${error.toString().trim()}
 Either run with --html, --json, --tsv, --file, or view HTML for the visualization at:
 ${tempFile}`;
+    }
+
+    case 'CannotOpenCoverageFile': {
+      return 'Unable to open/parse coverage file';
+    }
+
+    case 'NoCoverageMatches': {
+      return 'No matched bundles found for coverages';
     }
 
     default:

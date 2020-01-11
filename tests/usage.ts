@@ -7,13 +7,17 @@ import {
   ExploreOptions,
   ExploreBundleResult,
   Bundle,
+  UNMAPPED_KEY,
+  SOURCE_MAP_COMMENT_KEY,
 } from '../dist';
 
 // Full example
 
 const options: ExploreOptions = {
-  file: './sme-results/2019-04-27.html',
-  html: true,
+  output: {
+    format: 'html',
+    filename: './sme-results/2019-04-27.html',
+  },
   noRoot: true,
   onlyMapped: true,
   replaceMap: {
@@ -34,9 +38,11 @@ explore('js/*.*', options)
     result.bundles.forEach((bundle: ExploreBundleResult) => {
       console.log(bundle.bundleName);
       console.log(JSON.stringify(bundle.files));
+      console.log(`Unmapped ${bundle.files[UNMAPPED_KEY]}`);
+      console.log(`Source map comment size ${bundle.files[SOURCE_MAP_COMMENT_KEY]}`);
     });
   })
-  .catch(error => {
+  .catch((error: ExploreResult) => {
     console.log('Failed to explore');
     if (error.errors) {
       error.errors.forEach((exploreError: ExploreErrorResult) => {

@@ -1,7 +1,7 @@
 import glob from 'glob';
 import { partition, flatMap, isString } from 'lodash';
 
-import { exploreBundle, UNMAPPED_KEY } from './explore';
+import { exploreBundle, UNMAPPED_KEY, SPECIAL_FILENAMES } from './explore';
 import { AppError, getErrorMessage } from './app-error';
 import {
   BundlesAndFileTokens,
@@ -12,6 +12,7 @@ import {
   ExploreBundleResult,
 } from './index';
 import { formatOutput, saveOutputToFile } from './output';
+import { addCoverageRanges } from './coverage';
 
 /**
  * Analyze bundle(s)
@@ -33,6 +34,8 @@ export async function explore(
 
   // Get bundles from file tokens
   bundles.push(...getBundles(fileTokens));
+
+  addCoverageRanges(bundles, options.coverage);
 
   const results = await Promise.all(
     bundles.map(bundle =>
@@ -101,7 +104,7 @@ function getExploreResult(
 ): ExploreResult {
   const [bundles, errors] = partition(
     results,
-    (result): result is ExploreBundleResult => 'gzipFiles' in result
+    (result): result is ExploreBundleResult => 'files' in result
   );
 
   errors.push(...getPostExploreErrors(bundles));
@@ -116,31 +119,38 @@ function getExploreResult(
 function getPostExploreErrors(exploreBundleResults: ExploreBundleResult[]): ExploreErrorResult[] {
   const errors: ExploreErrorResult[] = [];
 
+  const isSingleBundle = exploreBundleResults.length === 1;
+
   for (const result of exploreBundleResults) {
-    const { bundleName, gzipFiles, totalBytes } = result;
+    const { bundleName, files, totalBytes } = result;
 
     // Check if source map contains only one file - this make result useless when exploring single bundle
-    const filenames = Object.keys(gzipFiles).filter(filename => filename !== UNMAPPED_KEY);
-    if (filenames.length === 1) {
-      errors.push({
-        bundleName,
-        code: 'OneSourceSourceMap',
-        message: getErrorMessage({ code: 'OneSourceSourceMap', filename: filenames[0] }),
-      });
+    if (isSingleBundle) {
+      const filenames = Object.keys(files).filter(
+        filename => !SPECIAL_FILENAMES.includes(filename)
+      );
+
+      if (filenames.length === 1) {
+        errors.push({
+          bundleName,
+          isWarning: true,
+          code: 'OneSourceSourceMap',
+          message: getErrorMessage({ code: 'OneSourceSourceMap', filename: filenames[0] }),
+        });
+      }
     }
 
-    const unmappedBytes = gzipFiles[UNMAPPED_KEY];
-    if (unmappedBytes) {
-      errors.push({
-        bundleName,
-        isWarning: true,
-        code: 'UnmappedBytes',
-        message: getErrorMessage({
+    if (files[UNMAPPED_KEY] !== undefined) {
+      const { size: unmappedBytes } = files[UNMAPPED_KEY];
+
+      if (unmappedBytes) {
+        errors.push({
+          bundleName,
+          isWarning: true,
           code: 'UnmappedBytes',
-          unmappedBytes,
-          totalBytes: totalBytes.gzip,
-        }),
-      });
+          message: getErrorMessage({ code: 'UnmappedBytes', unmappedBytes, totalBytes }),
+        });
+      }
     }
   }
 

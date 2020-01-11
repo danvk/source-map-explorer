@@ -18,9 +18,11 @@ interface Arguments {
   tsv?: string;
   html?: string;
   onlyMapped?: boolean;
+  excludeSourceMap?: boolean;
   noRoot?: boolean;
   replace?: string[];
   with?: string[];
+  coverage?: string;
 }
 
 function parseArguments(): Arguments {
@@ -30,7 +32,7 @@ function parseArguments(): Arguments {
     .usage('Analyze and debug space usage through source maps.')
     .usage('Usage:')
     .usage(
-      '$0 script.js [script.js.map] [--json [result.json] | --html [result.html] | --tsv [result.csv]] [-m | --only-mapped] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--version] [--help | -h]'
+      '$0 script.js [script.js.map] [--json [result.json] | --html [result.html] | --tsv [result.csv]] [-m | --only-mapped] [--exclude-source-map] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--version] [--help | -h]'
     )
     .example('$0 script.js script.js.map', 'Explore bundle')
     .example('$0 script.js', 'Explore bundle with inline source map')
@@ -65,6 +67,11 @@ function parseArguments(): Arguments {
           'Exclude "unmapped" bytes from the output. This will result in total counts less than the file size',
       },
 
+      'exclude-source-map': {
+        type: 'boolean',
+        description: 'Exclude source map comment size from output',
+      },
+
       'no-root': {
         type: 'boolean',
         description:
@@ -75,7 +82,7 @@ function parseArguments(): Arguments {
         type: 'string',
         array: true,
         description:
-          'Apply a simple find/replace on source file names. This can be used to fix some oddities with paths which appear in the source map generation process. Accepts regular expressions.',
+          'Apply a simple find/replace on source file names. This can be used to fix some oddities with paths that appear in the source map generation process. Accepts regular expressions.',
         implies: 'with',
       },
       with: {
@@ -84,8 +91,15 @@ function parseArguments(): Arguments {
         description: 'See --replace.',
         implies: 'replace',
       },
+
+      coverage: {
+        type: 'string',
+        normalize: true,
+        description:
+          'If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed',
+      },
     })
-    .group(['json', 'tsv', 'html', 'file'], 'Output:')
+    .group(['json', 'tsv', 'html'], 'Output:')
     .group(['replace', 'with'], 'Replace:')
     .help('h')
     .alias('h', 'help')
@@ -105,6 +119,7 @@ function parseArguments(): Arguments {
 
   // Trim extra quotes
   const quoteRegex = /'/g;
+
   argv._ = argv._.map(path => path.replace(quoteRegex, ''));
 
   return argv;
@@ -134,9 +149,19 @@ export function logInfo(message: string): void {
  * Create options object for `explore` method
  */
 function getExploreOptions(argv: Arguments): ExploreOptions {
+  const {
+    json,
+    tsv,
+    html,
+    replace: replaceItems,
+    with: withItems,
+    onlyMapped,
+    excludeSourceMap: excludeSourceMapComment,
+    noRoot,
+    coverage,
+  } = argv;
+
   let replaceMap: ReplaceMap | undefined;
-  const replaceItems = argv.replace;
-  const withItems = argv.with;
 
   if (replaceItems && withItems) {
     replaceMap = replaceItems.reduce<ReplaceMap>((result, item, index) => {
@@ -149,12 +174,14 @@ function getExploreOptions(argv: Arguments): ExploreOptions {
   return {
     output: {
       // By default CLI needs result in HTML in order to create a temporary file
-      format: isString(argv.json) ? 'json' : isString(argv.tsv) ? 'tsv' : 'html',
-      filename: argv.json || argv.tsv || argv.html,
+      format: isString(json) ? 'json' : isString(tsv) ? 'tsv' : 'html',
+      filename: json || tsv || html,
     },
     replaceMap,
-    onlyMapped: argv.onlyMapped,
-    noRoot: argv.noRoot,
+    onlyMapped,
+    excludeSourceMapComment,
+    noRoot,
+    coverage,
   };
 }
 
@@ -168,6 +195,7 @@ async function writeHtmlToTempFile(html?: string): Promise<void> {
 
   try {
     const tempFile = temp.path({ prefix: 'sme-result-', suffix: '.html' });
+
     fs.writeFileSync(tempFile, html);
 
     const childProcess = await open(tempFile);
@@ -195,6 +223,7 @@ function outputErrors({ errors }: ExploreResult): void {
     console.group(bundleName);
 
     const hasManyErrors = errors.length > 1;
+
     errors.forEach((error, index) => {
       const message = `${hasManyErrors ? `${index + 1}. ` : ''}${error.message}`;
 

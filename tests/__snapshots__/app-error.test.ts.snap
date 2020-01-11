@@ -2,6 +2,10 @@ exports['app-error getErrorMessage should create message for \'CannotCreateTempF
 Unable to create a temporary HTML file
 `
 
+exports['app-error getErrorMessage should create message for \'CannotOpenCoverageFile\' 1'] = `
+Unable to open/parse coverage file
+`
+
 exports['app-error getErrorMessage should create message for \'CannotOpenTempFile\' 1'] = `
 Unable to open web browser. The system cannot find the file ?C:\\foo.htm
 Either run with --html, --json, --tsv, --file, or view HTML for the visualization at:
@@ -12,8 +16,22 @@ exports['app-error getErrorMessage should create message for \'CannotSaveFile\' 
 Unable to save HTML to file
 `
 
+exports['app-error getErrorMessage should create message for \'InvalidMappingColumn\' 1'] = `
+Your source map refers to generated column 81 on line 60, but the source only contains 80 column(s) on that line.
+Check that you are using the correct source map.
+`
+
+exports['app-error getErrorMessage should create message for \'InvalidMappingLine\' 1'] = `
+Your source map refers to generated line 60, but the source only contains 57 line(s).
+Check that you are using the correct source map.
+`
+
 exports['app-error getErrorMessage should create message for \'NoBundles\' 1'] = `
 No file(s) provided
+`
+
+exports['app-error getErrorMessage should create message for \'NoCoverageMatches\' 1'] = `
+No matched bundles found for coverages
 `
 
 exports['app-error getErrorMessage should create message for \'NoSourceMap\' 1'] = `
