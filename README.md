@@ -132,7 +132,178 @@ source-map-explorer foo.min.js --tsv result.tsv
 
 * `--gzip`: calculate gzip size. It also sets `onlyMapped` flag
 
-See more at [wiki page][cli wiki]
+<details>
+<summary>Examples</summary>
+
+### Get help
+```
+source-map-explorer -h
+```
+
+```
+Analyze and debug space usage through source maps.
+Usage:
+source-map-explorer script.js [script.js.map] [--json [result.json] | --html [result.html] | --tsv [result.csv]] [-m | --only-mapped] [--exclude-source-map] [--gzip] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--coverage coverage.json] [--version] [--help | -h]
+
+Output:
+  --json  If filename specified save output as JSON to specified file otherwise output to stdout.  [string]
+  --tsv   If filename specified save output as TSV to specified file otherwise output to stdout.  [string]
+  --html  If filename specified save output as HTML to specified file otherwise output to stdout rather than opening a browser.  [string]
+
+Replace:
+  --replace  Apply a simple find/replace on source file names. This can be used to fix some oddities with paths that appear in the source map generation process. Accepts regular expressions.
+  [array]
+  --with     See --replace.  [array]
+
+Options:
+  --version             Show version number  [boolean]
+  --only-mapped, -m     Exclude "unmapped" bytes from the output. This will result in total counts less than the file size  [boolean]
+  --exclude-source-map  Exclude source map comment size from output  [boolean]
+  --no-root             To simplify the visualization, source-map-explorer will remove any prefix shared by all sources. If you wish to disable this behavior, set --no-root.  [boolean]
+  --coverage            If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed
+[string]
+  --gzip                Calculate gzip size. It also sets onlyMapped flag  [boolean]
+  -h, --help            Show help  [boolean]
+
+Examples:
+  source-map-explorer script.js script.js.map       Explore bundle
+  source-map-explorer script.js                     Explore bundle with inline source map
+  source-map-explorer dist/js/*.*                   Explore all bundles inside dist/js folder
+  source-map-explorer script.js --tsv               Explore and output result as TSV to stdout
+  source-map-explorer script.js --json result.json  Explore and save result as JSON to the file
+```
+
+### Explore bundle and view result as an interactive map
+```
+source-map-explorer script.js script.js.map
+```
+Will open an HTML file containing explore result as a tree data map
+
+![Result as HTML tree data map](https://raw.githubusercontent.com/danvk/source-map-explorer/master/screenshot.png)
+
+### Explore and output result as JSON
+```
+source-map-explorer script.js script.js.map --json
+```
+```
+{
+  "results": [
+    {
+      "bundleName": "script.js",
+      "totalBytes": 718,
+      "unmappedBytes": 1,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 35,
+      "files": {
+        "node_modules/browser-pack/_prelude.js": {
+          "size": 480
+        }
+        "src/bar.js": {
+          "size": 104
+        }
+        "src/foo.js": {
+          "size": 97
+        },
+        "[sourceMappingURL]": {
+          "size": 35
+        }
+        "[unmapped]": {
+          "size": 1
+        }
+      }
+    }
+  ]
+}
+```
+### Explore and output result as TSV
+```
+source-map-explorer script1.js script2.js --tsv
+```
+```
+Source  Size
+node_modules/browser-pack/_prelude.js   480
+src/bar.js      104
+src/foo.js      97
+[sourceMappingURL]      35
+[unmapped]      1
+
+[sourceMappingURL]      2308
+node_modules/browser-pack/_prelude.js   480
+src/bar.js      104
+src/foo.js      97
+[unmapped]      1
+```
+### Explore and output result as HTML
+```
+source-map-explorer script.js --html
+```
+```
+<!doctype html>
+<html lang="en">
+<head>
+...
+  selectBundle(selectedBundle);
+</script>
+<html>
+```
+### Explore and save result as HTML file
+```
+source-map-explorer script.js --html ./sme/result.html
+```
+### Replace substring in filenames
+```
+source-map-explorer script.js --tsv --replace dist node_modules --with gist modules
+```
+```
+Source  Size
+gist/bar.js     2854
+modules/browserify/modules/browser-pack/_prelude.js     463
+gist/foo.js     137
+[unmapped]      0
+```
+
+### Remove `[unmapped]` from result files
+```
+source-map-explorer script.js --tsv --only-mapped
+```
+```
+Source  Size
+[sourceMappingURL]      2308
+node_modules/browser-pack/_prelude.js   480
+src/bar.js      104
+src/foo.js      97
+```
+
+### Remove `[sourceMappingURL]` from result files
+```
+source-map-explorer script.js --tsv --exclude-source-map
+```
+```
+Source  Size
+node_modules/browser-pack/_prelude.js   480
+src/bar.js      104
+src/foo.js      97
+[unmapped]      1
+```
+
+### Do not remove common path prefix
+```
+source-map-explorer script.js --tsv --no-root
+```
+
+### On error
+Errors will be displayed only if no output flags specified
+```
+source-map-explore with-unmapped.js no-map.js
+```
+```
+no-map.js
+  Unable to find a source map.
+  See https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps
+with-unmapped.js
+  Unable to map 274/1335 bytes (20.52%)
+```
+</details>
 
 ## API
 ### `explore(bundlesAndFileTokens, [options])`
@@ -190,6 +361,117 @@ explore('tests/data/foo.min.js', { output: { format: 'html' } }).then()
 ```
 
 See more at [wiki page][api wiki]
+
+<details>
+<summary>More details</summary>
+
+### `explore(bundlesAndFileTokens, [options])`
+
+Returns `Promise` that is resolved to an object with properties:
+* `bundles`: array - List of bundle explore result objects
+  * `bundleName`: string - Path associated with the bundle
+  * `totalBytes`: number - Size of the provided file
+  * `unmappedBytes`: number | undefined
+  * `eolBytes`: number - Bytes taken by end of line characters
+  * `sourceMapCommentBytes`: number - `sourceMappingURL` comment bytes
+  * `files`: { [sourceFile: string]: number }[] - Map containing filenames from the source map and size in bytes they take inside of provided file. Additional key  `<unmapped>` is included if `options.onlyMapped` is `false`.
+* `output`: string - Result as a string if `output.format` options specified. If `output='html'` it contains self-packed HTML that can be opened in the browser
+* `errors`: array - List of bundle explore error objects
+  * `bundleName`: string - Path associated with the bundle
+  * `code`: string - Error code
+  * `message`: string - User friendly message
+  * `error`: Error
+  * `isWarning`: boolean - Whether error isn't fatal
+
+The promise is rejected when there is a fatal error or all bundles explore failed. Reject reason is either explore result object (the same one returned when promise resolved) or Error object with `code` property specified.
+
+ Possible error codes are:
+* `Unknown`
+* `NoBundles` - Empty array is passed to `explore`
+* `OneSourceSourceMap` - Bundle source map only contains one source
+* `UnmappedBytes` (warning) - There are unmapped bytes
+* `InvalidMappingLine` - Source map refers to the generated line beyond source last line
+* `InvalidMappingColumn` - Source map refers to generated column beyond source last column at the line
+* `CannotSaveFile` - Error saving HTML to file when `file` option specified
+* `CannotCreateTempFile` - Temporary HTLM file with visualization cannot be created. Check temporary folder access.
+* `CannotOpenTempFile` - Temporary HTLM file cannot be opened. Check if default browser can openen html files.
+* `CannotOpenCoverageFile` - Unable to open/parse coverage file
+* `NoCoverageMatches` - No matched bundles found for coverages.
+* Node.js error code (e.g. 'ENOENT')
+
+### Examples
+
+#### Full
+
+```
+explore('js/*.*', {
+  file: './sme-results/2019-04-27.html',
+  output: {
+    format: 'html',
+    filename: './sme-result.html'
+  },
+  noRoot: true,
+  onlyMapped: true,
+  replaceMap: {
+    dist: ''
+  }
+})
+  .then((result: ExploreResult) => {
+    result.errors.forEach((error: ExploreErrorResult) => {
+      if (error.isWarning) {
+        console.log(`Issue during '${error.bundleName}; explore`, error.message);
+      } else {
+        console.log(`Failed to explore '${error.bundleName}'`, error.message);
+      }
+    });
+
+    result.bundles.forEach((bundle: ExploreBundleResult) => {
+      console.log(bundle.bundleName);
+      console.log(JSON.stringify(bundle.files));
+    });
+  })
+  .catch(error => {
+    console.log('Failed to explore');
+    if (error.errors) {
+      error.errors.forEach((exploreError: ExploreErrorResult) => {
+        console.log(exploreError.bundleName);
+        console.log(exploreError.message);
+      });
+    } else {
+      console.log(error);
+    }
+  });
+```
+
+#### Inline or referenced map
+```
+explore('with-inline-map.js');
+```
+#### Separate map
+```
+explore(['foo.min.js', 'foo.min.js.map']);
+```
+#### Glob pattern
+```
+explore('js/*.*');
+```
+#### Multiple globs
+```
+explore(['js/foo.1*.js', 'js/foo.mi?.js']);
+```
+#### Specify bundles explicitly
+```
+const bundle: Bundle = { code: 'foo.min.js', map: 'foo.min.js.map' };
+
+explore(bundle);
+
+explore([{ code: 'foo.min.js', map: 'foo.min.js.map' }, { code: 'with-inline-map.js' }]);
+```
+#### Pass buffer
+```
+explore({ code: fs.readFileSync('js/foo.min.js'), map: fs.readFileSync('js/foo.min.js.map') });
+```
+</details>
 
 ## gzip size
 
