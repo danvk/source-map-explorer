@@ -31,6 +31,14 @@ exports['CLI should multiple bundles output result as html 1'] = `
       align-items: center;
     }
 
+    #header > * + * {
+      margin-left: 5px;
+    }
+
+    .header-warning {
+      cursor: pointer;
+    }
+
     #map {
       flex-grow: 1;
       position: relative;
@@ -43,12 +51,16 @@ exports['CLI should multiple bundles output result as html 1'] = `
   <div id="content">
     
     <div id="header">
-      <label for="bundle-select">Bundle:&nbsp;</label>
-      <select id="bundle-select">
-        <option value="0">[combined] (3.62 KB)</option>
-        <option value="1">data/inline-map.js (2.92 KB)</option>
-        <option value="2">data/foo.min.js (718 B)</option>
-      </select>
+      
+        <label for="bundle-select">Bundle:&nbsp;</label>
+        <select id="bundle-select">
+          <option value="0">[combined] (3.62 KB)</option>
+          <option value="1">data/inline-map.js (2.92 KB)</option>
+          <option value="2">data/foo.min.js (718 B)</option>
+        </select>
+      
+
+      
     </div>
     
     <div id="map"></div>
@@ -120,6 +132,14 @@ exports['CLI should output result as html 1'] = `
       display: flex;
       padding: 0 0 15px 15px;
       align-items: center;
+    }
+
+    #header > * + * {
+      margin-left: 5px;
+    }
+
+    .header-warning {
+      cursor: pointer;
     }
 
     #map {

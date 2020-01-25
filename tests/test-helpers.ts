@@ -12,11 +12,11 @@ const PATH = process.env.PATH;
 export function setTestFolder(): void {
   const originalCwd = process.cwd();
 
-  before(function() {
+  before(() => {
     process.chdir(__dirname);
   });
 
-  after(function() {
+  after(() => {
     process.chdir(originalCwd);
   });
 }
@@ -24,14 +24,14 @@ export function setTestFolder(): void {
 export function mockEOL(): void {
   const originalEOL = os.EOL;
 
-  before(function() {
+  before(() => {
     // Unify EOL for snapshots
     Object.defineProperty(os, 'EOL', {
       value: '\r\n',
     });
   });
 
-  after(function() {
+  after(() => {
     Object.defineProperty(os, 'EOL', {
       value: originalEOL,
     });

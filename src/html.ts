@@ -6,12 +6,15 @@ import escapeHtml from 'escape-html';
 
 import { formatBytes, getCommonPathPrefix, getFileContent, formatPercent } from './helpers';
 import { getColorByPercent } from './coverage';
-import { ExploreBundleResult, FileData, FileDataMap } from './index';
+import { ExploreOptions, ExploreBundleResult, FileData, FileDataMap } from './index';
 
 /**
  * Generate HTML file content for specified files
  */
-export function generateHtml(exploreResults: ExploreBundleResult[]): string {
+export function generateHtml(
+  exploreResults: ExploreBundleResult[],
+  options: ExploreOptions
+): string {
   const assets = {
     webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
     webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
@@ -43,6 +46,7 @@ export function generateHtml(exploreResults: ExploreBundleResult[]): string {
   const template = getFileContent(path.join(__dirname, 'tree-viz.ejs'));
 
   return ejs.render(template, {
+    options,
     bundles,
     treeDataMap,
     webtreemapJs: assets.webtreemapJs,
@@ -74,7 +78,6 @@ function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleR
     bundleName: '[combined]',
     totalBytes,
     mappedBytes: 0,
-    unmappedBytes: 0,
     eolBytes: 0,
     sourceMapCommentBytes: 0,
     files,

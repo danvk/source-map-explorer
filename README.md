@@ -130,6 +130,8 @@ source-map-explorer foo.min.js --tsv result.tsv
 
 * `--coverage`: If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed
 
+* `--gzip`: calculate gzip size. It also sets `onlyMapped` flag
+
 See more at [wiki page][cli wiki]
 
 ## API
@@ -155,6 +157,7 @@ See more at [wiki page][cli wiki]
 * `noRoot`: [boolean] (default `false`) - See `--no-root` option above for details
 * `replaceMap`: <[Object]<{ [from: [string]]: [string] }>> - Mapping for replacement, see `--replace`, `--with` options above for details.
 * `coverage`: [string] - If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed
+* `gzip`: [boolean] - Calculate gzip size. It also sets `onlyMapped` flag
 
 Example:
 ```javascript
@@ -187,6 +190,10 @@ explore('tests/data/foo.min.js', { output: { format: 'html' } }).then()
 ```
 
 See more at [wiki page][api wiki]
+
+## gzip size
+
+When `gzip` option (or `--gzip` parameter) is specified result size calculated as gzip size. Due to the nature of compression a gzip file size is inaccurate. It means that removing a 1k gzipped file in a bundle may reduce the bundle size by less than 1k. Also it's impossible to calculate unmapped bytes because the sum of spans' gzip sizes isn't equal to gzip size of the source file.
 
 ## Code coverage heat map
 

@@ -1,6 +1,7 @@
 import convert from 'convert-source-map';
 import path from 'path';
 import { BasicSourceMapConsumer, IndexedSourceMapConsumer, SourceMapConsumer } from 'source-map';
+import gzipSize from 'gzip-size';
 import { mapKeys } from 'lodash';
 
 import { getBundleName } from './api';
@@ -211,13 +212,18 @@ function computeFileSizes(
   let files: FileDataMap = {};
   let mappedBytes = 0;
 
+  const getSize = options.gzip
+    ? (string: string) => gzipSize.sync(string)
+    : (string: string) => Buffer.byteLength(string);
+
   mappingRanges.forEach((lineRanges, lineIndex) => {
     const line = lines[lineIndex];
     const mergedRanges = mergeRanges(lineRanges);
 
     mergedRanges.forEach(({ start, end, source }) => {
+      const rangeString = line.substring(start, end + 1);
       // To account unicode measure byte length rather than symbols count
-      const rangeByteLength = Buffer.byteLength(line.substring(start, end + 1));
+      const rangeByteLength = getSize(rangeString);
 
       if (!files[source]) {
         files[source] = { size: 0 };
@@ -233,16 +239,17 @@ function computeFileSizes(
     }
   });
 
-  const sourceMapCommentBytes = Buffer.byteLength(sourceMapComment);
+  const sourceMapCommentBytes = getSize(sourceMapComment);
   const eolBytes = getOccurrencesCount(eol, fileContent) * Buffer.byteLength(eol);
-  const totalBytes = Buffer.byteLength(fileContent);
-  const unmappedBytes = totalBytes - mappedBytes - sourceMapCommentBytes - eolBytes;
+  const totalBytes = getSize(fileContent);
+  let unmappedBytes: number | undefined;
 
   if (!options.excludeSourceMapComment) {
     files[SOURCE_MAP_COMMENT_KEY] = { size: sourceMapCommentBytes };
   }
 
   if (!options.onlyMapped) {
+    unmappedBytes = totalBytes - mappedBytes - sourceMapCommentBytes - eolBytes;
     files[UNMAPPED_KEY] = { size: unmappedBytes };
   }
 
@@ -255,7 +262,7 @@ function computeFileSizes(
       ? { totalBytes: totalBytes - sourceMapCommentBytes }
       : { totalBytes }),
     mappedBytes,
-    unmappedBytes,
+    ...(!options.onlyMapped && { unmappedBytes }),
     eolBytes,
     sourceMapCommentBytes,
     files,
