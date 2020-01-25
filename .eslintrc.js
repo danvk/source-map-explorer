@@ -30,6 +30,7 @@ module.exports = {
     'no-console': 0,
     'no-use-before-define': ['error', { functions: false, classes: true, variables: true }],
     yoda: 'error',
+    'no-unused-vars': 0, // Duplicates @typescript-eslint/no-unused-vars
     // TypeScript specific
     '@typescript-eslint/explicit-function-return-type': [
       'error',

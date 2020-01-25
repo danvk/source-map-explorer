@@ -80,6 +80,60 @@ exports['api explore should accept buffers with js and map 1'] = {
   ]
 }
 
+exports['api explore should generate data calculating gzip size 1'] = {
+  "bundles": [
+    {
+      "bundleName": "data/foo.min.js",
+      "totalBytes": 392,
+      "mappedBytes": 510,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 55,
+      "files": {
+        "node_modules/browser-pack/_prelude.js": {
+          "size": 300
+        },
+        "src/bar.js": {
+          "size": 108
+        },
+        "src/foo.js": {
+          "size": 102
+        },
+        "[sourceMappingURL]": {
+          "size": 55
+        },
+        "[EOLs]": {
+          "size": 1
+        }
+      }
+    },
+    {
+      "bundleName": "data/inline-map.js",
+      "totalBytes": 1572,
+      "mappedBytes": 510,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 1204,
+      "files": {
+        "node_modules/browser-pack/_prelude.js": {
+          "size": 300
+        },
+        "src/bar.js": {
+          "size": 108
+        },
+        "src/foo.js": {
+          "size": 102
+        },
+        "[sourceMappingURL]": {
+          "size": 1204
+        },
+        "[EOLs]": {
+          "size": 1
+        }
+      }
+    }
+  ],
+  "errors": []
+}
+
 exports['api explore should generate data excluding source map bytes 1'] = {
   "bundles": [
     {
@@ -155,7 +209,6 @@ exports['api explore should generate data respecting onlyMapped and replace opti
       "bundleName": "data/foo.min.js",
       "totalBytes": 718,
       "mappedBytes": 681,
-      "unmappedBytes": 1,
       "eolBytes": 1,
       "sourceMapCommentBytes": 35,
       "files": {

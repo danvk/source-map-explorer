@@ -23,6 +23,7 @@ interface Arguments {
   replace?: string[];
   with?: string[];
   coverage?: string;
+  gzip?: boolean;
 }
 
 function parseArguments(): Arguments {
@@ -98,6 +99,12 @@ function parseArguments(): Arguments {
         description:
           'If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed',
       },
+
+      gzip: {
+        type: 'boolean',
+        description: 'Calculate gzip size. It also sets onlyMapped flag',
+        conflicts: ['only-mapped'],
+      },
     })
     .group(['json', 'tsv', 'html'], 'Output:')
     .group(['replace', 'with'], 'Replace:')
@@ -159,6 +166,7 @@ function getExploreOptions(argv: Arguments): ExploreOptions {
     excludeSourceMap: excludeSourceMapComment,
     noRoot,
     coverage,
+    gzip,
   } = argv;
 
   let replaceMap: ReplaceMap | undefined;
@@ -182,6 +190,7 @@ function getExploreOptions(argv: Arguments): ExploreOptions {
     excludeSourceMapComment,
     noRoot,
     coverage,
+    gzip,
   };
 }
 

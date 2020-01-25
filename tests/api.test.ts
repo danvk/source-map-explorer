@@ -57,6 +57,17 @@ describe('api', () => {
       snapshot(actual);
     });
 
+    it('should generate data calculating gzip size', async () => {
+      const actual = await explore(
+        ['data/inline-map.js', { code: 'data/foo.min.js', map: 'data/foo.min.js.map' }],
+        {
+          gzip: true,
+        }
+      );
+
+      snapshot(actual);
+    });
+
     it('should accept buffer with inline map', async () => {
       const actual = await explore({ code: fs.readFileSync('data/inline-map.js') });
 

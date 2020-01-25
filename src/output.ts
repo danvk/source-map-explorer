@@ -22,7 +22,7 @@ export function formatOutput(
       return outputAsTsv(results);
 
     case 'html':
-      return generateHtml(results);
+      return generateHtml(results, options);
   }
 }
 

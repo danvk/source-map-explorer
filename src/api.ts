@@ -14,6 +14,16 @@ import {
 import { formatOutput, saveOutputToFile } from './output';
 import { addCoverageRanges } from './coverage';
 
+function adjustOptions(options: ExploreOptions): ExploreOptions {
+  /* Unmapped bytes cannot be calculate because it's impossible to get total size by summing files'
+     sizes when calculating gzip size for a file. */
+  if (options.gzip) {
+    options.onlyMapped = true;
+  }
+
+  return options;
+}
+
 /**
  * Analyze bundle(s)
  */
@@ -28,6 +38,8 @@ export async function explore(
   if (bundlesAndFileTokens.length === 0) {
     throw new AppError({ code: 'NoBundles' });
   }
+
+  options = adjustOptions(options);
 
   // Separate bundles from file tokens
   const [fileTokens, bundles] = partition(bundlesAndFileTokens, isString);

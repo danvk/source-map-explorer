@@ -29,13 +29,15 @@
       padding: 0 0 15px 15px;
       align-items: center;
     }
-    #header > div {
-      display: flex;
-      margin-right: 10px;
+
+    #header > * + * {
+      margin-left: 5px;
     }
-    #header label {
-      margin-right: 5px;
+
+    .header-warning {
+      cursor: pointer;
     }
+
     #map {
       flex-grow: 1;
       position: relative;
@@ -46,14 +48,22 @@
 </head>
 <body>
   <div id="content">
-    <% if(bundles.length > 1) {%>
+    <% if(bundles.length > 1 || options.gzip) {%>
     <div id="header">
-      <label for="bundle-select">Bundle:&nbsp;</label>
-      <select id="bundle-select">
-      <%_ bundles.forEach((bundle, index) => { _%>
-        <option value="<%= index %>"><%= bundle.name %> (<%= bundle.size %>)</option>
-      <%_ }); _%>
-      </select>
+      <% if(bundles.length > 1) {%>
+        <label for="bundle-select">Bundle:&nbsp;</label>
+        <select id="bundle-select">
+        <%_ bundles.forEach((bundle, index) => { _%>
+          <option value="<%= index %>"><%= bundle.name %> (<%= bundle.size %>)</option>
+        <%_ }); _%>
+        </select>
+      <% } %>
+
+      <% if(options.gzip) {%>
+        <span class="header-warning" title="Due to the nature of compression a gzip file size is inaccurate. It means that removing a 1k gzipped file in a bundle may reduce the bundle size by less than 1k">
+          ⚠️
+        </span>
+      <% } %>
     </div>
     <% } %>
     <div id="map"></div>

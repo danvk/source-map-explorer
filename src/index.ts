@@ -17,7 +17,7 @@ export type FileDataMap = Record<string, FileData>;
 export interface FileSizes {
   files: FileDataMap;
   mappedBytes: number;
-  unmappedBytes: number;
+  unmappedBytes?: number;
   eolBytes: number;
   sourceMapCommentBytes: number;
   totalBytes: number;
@@ -66,6 +66,8 @@ export interface ExploreOptions {
   /** Replace "this" by "that" map */
   replaceMap?: ReplaceMap;
   coverage?: string;
+  /** Calculate gzip size. Setting it to `true` will also set `onlyMapped` to `true` */
+  gzip?: boolean;
 }
 
 export interface ExploreResult {
