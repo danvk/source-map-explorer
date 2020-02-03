@@ -86,9 +86,9 @@ export function addCoverageRanges(bundles: Bundle[], coverageFilename?: string):
     coverages
       // pathname contains filename
       .map(({ url }) => getPathParts(new URL(url).pathname).reverse())
-      // Exclude coverages for inlined code (URL doesn't contain a filename)
-      .filter(pathParts => pathParts.length > 0)
       .forEach((partsA, coverageIndex) => {
+        // Exclude coverages for inlined code (URL doesn't contain a filename)
+        if (partsA.length < 1) return;
         let matchingBundles = [...bundlesPaths];
 
         // Start from filename and go up to path root
