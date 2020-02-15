@@ -36,7 +36,7 @@ export function generateHtml(
     (result, data, index) => {
       result[index] = {
         name: data.bundleName,
-        data: getWebTreeMapData(data),
+        data: getWebTreeMapData(data.files),
       };
 
       return result;
@@ -84,6 +84,42 @@ function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleR
   };
 }
 
+type TreeNodesMap = { [source: string]: string[] };
+
+function getTreeNodesMap(fileDataMap: FileDataMap): TreeNodesMap {
+  let partsSourceTuples = Object.keys(fileDataMap).map<[string[], string]>(file => [
+    file.split('/'),
+    file,
+  ]);
+
+  const maxDepth = Math.max(...partsSourceTuples.map(([parts]) => parts.length));
+
+  for (let depthIndex = 0; depthIndex < maxDepth; depthIndex += 1) {
+    partsSourceTuples = partsSourceTuples.map(([parts, file]) => {
+      const rootPart = parts[depthIndex];
+
+      if (rootPart) {
+        const sameRootParts = partsSourceTuples.filter(
+          ([pathParts]) => pathParts[depthIndex] === rootPart
+        );
+
+        if (sameRootParts.length === 1) {
+          // Collapse non-contributing path parts
+          return [[...parts.slice(0, depthIndex), parts.slice(depthIndex).join('/')], file];
+        }
+      }
+
+      return [parts, file];
+    });
+  }
+
+  return partsSourceTuples.reduce((result, [parts, file]) => {
+    result[file] = parts;
+
+    return result;
+  }, {});
+}
+
 interface WebTreeMapNode {
   name: string;
   data: {
@@ -97,12 +133,12 @@ interface WebTreeMapNode {
 /**
  * Convert file size map to webtreemap data
  */
-function getWebTreeMapData(data: ExploreBundleResult): WebTreeMapNode {
-  const files = data.files;
+export function getWebTreeMapData(files: FileDataMap): WebTreeMapNode {
+  const treeNodesMap = getTreeNodesMap(files);
   const treeData = newNode('/');
 
   for (const source in files) {
-    addNode(source, files[source], treeData);
+    addNode(treeNodesMap[source], files[source], treeData);
   }
 
   addSizeToTitle(treeData, treeData.data['$area']);
@@ -132,13 +168,11 @@ function setNodeData(node: WebTreeMapNode, fileData: FileData): void {
   node.data['$area'] = size;
 }
 
-function addNode(source: string, fileData: FileData, treeData: WebTreeMapNode): void {
+function addNode(parts: string[], fileData: FileData, treeData: WebTreeMapNode): void {
   // No need to create nodes with zero size (e.g. '[unmapped]')
   if (fileData.size === 0) {
     return;
   }
-
-  const parts = source.split('/');
 
   let node = treeData;
 
