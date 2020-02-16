@@ -3,6 +3,7 @@
 [![install size](https://packagephobia.now.sh/badge?p=source-map-explorer)](https://packagephobia.now.sh/result?p=source-map-explorer)
 [![Coverage Status](https://coveralls.io/repos/github/danvk/source-map-explorer/badge.svg)](https://coveralls.io/github/danvk/source-map-explorer)
 ![NPM](https://img.shields.io/npm/l/source-map-explorer)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdanvk%2Fsource-map-explorer.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdanvk%2Fsource-map-explorer?ref=badge_shield)
 # source-map-explorer
 Analyze and debug JavaScript (or Sass or LESS) code bloat through source maps.
 
@@ -572,3 +573,7 @@ source-map-explorer path/to/foo.min.js{,.map}
 [number]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type "Number"
 [cli wiki]: https://github.com/danvk/source-map-explorer/wiki/CLI
 [api wiki]: https://github.com/danvk/source-map-explorer/wiki/Node.js-API
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdanvk%2Fsource-map-explorer.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdanvk%2Fsource-map-explorer?ref=badge_large)
