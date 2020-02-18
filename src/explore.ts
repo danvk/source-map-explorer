@@ -176,24 +176,12 @@ function computeFileSizes(
       });
     }
 
-    // Ignore mapping referencing EOL character (e.g. https://github.com/microsoft/TypeScript/issues/34695)
-    if (`${line}${eol}`.lastIndexOf(eol) === generatedColumn) {
-      return;
-    }
-
-    checkInvalidMappingColumn({
+    // TODO: uncomment when https://github.com/danvk/source-map-explorer/issues/136 is fixed
+    /* checkInvalidMappingColumn({
       generatedLine,
-      generatedColumn,
+      generatedColumn: lastGeneratedColumn || generatedColumn,
       line,
-    });
-
-    if (lastGeneratedColumn !== null) {
-      checkInvalidMappingColumn({
-        generatedLine,
-        generatedColumn: lastGeneratedColumn,
-        line,
-      });
-    }
+    }); */
 
     const start = generatedColumn;
     const end = lastGeneratedColumn === null ? line.length - 1 : lastGeneratedColumn;
@@ -212,9 +200,7 @@ function computeFileSizes(
   let files: FileDataMap = {};
   let mappedBytes = 0;
 
-  const getSize = options.gzip
-    ? (string: string) => gzipSize.sync(string)
-    : (string: string) => Buffer.byteLength(string);
+  const getSize = options.gzip ? gzipSize.sync : Buffer.byteLength;
 
   mappingRanges.forEach((lineRanges, lineIndex) => {
     const line = lines[lineIndex];

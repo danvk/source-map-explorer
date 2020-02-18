@@ -105,7 +105,9 @@ Check that you are using the correct source map.`;
     case 'InvalidMappingColumn': {
       const { generatedLine, generatedColumn, maxColumn } = context;
 
-      return `Your source map refers to generated column ${generatedColumn} on line ${generatedLine}, but the source only contains ${maxColumn} column(s) on that line.
+      // Add 1 since generatedColumn is 0-based
+      return `Your source map refers to generated column ${generatedColumn +
+        1} on line ${generatedLine}, but the source only contains ${maxColumn} column(s) on that line.
 Check that you are using the correct source map.`;
     }
 

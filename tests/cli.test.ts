@@ -68,14 +68,14 @@ describe('CLI', () => {
   it('should output multiple results as tsv', async () => {
     const result = await execute(SCRIPT_PATH, [
       'data/inline-map.js',
-      'data/map-reference-eol.js',
+      'data/one-source.js',
       '--tsv',
     ]);
 
     expect(result)
       .to.have.string('Source\tSize')
       .and.have.string('src/bar.js\t104')
-      .and.have.string('../generate-data/src/typescript.ts\t52');
+      .and.have.string('src/bar.js\t55');
   });
 
   it('should output result as html', async () => {

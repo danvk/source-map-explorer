@@ -5,6 +5,8 @@
     "@babel/preset-env": "7.7.1",
     "babelify": "10.0.0",
     "browserify": "16.5.0",
+    "convert-source-map": "^1.7.0",
+    "generate-source-map": "0.0.5",
     "npm-run-all": "^4.1.5",
     "terser": "4.4.0",
     "typescript": "3.7.2"
@@ -18,6 +20,7 @@
     "minify:no-comment": "terser dist/foo.js -c --source-map \"content=inline\" -o ../data/no-map.js",
     "minify:one-source": "terser src/bar.js -b \"indent_level=2\"  --source-map \"url=inline\" -o ../data/one-source.js",
     "minify:typescript": "tsc --inlineSourceMap --removeComments src/typescript.ts --outFile ../data/map-reference-eol.js",
+    "minify:other": "node build.js",
     "build-all": "npm run build && npm-run-all minify:*"
   }
 }
