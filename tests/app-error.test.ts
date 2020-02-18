@@ -13,7 +13,7 @@ describe('app-error', () => {
       {
         code: 'InvalidMappingColumn',
         generatedLine: 60,
-        generatedColumn: 81,
+        generatedColumn: 80,
         maxColumn: 80,
       },
       { code: 'CannotSaveFile' },
