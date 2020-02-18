@@ -557,6 +557,8 @@ source-map-explorer path/to/foo.min.js{,.map}
 
 [source-map-visualization](https://sokra.github.io/source-map-visualization)
 
+[bundle-wizard](https://github.com/aholachek/bundle-wizard): Easier analysis of webapp entry points (uses source-map-explorer under the hood)
+
 [demo]: https://cdn.rawgit.com/danvk/source-map-explorer/08b0e130cb9345f9061760bf8a8d9136ea60b457/demo.html
 [another demo]: https://cdn.rawgit.com/danvk/source-map-explorer/08b0e130cb9345f9061760bf8a8d9136ea60b457/demo-bug.html
 [browserify]: http://browserify.org/
