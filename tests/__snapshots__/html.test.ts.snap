@@ -1,0 +1,182 @@
+exports['html getWebTreeMapData should add coverage data and background color 1'] = {
+  "name": "/ \u2022 21 B \u2022 100.0%",
+  "data": {
+    "$area": 21,
+    "coveredSize": 9,
+    "backgroundColor": "rgb(255, 218, 0)"
+  },
+  "children": [
+    {
+      "name": "a/b/c.js \u2022 1 B \u2022 4.8% \u2022 Coverage: 100.0%",
+      "data": {
+        "$area": 1,
+        "coveredSize": 1,
+        "backgroundColor": "rgb(0, 255, 0)"
+      }
+    },
+    {
+      "name": "d \u2022 14 B \u2022 66.7%",
+      "data": {
+        "$area": 14,
+        "coveredSize": 8,
+        "backgroundColor": "rgb(218, 255, 0)"
+      },
+      "children": [
+        {
+          "name": "e.js \u2022 2 B \u2022 9.5% \u2022 Coverage: 50.0%",
+          "data": {
+            "$area": 2,
+            "coveredSize": 1,
+            "backgroundColor": "rgb(255, 255, 0)"
+          }
+        },
+        {
+          "name": "f.js \u2022 3 B \u2022 14.3% \u2022 Coverage: 66.7%",
+          "data": {
+            "$area": 3,
+            "coveredSize": 2,
+            "backgroundColor": "rgb(170, 255, 0)"
+          }
+        },
+        {
+          "name": "g/h.js \u2022 4 B \u2022 19.0% \u2022 Coverage: 75.0%",
+          "data": {
+            "$area": 4,
+            "coveredSize": 3,
+            "backgroundColor": "rgb(127, 255, 0)"
+          }
+        },
+        {
+          "name": "j/k.js \u2022 5 B \u2022 23.8% \u2022 Coverage: 40.0%",
+          "data": {
+            "$area": 5,
+            "coveredSize": 2,
+            "backgroundColor": "rgb(255, 204, 0)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "z \u2022 6 B \u2022 28.6% \u2022 Coverage: 0.0%",
+      "data": {
+        "$area": 6,
+        "coveredSize": 0,
+        "backgroundColor": "rgb(255, 0, 0)"
+      }
+    }
+  ]
+}
+
+exports['html getWebTreeMapData should collapse non-contributing nodes 1'] = {
+  "name": "/ \u2022 28 B \u2022 100.0%",
+  "data": {
+    "$area": 28
+  },
+  "children": [
+    {
+      "name": "a/b/c.js \u2022 1 B \u2022 3.6%",
+      "data": {
+        "$area": 1
+      }
+    },
+    {
+      "name": "d \u2022 20 B \u2022 71.4%",
+      "data": {
+        "$area": 20
+      },
+      "children": [
+        {
+          "name": "e.js \u2022 2 B \u2022 7.1%",
+          "data": {
+            "$area": 2
+          }
+        },
+        {
+          "name": "f.js \u2022 3 B \u2022 10.7%",
+          "data": {
+            "$area": 3
+          }
+        },
+        {
+          "name": "g \u2022 9 B \u2022 32.1%",
+          "data": {
+            "$area": 9
+          },
+          "children": [
+            {
+              "name": "h.js \u2022 4 B \u2022 14.3%",
+              "data": {
+                "$area": 4
+              }
+            },
+            {
+              "name": "i.js \u2022 5 B \u2022 17.9%",
+              "data": {
+                "$area": 5
+              }
+            }
+          ]
+        },
+        {
+          "name": "j/k.js \u2022 6 B \u2022 21.4%",
+          "data": {
+            "$area": 6
+          }
+        }
+      ]
+    },
+    {
+      "name": "z \u2022 7 B \u2022 25.0%",
+      "data": {
+        "$area": 7
+      }
+    }
+  ]
+}
+
+exports['html getWebTreeMapData should not create node for zero size files 1'] = {
+  "name": "/ \u2022 15 B \u2022 100.0%",
+  "data": {
+    "$area": 15
+  },
+  "children": [
+    {
+      "name": "a/b/c.js \u2022 1 B \u2022 6.7%",
+      "data": {
+        "$area": 1
+      }
+    },
+    {
+      "name": "d \u2022 14 B \u2022 93.3%",
+      "data": {
+        "$area": 14
+      },
+      "children": [
+        {
+          "name": "e.js \u2022 2 B \u2022 13.3%",
+          "data": {
+            "$area": 2
+          }
+        },
+        {
+          "name": "f.js \u2022 3 B \u2022 20.0%",
+          "data": {
+            "$area": 3
+          }
+        },
+        {
+          "name": "g/h.js \u2022 4 B \u2022 26.7%",
+          "data": {
+            "$area": 4
+          }
+        },
+        {
+          "name": "j/k.js \u2022 5 B \u2022 33.3%",
+          "data": {
+            "$area": 5
+          }
+        }
+      ]
+    }
+  ]
+}

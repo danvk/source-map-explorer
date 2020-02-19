@@ -39,7 +39,7 @@ export async function explore(
     throw new AppError({ code: 'NoBundles' });
   }
 
-  options = adjustOptions(options);
+  adjustOptions(options);
 
   // Separate bundles from file tokens
   const [fileTokens, bundles] = partition(bundlesAndFileTokens, isString);
