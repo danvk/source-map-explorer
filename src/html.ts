@@ -86,6 +86,10 @@ function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleR
 
 type TreeNodesMap = { [source: string]: string[] };
 
+function getNodePath(parts: string[], depthIndex: number): string {
+  return parts.slice(0, depthIndex + 1).join('/');
+}
+
 function getTreeNodesMap(fileDataMap: FileDataMap): TreeNodesMap {
   let partsSourceTuples = Object.keys(fileDataMap).map<[string[], string]>(file => [
     file.split('/'),
@@ -95,15 +99,22 @@ function getTreeNodesMap(fileDataMap: FileDataMap): TreeNodesMap {
   const maxDepth = Math.max(...partsSourceTuples.map(([parts]) => parts.length));
 
   for (let depthIndex = 0; depthIndex < maxDepth; depthIndex += 1) {
-    partsSourceTuples = partsSourceTuples.map(([parts, file]) => {
-      const rootPart = parts[depthIndex];
+    partsSourceTuples = partsSourceTuples.map(([parts, file], currentNodeIndex) => {
+      if (parts[depthIndex]) {
+        const nodePath = getNodePath(parts, depthIndex);
 
-      if (rootPart) {
-        const sameRootParts = partsSourceTuples.filter(
-          ([pathParts]) => pathParts[depthIndex] === rootPart
-        );
+        const hasSameRootPaths = partsSourceTuples.some(([pathParts], index) => {
+          if (index === currentNodeIndex) {
+            return false;
+          }
+          if (!pathParts[depthIndex]) {
+            return false;
+          }
 
-        if (sameRootParts.length === 1) {
+          return getNodePath(pathParts, depthIndex) === nodePath;
+        });
+
+        if (!hasSameRootPaths) {
           // Collapse non-contributing path parts
           return [[...parts.slice(0, depthIndex), parts.slice(depthIndex).join('/')], file];
         }

@@ -118,7 +118,7 @@ exports['html getWebTreeMapData should collapse non-contributing nodes 1'] = {
           ]
         },
         {
-          "name": "j/k.js \u2022 6 B \u2022 21.4%",
+          "name": "j/i.js \u2022 6 B \u2022 21.4%",
           "data": {
             "$area": 6
           }
