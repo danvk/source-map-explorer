@@ -12,7 +12,7 @@ describe('html', () => {
         'd/f.js': { size: 3 },
         'd/g/h.js': { size: 4 },
         'd/g/i.js': { size: 5 },
-        'd/j/k.js': { size: 6 },
+        'd/j/i.js': { size: 6 },
         z: { size: 7 },
       };
 
