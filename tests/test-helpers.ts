@@ -21,11 +21,13 @@ export function setTestFolder(): void {
   });
 }
 
+/**
+ * Unify EOL for snapshots
+ */
 export function mockEOL(): void {
   const originalEOL = os.EOL;
 
   before(() => {
-    // Unify EOL for snapshots
     Object.defineProperty(os, 'EOL', {
       value: '\r\n',
     });
