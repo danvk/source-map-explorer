@@ -4,7 +4,8 @@ import { PerformanceObserver, performance } from 'perf_hooks';
 import { explore } from '../../src/api';
 import { setTestFolder } from '../test-helpers';
 
-const BIG_FILE_EXPLORE = 350;
+// Set to value actual for CI (not your local environment)
+const BIG_FILE_EXPLORE = 800;
 
 describe('api', () => {
   describe('explore', () => {
