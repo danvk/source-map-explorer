@@ -5,7 +5,7 @@ import { explore } from '../../src/api';
 import { setTestFolder } from '../test-helpers';
 
 // Set to value actual for CI (not your local environment)
-const BIG_FILE_EXPLORE = 800;
+const BIG_FILE_EXPLORE = 1500;
 
 describe('api', () => {
   describe('explore', () => {
@@ -17,6 +17,8 @@ describe('api', () => {
 
         expect(duration).to.be.lessThan(BIG_FILE_EXPLORE);
 
+        console.log(`Actual duration: ${duration}ms`);
+
         performance.clearMarks();
         obs.disconnect();
       });
@@ -24,7 +26,10 @@ describe('api', () => {
       obs.observe({ entryTypes: ['measure'] });
 
       performance.mark('A');
-      await explore('data/big.js');
+
+      // Set output 'html' to cover default use case
+      await explore('data/big.js', { output: { format: 'html' } });
+
       performance.mark('B');
       performance.measure('A to B', 'A', 'B');
     });
