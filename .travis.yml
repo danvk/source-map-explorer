@@ -1,5 +1,3 @@
-sudo: false  # Use container-based infrastructure
-
 language: node_js
 
 os:

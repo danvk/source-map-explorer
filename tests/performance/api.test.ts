@@ -17,8 +17,6 @@ describe('api', () => {
 
         expect(duration).to.be.lessThan(BIG_FILE_EXPLORE_WITH_HTML);
 
-        console.log(`Actual duration: ${duration}ms`);
-
         performance.clearMarks();
         obs.disconnect();
       });
