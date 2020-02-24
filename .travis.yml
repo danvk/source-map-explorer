@@ -1,7 +1,7 @@
 language: node_js
 
 git:
-  autocrlf: true
+  autocrlf: input
 
 os:
   - "linux"
