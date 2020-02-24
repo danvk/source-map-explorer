@@ -5,7 +5,7 @@ import { explore } from '../../src/api';
 import { setTestFolder } from '../test-helpers';
 
 // Set to value actual for CI (not your local environment)
-const BIG_FILE_EXPLORE = 1500;
+const BIG_FILE_EXPLORE = 3000;
 
 describe('api', () => {
   describe('explore', () => {
