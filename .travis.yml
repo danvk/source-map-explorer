@@ -2,6 +2,11 @@ sudo: false  # Use container-based infrastructure
 
 language: node_js
 
+os:
+  - "linux"
+  - "windows"
+  - "osx"
+
 node_js:
   - "10"
   - "12"
