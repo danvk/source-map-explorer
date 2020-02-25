@@ -5,17 +5,17 @@ import { explore } from '../../src/api';
 import { setTestFolder } from '../test-helpers';
 
 // Set to value actual for CI (not your local environment)
-const BIG_FILE_EXPLORE_WITH_HTML = 5500;
+const BIG_FILE_EXPLORE_WITH_HTML_MS = 5500;
 
 describe('api', () => {
   describe('explore', () => {
     setTestFolder();
 
-    it(`should explore big file in less than ${BIG_FILE_EXPLORE_WITH_HTML}ms`, async () => {
+    it(`should explore big file in less than ${BIG_FILE_EXPLORE_WITH_HTML_MS}ms`, async () => {
       const obs = new PerformanceObserver(items => {
         const duration = items.getEntries()[0].duration;
 
-        expect(duration).to.be.lessThan(BIG_FILE_EXPLORE_WITH_HTML);
+        expect(duration).to.be.lessThan(BIG_FILE_EXPLORE_WITH_HTML_MS);
 
         performance.clearMarks();
         obs.disconnect();
