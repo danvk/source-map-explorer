@@ -1,5 +1,6 @@
 import { formatPercent } from './helpers';
-import { ErrorCode } from './index';
+
+import { ErrorCode } from './types';
 
 // If we need advanced error consider using https://github.com/joyent/node-verror
 export class AppError extends Error {

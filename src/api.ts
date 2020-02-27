@@ -3,16 +3,17 @@ import { partition, flatMap, isString } from 'lodash';
 
 import { exploreBundle, UNMAPPED_KEY, SPECIAL_FILENAMES } from './explore';
 import { AppError, getErrorMessage } from './app-error';
-import {
-  BundlesAndFileTokens,
-  ExploreOptions,
-  ExploreResult,
-  Bundle,
-  ExploreErrorResult,
-  ExploreBundleResult,
-} from './index';
 import { formatOutput, saveOutputToFile } from './output';
 import { addCoverageRanges } from './coverage';
+
+import {
+  Bundle,
+  BundlesAndFileTokens,
+  ExploreBundleResult,
+  ExploreErrorResult,
+  ExploreOptions,
+  ExploreResult,
+} from './types';
 
 function adjustOptions(options: ExploreOptions): ExploreOptions {
   /* Unmapped bytes cannot be calculate because it's impossible to get total size by summing files'

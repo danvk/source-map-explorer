@@ -5,7 +5,8 @@ import snapshot from '@smpx/snap-shot-it';
 
 import { explore, getBundles } from '../../src/api';
 import { setTestFolder, mockEOL } from '../test-helpers';
-import { BundlesAndFileTokens, ExploreOptions, Bundle } from '../../src';
+
+import { BundlesAndFileTokens, ExploreOptions, Bundle } from '../../src/types';
 
 describe('api', () => {
   mockEOL();

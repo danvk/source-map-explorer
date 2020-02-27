@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "lib": ["es2018"],
+    "module": "commonjs",
+    "target": "es2018",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "declaration": true,
-    "emitDeclarationOnly": true,
     "outDir": "dist",
     "strict": true,
-    "strictBindCallApply": true,
     "esModuleInterop": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "removeComments": true,
+    "sourceMap": true
   }
 }

@@ -14,17 +14,18 @@ import {
   mergeRanges,
 } from './helpers';
 import { AppError } from './app-error';
-import {
-  File,
-  Bundle,
-  ExploreOptions,
-  ExploreBundleResult,
-  FileSizes,
-  CoverageRange,
-  MappingRange,
-  FileDataMap,
-} from './index';
 import { setCoveredSizes } from './coverage';
+
+import {
+  Bundle,
+  CoverageRange,
+  ExploreBundleResult,
+  ExploreOptions,
+  File,
+  FileDataMap,
+  FileSizes,
+  MappingRange,
+} from './types';
 
 export const UNMAPPED_KEY = '[unmapped]';
 export const SOURCE_MAP_COMMENT_KEY = '[sourceMappingURL]';

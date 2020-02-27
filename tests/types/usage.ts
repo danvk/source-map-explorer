@@ -1,15 +1,14 @@
 import fs from 'fs';
 
+import { explore, UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY } from '../../dist';
+
 import {
-  explore,
   ExploreErrorResult,
   ExploreResult,
   ExploreOptions,
   ExploreBundleResult,
   Bundle,
-  UNMAPPED_KEY,
-  SOURCE_MAP_COMMENT_KEY,
-} from '../dist';
+} from '../../dist/types';
 
 // Full example
 

@@ -1,5 +1,6 @@
 import fs from 'fs';
-import { MappingRange } from './index';
+
+import { MappingRange } from './types';
 
 export function getFileContent(file: Buffer | string): string {
   const buffer = Buffer.isBuffer(file) ? file : fs.readFileSync(file);

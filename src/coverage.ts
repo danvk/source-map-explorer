@@ -1,6 +1,9 @@
-import { Bundle, Coverage, ColumnsRange, MappingRange, FileDataMap } from './index';
+import { URL } from 'url';
+
 import { getFileContent, detectEOL } from './helpers';
 import { AppError } from './app-error';
+
+import { Bundle, Coverage, ColumnsRange, MappingRange, FileDataMap } from './types';
 
 /**
  * Convert one-line coverage ranges (exclusive) into per line ranges (inclusive)
