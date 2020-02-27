@@ -7,10 +7,13 @@
     "source-map-explorer": "dist/cli.js"
   },
   "scripts": {
-    "pretest": "npm run build",
-    "test": "cross-env NODE_ENV=test mocha",
+    "pretest:e2e": "npm run build",
+    "test:unit": "mocha --config .mocharc.unit.js",
+    "test:e2e": "mocha --config .mocharc.e2e.js",
+    "test:perf": "mocha --config .mocharc.perf.js",
+    "test": "npm-run-all test:unit test:e2e test:perf",
     "test:update-snapshots": "cross-env SNAPSHOT_UPDATE=1 npm run test",
-    "coverage": "nyc --reporter=lcov --reporter=text npm test",
+    "coverage": "nyc --reporter=lcov --reporter=text npm run test:unit",
     "lint": "eslint src/**/*.* tests/*.* --fix",
     "build:clean": "rimraf dist/**/*",
     "build:compile": "babel src --out-dir dist --extensions \".ts\" --ignore src/*.d.ts",
