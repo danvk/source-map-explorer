@@ -9,8 +9,6 @@
     "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
-    "noImplicitAny": false,
-    "removeComments": true,
-    "sourceMap": true
+    "noImplicitAny": false
   }
 }
