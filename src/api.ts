@@ -1,5 +1,5 @@
 import glob from 'glob';
-import { partition, flatMap, isString } from 'lodash';
+import { orderBy, partition, flatMap, isString } from 'lodash';
 
 import { exploreBundle, UNMAPPED_KEY, SPECIAL_FILENAMES } from './explore';
 import { AppError, getErrorMessage } from './app-error';
@@ -49,7 +49,7 @@ export async function explore(
 
   addCoverageRanges(bundles, options.coverage);
 
-  const results = await Promise.all(
+  const unsortedResults = await Promise.all(
     bundles.map(bundle =>
       exploreBundle(bundle, options).catch<ExploreErrorResult>(error =>
         onExploreError(bundle, error)
@@ -57,6 +57,7 @@ export async function explore(
     )
   );
 
+  const results = orderBy(unsortedResults, result => result.bundleName);
   const exploreResult = getExploreResult(results, options);
 
   // Reject if none of results is successful

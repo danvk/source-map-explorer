@@ -46,7 +46,14 @@ export async function exploreBundle(
 
   const sizes = computeFileSizes(sourceMapData, options, coverageRanges);
 
-  const files = adjustSourcePaths(sizes.files, options);
+  const unsortedFiles = adjustSourcePaths(sizes.files, options);
+  const files = Object.keys(unsortedFiles)
+    .sort()
+    .reduce<FileDataMap>((map, key) => {
+      map[key] = unsortedFiles[key];
+
+      return map;
+    }, {});
 
   // Free Wasm data
   sourceMapData.consumer.destroy();
