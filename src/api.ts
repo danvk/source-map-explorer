@@ -110,7 +110,7 @@ function onExploreError(bundle: Bundle, error: NodeJS.ErrnoException): ExploreEr
   };
 }
 
-function getExploreResult(
+export function getExploreResult(
   results: (ExploreBundleResult | ExploreErrorResult)[],
   options: ExploreOptions
 ): ExploreResult {

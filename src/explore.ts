@@ -68,7 +68,7 @@ interface SourceMapData {
 /**
  * Get source map
  */
-async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<SourceMapData> {
+export async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<SourceMapData> {
   const codeFileContent = getFileContent(codeFile);
 
   let consumer: Consumer;
@@ -144,7 +144,7 @@ function checkInvalidMappingColumn({
 /**
  * Calculate the number of bytes contributed by each source file
  */
-function computeFileSizes(
+export function computeFileSizes(
   sourceMapData: SourceMapData,
   options: ExploreOptions,
   coverageRanges?: CoverageRange[][]

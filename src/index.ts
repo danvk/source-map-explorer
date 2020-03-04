@@ -1,7 +1,25 @@
-import { explore } from './api';
-import { UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY, NO_SOURCE_KEY } from './explore';
+import { explore, getExploreResult } from './api';
+import { saveOutputToFile } from './output';
+import { writeHtmlToTempFile } from './cli';
+import {
+  loadSourceMap,
+  adjustSourcePaths,
+  UNMAPPED_KEY,
+  SOURCE_MAP_COMMENT_KEY,
+  NO_SOURCE_KEY,
+} from './explore';
 
-export { explore, UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY, NO_SOURCE_KEY };
+export {
+  explore,
+  getExploreResult,
+  loadSourceMap,
+  adjustSourcePaths,
+  saveOutputToFile,
+  writeHtmlToTempFile,
+  UNMAPPED_KEY,
+  SOURCE_MAP_COMMENT_KEY,
+  NO_SOURCE_KEY,
+};
 
 export default explore;
 

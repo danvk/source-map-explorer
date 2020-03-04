@@ -197,7 +197,7 @@ function getExploreOptions(argv: Arguments): ExploreOptions {
 /**
  * Write HTML content to a temporary file and open the file in a browser
  */
-async function writeHtmlToTempFile(html?: string): Promise<void> {
+export async function writeHtmlToTempFile(html?: string): Promise<void> {
   if (!html) {
     return;
   }
