@@ -8,8 +8,10 @@ import chalk from 'chalk';
 import { groupBy, isString } from 'lodash';
 
 import { explore } from './api';
-import { ExploreOptions, ReplaceMap, ExploreResult } from './index';
-import { AppError, getErrorMessage, ErrorContext } from './app-error';
+import { AppError, getErrorMessage } from './app-error';
+
+import { ErrorContext } from './app-error';
+import { ExploreOptions, ReplaceMap, ExploreResult } from './types';
 
 /** Parsed CLI arguments */
 interface Arguments {

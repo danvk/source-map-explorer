@@ -17,4 +17,4 @@ jobs:
   include:
     - stage: Produce Coverage
       node_js: node
-      script: nyc npm test && nyc report --reporter=text-lcov | coveralls
+      script: npm run coverage:ci

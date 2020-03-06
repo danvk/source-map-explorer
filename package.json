@@ -6,6 +6,9 @@
   "bin": {
     "source-map-explorer": "dist/cli.js"
   },
+  "engines": {
+    "node": ">=10"
+  },
   "scripts": {
     "pretest:e2e": "npm run build",
     "test:unit": "mocha --config .mocharc.unit.js",
@@ -14,12 +17,12 @@
     "test": "npm-run-all test:unit test:e2e test:perf",
     "test:update-snapshots": "cross-env SNAPSHOT_UPDATE=1 npm run test",
     "coverage": "nyc --reporter=lcov --reporter=text npm run test:unit",
+    "coverage:ci": "nyc npm run test:unit && nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint src/**/*.* tests/*.* --fix",
     "build:clean": "rimraf dist/**/*",
-    "build:compile": "babel src --out-dir dist --extensions \".ts\" --ignore src/*.d.ts",
-    "build:copy": "copyfiles -u 1 src/vendor/*.* src/tree-viz.ejs dist",
+    "build:compile": "tsc --project tsconfig.build.json",
+    "build:copy": "copyfiles -u 1 src/vendor/*.* src/tree-viz.ejs src/types.d.ts dist",
     "build:format": "prettier dist/*.js --write",
-    "build:types": "tsc -p tsconfig.build.json",
     "build": "npm-run-all build:*",
     "watch": "chokidar src/*.* -c \"npm run build\" --silent --initial --debounce=700",
     "update-dependencies": "npx npm-check-updates -u && npm i",
@@ -40,21 +43,6 @@
     "useRelativePath": true,
     "extension": ".snap"
   },
-  "nyc": {
-    "require": [
-      "@babel/register"
-    ],
-    "extension": [
-      ".ts"
-    ],
-    "include": "src",
-    "exclude": [
-      "src/cli.ts",
-      "src/index.ts"
-    ],
-    "sourceMap": false,
-    "instrument": false
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/danvk/source-map-explorer.git"
@@ -65,6 +53,9 @@
     "minification"
   ],
   "author": "Dan Vanderkam (danvdk@gmail.com)",
+  "maintainers": [
+    "Nikolay Borzov <nikolay.n.borzov@gmail.com>"
+  ],
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/danvk/source-map-explorer/issues"
@@ -90,13 +81,7 @@
     "yargs": "^15.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.8.4",
-    "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/plugin-proposal-object-rest-spread": "^7.8.3",
-    "@babel/preset-env": "^7.8.4",
-    "@babel/preset-typescript": "^7.8.3",
-    "@babel/register": "^7.8.3",
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@smpx/snap-shot-it": "^6.6.1",
     "@types/btoa": "^1.2.3",
     "@types/chai": "^4.2.9",
@@ -115,7 +100,6 @@
     "@types/yargs": "^15.0.3",
     "@typescript-eslint/eslint-plugin": "^2.20.0",
     "@typescript-eslint/parser": "^2.20.0",
-    "babel-plugin-istanbul": "^6.0.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chokidar-cli": "^2.1.0",
@@ -135,6 +119,8 @@
     "prettier": "^1.19.1",
     "rewiremock": "^3.13.9",
     "rimraf": "^3.0.2",
-    "typescript": "^3.7.5"
+    "source-map-support": "^0.5.16",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.8.2"
   }
 }
