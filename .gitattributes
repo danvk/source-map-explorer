@@ -100,7 +100,7 @@
 *.jsx             text
 *.less            text
 *.ls              text
-*.map             text -diff
+*.map             text
 *.od              text
 *.onlydata        text
 *.php             text diff=php

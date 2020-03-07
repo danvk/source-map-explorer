@@ -2,13 +2,13 @@ exports['api explore should accept buffer with inline map 1'] = {
   "bundles": [
     {
       "bundleName": "Buffer",
-      "totalBytes": 2991,
+      "totalBytes": 2999,
       "mappedBytes": 681,
       "unmappedBytes": 1,
       "eolBytes": 1,
-      "sourceMapCommentBytes": 2308,
+      "sourceMapCommentBytes": 2316,
       "files": {
-        "node_modules/browser-pack/_prelude.js": {
+        "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
         "src/bar.js": {
@@ -18,7 +18,7 @@ exports['api explore should accept buffer with inline map 1'] = {
           "size": 97
         },
         "[sourceMappingURL]": {
-          "size": 2308
+          "size": 2316
         },
         "[unmapped]": {
           "size": 1
@@ -34,7 +34,7 @@ exports['api explore should accept buffer with inline map 1'] = {
       "bundleName": "Buffer",
       "isWarning": true,
       "code": "UnmappedBytes",
-      "message": "Unable to map 1/2991 bytes (0.03%)"
+      "message": "Unable to map 1/2999 bytes (0.03%)"
     }
   ]
 }
@@ -49,7 +49,7 @@ exports['api explore should accept buffers with js and map 1'] = {
       "eolBytes": 1,
       "sourceMapCommentBytes": 35,
       "files": {
-        "node_modules/browser-pack/_prelude.js": {
+        "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
         "src/bar.js": {
@@ -89,7 +89,7 @@ exports['api explore should generate data calculating gzip size 1'] = {
       "eolBytes": 1,
       "sourceMapCommentBytes": 55,
       "files": {
-        "node_modules/browser-pack/_prelude.js": {
+        "../../node_modules/browser-pack/_prelude.js": {
           "size": 300
         },
         "src/bar.js": {
@@ -108,12 +108,12 @@ exports['api explore should generate data calculating gzip size 1'] = {
     },
     {
       "bundleName": "data/inline-map.js",
-      "totalBytes": 1572,
+      "totalBytes": 1576,
       "mappedBytes": 510,
       "eolBytes": 1,
-      "sourceMapCommentBytes": 1204,
+      "sourceMapCommentBytes": 1208,
       "files": {
-        "node_modules/browser-pack/_prelude.js": {
+        "../../node_modules/browser-pack/_prelude.js": {
           "size": 300
         },
         "src/bar.js": {
@@ -123,7 +123,7 @@ exports['api explore should generate data calculating gzip size 1'] = {
           "size": 102
         },
         "[sourceMappingURL]": {
-          "size": 1204
+          "size": 1208
         },
         "[EOLs]": {
           "size": 1
@@ -144,7 +144,7 @@ exports['api explore should generate data excluding source map bytes 1'] = {
       "eolBytes": 1,
       "sourceMapCommentBytes": 35,
       "files": {
-        "node_modules/browser-pack/_prelude.js": {
+        "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
         "src/bar.js": {
@@ -167,9 +167,9 @@ exports['api explore should generate data excluding source map bytes 1'] = {
       "mappedBytes": 681,
       "unmappedBytes": 1,
       "eolBytes": 1,
-      "sourceMapCommentBytes": 2308,
+      "sourceMapCommentBytes": 2316,
       "files": {
-        "node_modules/browser-pack/_prelude.js": {
+        "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
         "src/bar.js": {
@@ -212,7 +212,7 @@ exports['api explore should generate data respecting onlyMapped and replace opti
       "eolBytes": 1,
       "sourceMapCommentBytes": 35,
       "files": {
-        "node_modules/browser-pack/_prelude.js": {
+        "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
         "src/bar.js": {
@@ -243,7 +243,7 @@ exports['api explore should generate data when provided with file with reference
       "eolBytes": 1,
       "sourceMapCommentBytes": 35,
       "files": {
-        "node_modules/browser-pack/_prelude.js": {
+        "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
         "src/bar.js": {
@@ -277,14 +277,14 @@ exports['api explore should generate data when provided with file with reference
 exports['api explore should generate data when provided with file with separated map file 1'] = {
   "bundles": [
     {
-      "bundleName": "data/no-map.js",
+      "bundleName": "data/no-map-comment.js",
       "totalBytes": 682,
       "mappedBytes": 681,
       "unmappedBytes": 1,
       "eolBytes": 0,
       "sourceMapCommentBytes": 0,
       "files": {
-        "node_modules/browser-pack/_prelude.js": {
+        "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
         "src/bar.js": {
@@ -304,7 +304,7 @@ exports['api explore should generate data when provided with file with separated
   ],
   "errors": [
     {
-      "bundleName": "data/no-map.js",
+      "bundleName": "data/no-map-comment.js",
       "isWarning": true,
       "code": "UnmappedBytes",
       "message": "Unable to map 1/682 bytes (0.15%)"
@@ -316,13 +316,13 @@ exports['api explore should generate data when provided with js file with inline
   "bundles": [
     {
       "bundleName": "data/inline-map.js",
-      "totalBytes": 2991,
+      "totalBytes": 2999,
       "mappedBytes": 681,
       "unmappedBytes": 1,
       "eolBytes": 1,
-      "sourceMapCommentBytes": 2308,
+      "sourceMapCommentBytes": 2316,
       "files": {
-        "node_modules/browser-pack/_prelude.js": {
+        "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
         "src/bar.js": {
@@ -332,7 +332,7 @@ exports['api explore should generate data when provided with js file with inline
           "size": 97
         },
         "[sourceMappingURL]": {
-          "size": 2308
+          "size": 2316
         },
         "[unmapped]": {
           "size": 1
@@ -348,7 +348,7 @@ exports['api explore should generate data when provided with js file with inline
       "bundleName": "data/inline-map.js",
       "isWarning": true,
       "code": "UnmappedBytes",
-      "message": "Unable to map 1/2991 bytes (0.03%)"
+      "message": "Unable to map 1/2999 bytes (0.03%)"
     }
   ]
 }
@@ -356,21 +356,27 @@ exports['api explore should generate data when provided with js file with inline
 exports['api explore should give name to "null" source a name 1'] = {
   "bundles": [
     {
-      "bundleName": "data/no-source.js",
-      "totalBytes": 1547,
-      "mappedBytes": 1496,
+      "bundleName": "data/null-source.js",
+      "totalBytes": 7856,
+      "mappedBytes": 1006,
       "unmappedBytes": 13,
       "eolBytes": 1,
-      "sourceMapCommentBytes": 37,
+      "sourceMapCommentBytes": 6836,
       "files": {
-        "../webpack/bootstrap": {
-          "size": 1491
+        "webpack:///webpack/bootstrap": {
+          "size": 897
         },
         "[no source]": {
-          "size": 5
+          "size": 32
+        },
+        "webpack:///tests/generate-data/src/foo.js": {
+          "size": 35
+        },
+        "webpack:///tests/generate-data/src/bar.js": {
+          "size": 42
         },
         "[sourceMappingURL]": {
-          "size": 37
+          "size": 6836
         },
         "[unmapped]": {
           "size": 13
@@ -383,16 +389,10 @@ exports['api explore should give name to "null" source a name 1'] = {
   ],
   "errors": [
     {
-      "bundleName": "data/no-source.js",
-      "isWarning": true,
-      "code": "OneSourceSourceMap",
-      "message": "Your source map only contains one source (../webpack/bootstrap).\nThis can happen if you use browserify+uglifyjs, for example, and don't set the --in-source-map flag to uglify.\nSee https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps"
-    },
-    {
-      "bundleName": "data/no-source.js",
+      "bundleName": "data/null-source.js",
       "isWarning": true,
       "code": "UnmappedBytes",
-      "message": "Unable to map 13/1547 bytes (0.84%)"
+      "message": "Unable to map 13/7856 bytes (0.17%)"
     }
   ]
 }
@@ -408,7 +408,7 @@ exports['api explore when output format specified should generate JSON 1'] = `
       "eolBytes": 1,
       "sourceMapCommentBytes": 35,
       "files": {
-        "node_modules/browser-pack/_prelude.js": {
+        "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
         "src/bar.js": {
@@ -434,15 +434,15 @@ exports['api explore when output format specified should generate JSON 1'] = `
 
 exports['api explore when output format specified should generate TSV 1'] = `
 Source\tSize\r
-node_modules/browser-pack/_prelude.js\t480\r
+../../node_modules/browser-pack/_prelude.js\t480\r
 src/bar.js\t104\r
 src/foo.js\t97\r
 [sourceMappingURL]\t35\r
 [unmapped]\t1\r
 [EOLs]\t1\r
 \r
-[sourceMappingURL]\t2308\r
-node_modules/browser-pack/_prelude.js\t480\r
+[sourceMappingURL]\t2316\r
+../../node_modules/browser-pack/_prelude.js\t480\r
 src/bar.js\t104\r
 src/foo.js\t97\r
 [unmapped]\t1\r
