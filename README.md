@@ -294,10 +294,10 @@ source-map-explorer script.js --tsv --no-root
 ### On error
 Errors will be displayed only if no output flags specified
 ```
-source-map-explore with-unmapped.js no-map.js
+source-map-explore with-unmapped.js no-map-comment.js
 ```
 ```
-no-map.js
+no-map-comment.js
   Unable to find a source map.
   See https://github.com/danvk/source-map-explorer/blob/master/README.md#generating-source-maps
 with-unmapped.js
@@ -555,9 +555,14 @@ source-map-explorer path/to/foo.min.js{,.map}
 
 ### Other source map tools
 
-[source-map-visualization](https://sokra.github.io/source-map-visualization)
+- [source-map-visualization](https://sokra.github.io/source-map-visualization)
 
-[bundle-wizard](https://github.com/aholachek/bundle-wizard): Easier analysis of webapp entry points (uses source-map-explorer under the hood)
+- [bundle-wizard](https://github.com/aholachek/bundle-wizard) - Easier analysis of webapp entry points (uses source-map-explorer under the hood)
+
+### Learn about source maps
+
+- [Standard](https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit)
+- [Anatomy of source maps](https://www.bugsnag.com/blog/source-maps)
 
 [demo]: https://cdn.rawgit.com/danvk/source-map-explorer/08b0e130cb9345f9061760bf8a8d9136ea60b457/demo.html
 [another demo]: https://cdn.rawgit.com/danvk/source-map-explorer/08b0e130cb9345f9061760bf8a8d9136ea60b457/demo-bug.html

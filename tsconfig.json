@@ -5,5 +5,5 @@
     "rootDir": "."
   },
   "include": ["src", "tests"],
-  "exclude": ["src/vendor", "tests/data", "tests/generate-data"]
+  "exclude": ["src/vendor", "tests/data"]
 }

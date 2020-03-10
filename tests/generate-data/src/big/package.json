@@ -1,0 +1,19 @@
+{
+  "name": "big",
+  "version": "1.0.0",
+  "description": "generates big bundle",
+  "repository": "private",
+  "main": "index.js",
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "core-js": "^3.6.4",
+    "jquery": "^3.4.1",
+    "lodash-es": "^4.17.15",
+    "moment": "^2.24.0",
+    "phaser": "^3.22.0",
+    "pixi.js": "^5.2.1",
+    "three": "^0.114.0"
+  },
+  "devDependencies": {}
+}

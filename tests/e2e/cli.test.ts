@@ -61,7 +61,6 @@ describe('CLI', () => {
 
     expect(result)
       .to.have.string('Source\tSize')
-      .and.have.string('App.js\t609')
       .and.not.have.string('[unmapped]\t');
   });
 
