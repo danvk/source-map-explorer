@@ -81,6 +81,25 @@ export function getOccurrencesCount(subString: string, string: string): number {
   return count;
 }
 
+export function isEOLAtPosition(string: string, [line, column]: [number, number]): boolean {
+  const eol = detectEOL(string);
+  const eolLength = eol.length;
+
+  let lineOffset = 0;
+
+  for (let lineIndex = 1; lineIndex < line; lineIndex += 1) {
+    lineOffset = string.indexOf(eol, lineOffset);
+
+    if (lineOffset === -1) {
+      return false;
+    }
+
+    lineOffset += eolLength;
+  }
+
+  return string.substr(lineOffset + column, eolLength) === eol;
+}
+
 /**
  * Merge consecutive ranges with the same source
  */

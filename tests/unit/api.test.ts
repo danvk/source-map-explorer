@@ -201,12 +201,11 @@ describe('api', () => {
           bundlesAndFileTokens: { code: 'data/no-map-comment.js' },
           expectedErrorCode: 'NoSourceMap',
         },
-        // TODO: Uncomment when #136 is fixed
-        /* {
+        {
           name: 'should throw if source map reference column beyond generated last column in line',
           bundlesAndFileTokens: 'data/invalid-map-column.js',
           expectedErrorCode: 'InvalidMappingColumn',
-        }, */
+        },
         {
           name: 'should throw if source map reference more lines than available in source',
           bundlesAndFileTokens: 'data/invalid-map-line.js',
