@@ -130,7 +130,9 @@ source-map-explorer foo.min.js --tsv result.tsv
 
 * `--coverage`: If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed
 
-* `--gzip`: calculate gzip size. It also sets `onlyMapped` flag
+* `--gzip`: Calculate gzip size. It also sets `onlyMapped` flag
+
+* `--sort`: Sorts filename in result
 
 <details>
 <summary>Examples</summary>
@@ -143,7 +145,7 @@ source-map-explorer -h
 ```
 Analyze and debug space usage through source maps.
 Usage:
-source-map-explorer script.js [script.js.map] [--json [result.json] | --html [result.html] | --tsv [result.csv]] [-m | --only-mapped] [--exclude-source-map] [--gzip] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--coverage coverage.json] [--version] [--help | -h]
+source-map-explorer script.js [script.js.map] [--json [result.json] | --html [result.html] | --tsv [result.csv]] [-m | --only-mapped] [--exclude-source-map] [--gzip] [--sort] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--coverage coverage.json] [--version] [--help | -h]
 
 Output:
   --json  If filename specified save output as JSON to specified file otherwise output to stdout.  [string]
@@ -163,6 +165,7 @@ Options:
   --coverage            If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed
 [string]
   --gzip                Calculate gzip size. It also sets onlyMapped flag  [boolean]
+  --sort                Sort filenames  [boolean]
   -h, --help            Show help  [boolean]
 
 Examples:

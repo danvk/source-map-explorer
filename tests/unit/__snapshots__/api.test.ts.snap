@@ -11,8 +11,11 @@ exports['api explore should accept buffer with inline map 1'] = {
         "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
-        "[EOLs]": {
-          "size": 1
+        "src/bar.js": {
+          "size": 104
+        },
+        "src/foo.js": {
+          "size": 97
         },
         "[sourceMappingURL]": {
           "size": 2316
@@ -20,11 +23,8 @@ exports['api explore should accept buffer with inline map 1'] = {
         "[unmapped]": {
           "size": 1
         },
-        "src/bar.js": {
-          "size": 104
-        },
-        "src/foo.js": {
-          "size": 97
+        "[EOLs]": {
+          "size": 1
         }
       }
     }
@@ -52,8 +52,11 @@ exports['api explore should accept buffers with js and map 1'] = {
         "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
-        "[EOLs]": {
-          "size": 1
+        "src/bar.js": {
+          "size": 104
+        },
+        "src/foo.js": {
+          "size": 97
         },
         "[sourceMappingURL]": {
           "size": 35
@@ -61,11 +64,8 @@ exports['api explore should accept buffers with js and map 1'] = {
         "[unmapped]": {
           "size": 1
         },
-        "src/bar.js": {
-          "size": 104
-        },
-        "src/foo.js": {
-          "size": 97
+        "[EOLs]": {
+          "size": 1
         }
       }
     }
@@ -92,17 +92,17 @@ exports['api explore should generate data calculating gzip size 1'] = {
         "../../node_modules/browser-pack/_prelude.js": {
           "size": 300
         },
-        "[EOLs]": {
-          "size": 1
-        },
-        "[sourceMappingURL]": {
-          "size": 55
-        },
         "src/bar.js": {
           "size": 108
         },
         "src/foo.js": {
           "size": 102
+        },
+        "[sourceMappingURL]": {
+          "size": 55
+        },
+        "[EOLs]": {
+          "size": 1
         }
       }
     },
@@ -116,17 +116,17 @@ exports['api explore should generate data calculating gzip size 1'] = {
         "../../node_modules/browser-pack/_prelude.js": {
           "size": 300
         },
-        "[EOLs]": {
-          "size": 1
-        },
-        "[sourceMappingURL]": {
-          "size": 1208
-        },
         "src/bar.js": {
           "size": 108
         },
         "src/foo.js": {
           "size": 102
+        },
+        "[sourceMappingURL]": {
+          "size": 1208
+        },
+        "[EOLs]": {
+          "size": 1
         }
       }
     }
@@ -147,17 +147,17 @@ exports['api explore should generate data excluding source map bytes 1'] = {
         "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
-        "[EOLs]": {
-          "size": 1
-        },
-        "[unmapped]": {
-          "size": 1
-        },
         "src/bar.js": {
           "size": 104
         },
         "src/foo.js": {
           "size": 97
+        },
+        "[unmapped]": {
+          "size": 1
+        },
+        "[EOLs]": {
+          "size": 1
         }
       }
     },
@@ -172,17 +172,17 @@ exports['api explore should generate data excluding source map bytes 1'] = {
         "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
-        "[EOLs]": {
-          "size": 1
-        },
-        "[unmapped]": {
-          "size": 1
-        },
         "src/bar.js": {
           "size": 104
         },
         "src/foo.js": {
           "size": 97
+        },
+        "[unmapped]": {
+          "size": 1
+        },
+        "[EOLs]": {
+          "size": 1
         }
       }
     }
@@ -215,17 +215,17 @@ exports['api explore should generate data respecting onlyMapped and replace opti
         "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
-        "[EOLs]": {
-          "size": 1
-        },
-        "[sourceMappingURL]": {
-          "size": 35
-        },
         "src/bar.js": {
           "size": 104
         },
         "src/foo.js": {
           "size": 97
+        },
+        "[sourceMappingURL]": {
+          "size": 35
+        },
+        "[EOLs]": {
+          "size": 1
         }
       }
     }
@@ -246,8 +246,11 @@ exports['api explore should generate data when provided with file with reference
         "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
-        "[EOLs]": {
-          "size": 1
+        "src/bar.js": {
+          "size": 104
+        },
+        "src/foo.js": {
+          "size": 97
         },
         "[sourceMappingURL]": {
           "size": 35
@@ -255,11 +258,8 @@ exports['api explore should generate data when provided with file with reference
         "[unmapped]": {
           "size": 1
         },
-        "src/bar.js": {
-          "size": 104
-        },
-        "src/foo.js": {
-          "size": 97
+        "[EOLs]": {
+          "size": 1
         }
       }
     }
@@ -287,17 +287,17 @@ exports['api explore should generate data when provided with file with separated
         "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
-        "[sourceMappingURL]": {
-          "size": 0
-        },
-        "[unmapped]": {
-          "size": 1
-        },
         "src/bar.js": {
           "size": 104
         },
         "src/foo.js": {
           "size": 97
+        },
+        "[sourceMappingURL]": {
+          "size": 0
+        },
+        "[unmapped]": {
+          "size": 1
         }
       }
     }
@@ -325,8 +325,11 @@ exports['api explore should generate data when provided with js file with inline
         "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
-        "[EOLs]": {
-          "size": 1
+        "src/bar.js": {
+          "size": 104
+        },
+        "src/foo.js": {
+          "size": 97
         },
         "[sourceMappingURL]": {
           "size": 2316
@@ -334,11 +337,8 @@ exports['api explore should generate data when provided with js file with inline
         "[unmapped]": {
           "size": 1
         },
-        "src/bar.js": {
-          "size": 104
-        },
-        "src/foo.js": {
-          "size": 97
+        "[EOLs]": {
+          "size": 1
         }
       }
     }
@@ -354,6 +354,184 @@ exports['api explore should generate data when provided with js file with inline
 }
 
 exports['api explore should give name to "null" source a name 1'] = {
+  "bundles": [
+    {
+      "bundleName": "data/null-source.js",
+      "totalBytes": 7856,
+      "mappedBytes": 1006,
+      "unmappedBytes": 13,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 6836,
+      "files": {
+        "webpack:///webpack/bootstrap": {
+          "size": 897
+        },
+        "[no source]": {
+          "size": 32
+        },
+        "webpack:///tests/generate-data/src/foo.js": {
+          "size": 35
+        },
+        "webpack:///tests/generate-data/src/bar.js": {
+          "size": 42
+        },
+        "[sourceMappingURL]": {
+          "size": 6836
+        },
+        "[unmapped]": {
+          "size": 13
+        },
+        "[EOLs]": {
+          "size": 1
+        }
+      }
+    }
+  ],
+  "errors": [
+    {
+      "bundleName": "data/null-source.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 13/7856 bytes (0.17%)"
+    }
+  ]
+}
+
+exports['api explore should sort bundles by name 1'] = {
+  "bundles": [
+    {
+      "bundleName": "data/inline-map.js",
+      "totalBytes": 2999,
+      "mappedBytes": 681,
+      "unmappedBytes": 1,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 2316,
+      "files": {
+        "../../node_modules/browser-pack/_prelude.js": {
+          "size": 480
+        },
+        "src/bar.js": {
+          "size": 104
+        },
+        "src/foo.js": {
+          "size": 97
+        },
+        "[sourceMappingURL]": {
+          "size": 2316
+        },
+        "[unmapped]": {
+          "size": 1
+        },
+        "[EOLs]": {
+          "size": 1
+        }
+      }
+    },
+    {
+      "bundleName": "data/null-source.js",
+      "totalBytes": 7856,
+      "mappedBytes": 1006,
+      "unmappedBytes": 13,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 6836,
+      "files": {
+        "webpack:///webpack/bootstrap": {
+          "size": 897
+        },
+        "[no source]": {
+          "size": 32
+        },
+        "webpack:///tests/generate-data/src/foo.js": {
+          "size": 35
+        },
+        "webpack:///tests/generate-data/src/bar.js": {
+          "size": 42
+        },
+        "[sourceMappingURL]": {
+          "size": 6836
+        },
+        "[unmapped]": {
+          "size": 13
+        },
+        "[EOLs]": {
+          "size": 1
+        }
+      }
+    },
+    {
+      "bundleName": "data/one-source.js",
+      "totalBytes": 439,
+      "mappedBytes": 55,
+      "unmappedBytes": 3,
+      "eolBytes": 5,
+      "sourceMapCommentBytes": 376,
+      "files": {
+        "src/bar.js": {
+          "size": 55
+        },
+        "[sourceMappingURL]": {
+          "size": 376
+        },
+        "[unmapped]": {
+          "size": 3
+        },
+        "[EOLs]": {
+          "size": 5
+        }
+      }
+    },
+    {
+      "bundleName": "data/with-unmapped.js",
+      "totalBytes": 5183,
+      "mappedBytes": 552,
+      "unmappedBytes": 3253,
+      "eolBytes": 72,
+      "sourceMapCommentBytes": 1306,
+      "files": {
+        "../generate-data/src/with-unmapped.ts": {
+          "size": 552
+        },
+        "[sourceMappingURL]": {
+          "size": 1306
+        },
+        "[unmapped]": {
+          "size": 3253
+        },
+        "[EOLs]": {
+          "size": 72
+        }
+      }
+    }
+  ],
+  "errors": [
+    {
+      "bundleName": "data/with-unmapped.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 3253/5183 bytes (62.76%)"
+    },
+    {
+      "bundleName": "data/one-source.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 3/439 bytes (0.68%)"
+    },
+    {
+      "bundleName": "data/null-source.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 13/7856 bytes (0.17%)"
+    },
+    {
+      "bundleName": "data/inline-map.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 1/2999 bytes (0.03%)"
+    }
+  ]
+}
+
+exports['api explore should sort filenames 1'] = {
   "bundles": [
     {
       "bundleName": "data/null-source.js",
@@ -411,8 +589,11 @@ exports['api explore when output format specified should generate JSON 1'] = `
         "../../node_modules/browser-pack/_prelude.js": {
           "size": 480
         },
-        "[EOLs]": {
-          "size": 1
+        "src/bar.js": {
+          "size": 104
+        },
+        "src/foo.js": {
+          "size": 97
         },
         "[sourceMappingURL]": {
           "size": 35
@@ -420,11 +601,8 @@ exports['api explore when output format specified should generate JSON 1'] = `
         "[unmapped]": {
           "size": 1
         },
-        "src/bar.js": {
-          "size": 104
-        },
-        "src/foo.js": {
-          "size": 97
+        "[EOLs]": {
+          "size": 1
         }
       }
     }
@@ -438,13 +616,13 @@ Source\tSize\r
 src/bar.js\t104\r
 src/foo.js\t97\r
 [sourceMappingURL]\t35\r
-[EOLs]\t1\r
 [unmapped]\t1\r
+[EOLs]\t1\r
 \r
 [sourceMappingURL]\t2316\r
 ../../node_modules/browser-pack/_prelude.js\t480\r
 src/bar.js\t104\r
 src/foo.js\t97\r
-[EOLs]\t1\r
-[unmapped]\t1
+[unmapped]\t1\r
+[EOLs]\t1
 `

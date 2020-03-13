@@ -111,8 +111,8 @@ function onExploreError(bundle: Bundle, error: NodeJS.ErrnoException): ExploreEr
   };
 }
 
-function sort(bundles: ExploreBundleResult[]): ExploreBundleResult[] {
-  return sortBy(bundles, bundle => bundle.bundleName).map(bundle => ({
+function sortFilenames(bundles: ExploreBundleResult[]): ExploreBundleResult[] {
+  return bundles.map(bundle => ({
     ...bundle,
     files: fromPairs(sortBy(toPairs(bundle.files), 0)),
   }));
@@ -127,7 +127,11 @@ function getExploreResult(
     (result): result is ExploreBundleResult => 'files' in result
   );
 
-  const sortedBundles = sort(bundles);
+  let sortedBundles = sortBy(bundles, bundle => bundle.bundleName);
+
+  if (options.sort) {
+    sortedBundles = sortFilenames(sortedBundles);
+  }
 
   errors.push(...getPostExploreErrors(bundles));
 

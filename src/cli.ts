@@ -26,6 +26,7 @@ interface Arguments {
   with?: string[];
   coverage?: string;
   gzip?: boolean;
+  sort?: boolean;
 }
 
 function parseArguments(): Arguments {
@@ -35,7 +36,7 @@ function parseArguments(): Arguments {
     .usage('Analyze and debug space usage through source maps.')
     .usage('Usage:')
     .usage(
-      '$0 script.js [script.js.map] [--json [result.json] | --html [result.html] | --tsv [result.csv]] [-m | --only-mapped] [--exclude-source-map] [--gzip] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--coverage coverage.json] [--version] [--help | -h]'
+      '$0 script.js [script.js.map] [--json [result.json] | --html [result.html] | --tsv [result.csv]] [-m | --only-mapped] [--exclude-source-map] [--gzip] [--sort] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--coverage coverage.json] [--version] [--help | -h]'
     )
     .example('$0 script.js script.js.map', 'Explore bundle')
     .example('$0 script.js', 'Explore bundle with inline source map')
@@ -107,6 +108,11 @@ function parseArguments(): Arguments {
         description: 'Calculate gzip size. It also sets onlyMapped flag',
         conflicts: ['only-mapped'],
       },
+
+      sort: {
+        type: 'boolean',
+        description: 'Sort filenames',
+      },
     })
     .group(['json', 'tsv', 'html'], 'Output:')
     .group(['replace', 'with'], 'Replace:')
@@ -169,6 +175,7 @@ function getExploreOptions(argv: Arguments): ExploreOptions {
     noRoot,
     coverage,
     gzip,
+    sort,
   } = argv;
 
   let replaceMap: ReplaceMap | undefined;
@@ -193,6 +200,7 @@ function getExploreOptions(argv: Arguments): ExploreOptions {
     noRoot,
     coverage,
     gzip,
+    sort,
   };
 }
 
