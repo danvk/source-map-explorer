@@ -5,10 +5,11 @@ import {
   getCommonPathPrefix,
   getFirstRegexMatch,
   getOccurrencesCount,
+  isEOLAtPosition,
   mergeRanges,
 } from '../../src/helpers';
 
-import { MappingRange } from '../../src/index';
+import { MappingRange } from '../../src/types';
 
 describe('helpers', () => {
   describe('formatBytes', () => {
@@ -69,6 +70,58 @@ describe('helpers', () => {
     tests.forEach(({ subString, string, expected }) => {
       it(`should find ${expected} occurrences of '${subString}' inside '${string}'`, () => {
         expect(getOccurrencesCount(subString, string)).to.equal(expected);
+      });
+    });
+  });
+
+  describe('isEOLAtPosition', () => {
+    const tests: {
+      name: string;
+      string: string;
+      position: [number, number];
+      expected: boolean;
+    }[] = [
+      {
+        name: 'should handle CR LF',
+        string: 'function calculate(a, b) {\r\n  return a + b;\r\n}\r\n',
+        position: [2, 15],
+        expected: true,
+      },
+      {
+        name: 'should handle LF',
+        string: 'function calculate(a, b) {\n  return a + b;\n}\n',
+        position: [2, 15],
+        expected: true,
+      },
+      {
+        name: 'should handle string w/o EOLs',
+        string: 'Math.random().toString(36).substring(2);',
+        position: [1, 40],
+        expected: false,
+      },
+      {
+        name: 'should handle out of range line',
+        string: 'const result = await process();\nconsole.log(result)',
+        position: [3, 10],
+        expected: false,
+      },
+      {
+        name: 'should handle out of range column',
+        string: 'const result = await process();\nconsole.log(result)\n',
+        position: [2, 23],
+        expected: false,
+      },
+      {
+        name: 'should handle string with unicode',
+        string: 'A 🦊 went a hunting in the 🌲.\r\nThe 🦊 wasted no ⏳ in talking.\r\n',
+        position: [2, 30],
+        expected: true,
+      },
+    ];
+
+    tests.forEach(({ name, string, position, expected }) => {
+      it(name, () => {
+        expect(isEOLAtPosition(string, position)).to.equal(expected);
       });
     });
   });

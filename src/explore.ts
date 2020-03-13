@@ -11,20 +11,22 @@ import {
   getFirstRegexMatch,
   detectEOL,
   getOccurrencesCount,
+  isEOLAtPosition,
   mergeRanges,
 } from './helpers';
 import { AppError } from './app-error';
-import {
-  File,
-  Bundle,
-  ExploreOptions,
-  ExploreBundleResult,
-  FileSizes,
-  CoverageRange,
-  MappingRange,
-  FileDataMap,
-} from './index';
 import { setCoveredSizes } from './coverage';
+
+import {
+  Bundle,
+  CoverageRange,
+  ExploreBundleResult,
+  ExploreOptions,
+  File,
+  FileDataMap,
+  FileSizes,
+  MappingRange,
+} from './types';
 
 export const UNMAPPED_KEY = '[unmapped]';
 export const SOURCE_MAP_COMMENT_KEY = '[sourceMappingURL]';
@@ -129,16 +131,66 @@ interface ComputeFileSizesContext {
   generatedLine: number;
   generatedColumn: number;
   line: string;
+  source: string | null;
+  consumer: Consumer;
+  mapReferenceEOLSources: Set<string>;
 }
 
-function checkInvalidMappingColumn({
-  generatedLine,
-  generatedColumn,
-  line,
-}: ComputeFileSizesContext): void {
+/**
+ * Check if source map references EOL (see https://github.com/microsoft/TypeScript/issues/34695)
+ */
+function isReferencingEOL(context: ComputeFileSizesContext, maxColumnIndex: number): boolean {
+  const { generatedLine, generatedColumn, source, consumer } = context;
+
+  // Ignore difference more than EOL max length (\r\n)
+  if (maxColumnIndex - generatedColumn > 2) {
+    return false;
+  }
+
+  // Ignore mapping w/o source
+  if (!source) {
+    return false;
+  }
+
+  // Don't check the same source twice. It covers most cases even though not 100% reliable
+  if (context.mapReferenceEOLSources.has(source)) {
+    return true;
+  }
+
+  const content = consumer.sourceContentFor(source, true);
+
+  // Content is needed to detect EOL
+  if (!content) {
+    return false;
+  }
+
+  const { line, column } = consumer.originalPositionFor({
+    line: generatedLine,
+    column: generatedColumn,
+  });
+
+  if (line === null || column === null) {
+    return false;
+  }
+
+  if (isEOLAtPosition(content, [line, column])) {
+    context.mapReferenceEOLSources.add(source);
+
+    return true;
+  }
+
+  return false;
+}
+
+function checkInvalidMappingColumn(context: ComputeFileSizesContext): void {
+  const { line, generatedLine, generatedColumn } = context;
   const maxColumnIndex = line.length - 1;
 
   if (generatedColumn > maxColumnIndex) {
+    if (isReferencingEOL(context, maxColumnIndex)) {
+      return;
+    }
+
     throw new AppError({
       code: 'InvalidMappingColumn',
       generatedLine,
@@ -160,13 +212,22 @@ function computeFileSizes(
 
   const sourceMapComment = getSourceMapComment(fileContent);
   // Remove inline source map comment, source map file comment and trailing EOLs
-  const source = fileContent.replace(sourceMapComment, '').trim();
+  const sourceContent = fileContent.replace(sourceMapComment, '').trim();
 
   const eol = detectEOL(fileContent);
   // Assume only one type of EOL is used
-  const lines = source.split(eol);
+  const lines = sourceContent.split(eol);
 
   const mappingRanges: MappingRange[][] = [];
+
+  const context: ComputeFileSizesContext = {
+    generatedLine: -1,
+    generatedColumn: -1,
+    line: '',
+    source: null,
+    consumer,
+    mapReferenceEOLSources: new Set(),
+  };
 
   consumer.computeColumnSpans();
   consumer.eachMapping(({ source, generatedLine, generatedColumn, lastGeneratedColumn }) => {
@@ -183,12 +244,12 @@ function computeFileSizes(
       });
     }
 
-    // TODO: uncomment when https://github.com/danvk/source-map-explorer/issues/136 is fixed
-    /* checkInvalidMappingColumn({
-      generatedLine,
-      generatedColumn: lastGeneratedColumn || generatedColumn,
-      line,
-    }); */
+    context.generatedLine = generatedLine;
+    context.generatedColumn = lastGeneratedColumn || generatedColumn;
+    context.line = line;
+    context.source = source;
+
+    checkInvalidMappingColumn(context);
 
     const start = generatedColumn;
     const end = lastGeneratedColumn === null ? line.length - 1 : lastGeneratedColumn;
@@ -207,6 +268,7 @@ function computeFileSizes(
   let files: FileDataMap = {};
   let mappedBytes = 0;
 
+  // To account unicode measure byte length rather than symbols count
   const getSize = options.gzip ? gzipSize.sync : Buffer.byteLength;
 
   mappingRanges.forEach((lineRanges, lineIndex) => {
@@ -215,7 +277,6 @@ function computeFileSizes(
 
     mergedRanges.forEach(({ start, end, source }) => {
       const rangeString = line.substring(start, end + 1);
-      // To account unicode measure byte length rather than symbols count
       const rangeByteLength = getSize(rangeString);
 
       if (!files[source]) {

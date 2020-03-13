@@ -6,7 +6,8 @@ import escapeHtml from 'escape-html';
 
 import { formatBytes, getCommonPathPrefix, getFileContent, formatPercent } from './helpers';
 import { getColorByPercent } from './coverage';
-import { ExploreOptions, ExploreBundleResult, FileData, FileDataMap } from './index';
+
+import { ExploreOptions, ExploreBundleResult, FileData, FileDataMap } from './types';
 
 /**
  * Generate HTML file content for specified files

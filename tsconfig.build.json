@@ -2,7 +2,10 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "rootDir": "src"
+    "rootDir": "src",
+    "removeComments": true,
+    "sourceMap": true,
+    "inlineSources": true
   },
   "include": ["src"],
   "exclude": ["src/vendor"]

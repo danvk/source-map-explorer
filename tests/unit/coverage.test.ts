@@ -2,7 +2,8 @@ import { expect } from 'chai';
 import rewiremock from '../rewiremock';
 
 import { setCoveredSizes, getColorByPercent } from '../../src/coverage';
-import { Bundle, Coverage, CoverageRange, MappingRange, FileDataMap } from '../../src';
+
+import { Bundle, Coverage, CoverageRange, MappingRange, FileDataMap } from '../../src/types';
 
 describe('coverage', () => {
   describe('addCoverageRanges', () => {

@@ -6,22 +6,26 @@
   "bin": {
     "source-map-explorer": "dist/cli.js"
   },
+  "engines": {
+    "node": ">=10"
+  },
   "scripts": {
-    "pretest:e2e": "npm run build",
+    "build": "npm-run-all build:*",
+    "watch": "chokidar src/*.* -c \"npm run build\" --silent --initial --debounce=700",
     "test:unit": "mocha --config .mocharc.unit.js",
     "test:e2e": "mocha --config .mocharc.e2e.js",
     "test:perf": "mocha --config .mocharc.perf.js",
     "test": "npm-run-all test:unit test:e2e test:perf",
-    "test:update-snapshots": "cross-env SNAPSHOT_UPDATE=1 npm run test",
     "coverage": "nyc --reporter=lcov --reporter=text npm run test:unit",
-    "lint": "eslint src/**/*.* tests/*.* --fix",
+    "test:update-snapshots": "cross-env SNAPSHOT_UPDATE=1 npm run test",
+    "test:generate-data": "ts-node tests/generate-data/index.ts",
     "build:clean": "rimraf dist/**/*",
-    "build:compile": "babel src --out-dir dist --extensions \".ts\" --ignore src/*.d.ts",
-    "build:copy": "copyfiles -u 1 src/vendor/*.* src/tree-viz.ejs dist",
+    "build:compile": "tsc --project tsconfig.build.json",
+    "build:copy": "copyfiles -u 1 src/vendor/*.* src/tree-viz.ejs src/types.d.ts dist",
     "build:format": "prettier dist/*.js --write",
-    "build:types": "tsc -p tsconfig.build.json",
-    "build": "npm-run-all build:*",
-    "watch": "chokidar src/*.* -c \"npm run build\" --silent --initial --debounce=700",
+    "pretest:e2e": "npm run build",
+    "coverage:ci": "nyc npm run test:unit && nyc report --reporter=text-lcov | coveralls",
+    "lint": "eslint src/**/*.* tests/*.* --fix",
     "update-dependencies": "npx npm-check-updates -u && npm i",
     "prepublishOnly": "npm run build"
   },
@@ -40,21 +44,6 @@
     "useRelativePath": true,
     "extension": ".snap"
   },
-  "nyc": {
-    "require": [
-      "@babel/register"
-    ],
-    "extension": [
-      ".ts"
-    ],
-    "include": "src",
-    "exclude": [
-      "src/cli.ts",
-      "src/index.ts"
-    ],
-    "sourceMap": false,
-    "instrument": false
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/danvk/source-map-explorer.git"
@@ -65,6 +54,9 @@
     "minification"
   ],
   "author": "Dan Vanderkam (danvdk@gmail.com)",
+  "maintainers": [
+    "Nikolay Borzov <nikolay.n.borzov@gmail.com>"
+  ],
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/danvk/source-map-explorer/issues"
@@ -90,16 +82,13 @@
     "yargs": "^15.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.8.4",
-    "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/plugin-proposal-object-rest-spread": "^7.8.3",
-    "@babel/preset-env": "^7.8.4",
-    "@babel/preset-typescript": "^7.8.3",
-    "@babel/register": "^7.8.3",
+    "@babel/core": "^7.8.7",
+    "@babel/preset-env": "^7.8.7",
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@smpx/snap-shot-it": "^6.6.1",
+    "@types/browserify": "^12.0.36",
     "@types/btoa": "^1.2.3",
-    "@types/chai": "^4.2.9",
+    "@types/chai": "^4.2.10",
     "@types/chai-as-promised": "^7.1.2",
     "@types/concat-stream": "^1.6.0",
     "@types/convert-source-map": "^1.5.1",
@@ -108,33 +97,40 @@
     "@types/escape-html": "0.0.20",
     "@types/glob": "^7.1.1",
     "@types/lodash": "^4.14.149",
-    "@types/mocha": "^7.0.1",
+    "@types/mocha": "^7.0.2",
     "@types/node": "^13.x",
     "@types/rimraf": "^2.0.3",
     "@types/temp": "^0.8.34",
-    "@types/yargs": "^15.0.3",
-    "@typescript-eslint/eslint-plugin": "^2.20.0",
-    "@typescript-eslint/parser": "^2.20.0",
-    "babel-plugin-istanbul": "^6.0.0",
+    "@types/yargs": "^15.0.4",
+    "@typescript-eslint/eslint-plugin": "^2.22.0",
+    "@typescript-eslint/parser": "^2.22.0",
+    "babelify": "^10.0.0",
+    "browserify": "^16.5.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chokidar-cli": "^2.1.0",
     "concat-stream": "^2.0.0",
     "copyfiles": "^2.2.0",
     "coveralls": "^3.0.9",
-    "cross-env": "^7.0.0",
+    "cross-env": "^7.0.2",
     "cross-spawn": "^7.0.1",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-prettier": "^3.1.2",
+    "generate-source-map": "0.0.5",
     "husky": "^4.2.3",
-    "lint-staged": "^10.0.7",
-    "mocha": "^7.0.1",
+    "lint-staged": "^10.0.8",
+    "mocha": "^7.1.0",
     "npm-run-all": "^4.1.5",
     "nyc": "^15.0.0",
     "prettier": "^1.19.1",
     "rewiremock": "^3.13.9",
     "rimraf": "^3.0.2",
-    "typescript": "^3.7.5"
+    "source-map-support": "^0.5.16",
+    "terser": "^4.6.6",
+    "terser-webpack-plugin": "^2.3.5",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.0"
   }
 }

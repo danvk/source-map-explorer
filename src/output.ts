@@ -2,9 +2,10 @@ import os from 'os';
 import path from 'path';
 import fs from 'fs';
 
-import { ExploreBundleResult, ExploreOptions, ExploreResult } from './index';
 import { generateHtml } from './html';
 import { AppError } from './app-error';
+
+import { ExploreBundleResult, ExploreOptions, ExploreResult } from './types';
 
 export function formatOutput(
   results: ExploreBundleResult[],

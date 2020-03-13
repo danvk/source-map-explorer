@@ -1,6 +1,8 @@
 import snapshot from '@smpx/snap-shot-it';
 
-import { getErrorMessage, ErrorContext } from '../../src/app-error';
+import { getErrorMessage } from '../../src/app-error';
+
+import { ErrorContext } from '../../src/app-error';
 
 describe('app-error', () => {
   describe('getErrorMessage', () => {

@@ -5,7 +5,8 @@ import snapshot from '@smpx/snap-shot-it';
 
 import { explore, getBundles } from '../../src/api';
 import { setTestFolder, mockEOL } from '../test-helpers';
-import { BundlesAndFileTokens, ExploreOptions, Bundle } from '../../src';
+
+import { BundlesAndFileTokens, ExploreOptions, Bundle } from '../../src/types';
 
 describe('api', () => {
   mockEOL();
@@ -27,8 +28,8 @@ describe('api', () => {
 
     it('should generate data when provided with file with separated map file', async () => {
       const actual = await explore({
-        code: 'data/no-map.js',
-        map: 'data/no-map.js.map',
+        code: 'data/no-map-comment.js',
+        map: 'data/no-map-comment.js.map',
       });
 
       snapshot(actual);
@@ -84,7 +85,7 @@ describe('api', () => {
     });
 
     it('should give name to "null" source a name', async () => {
-      const actual = await explore('data/no-source.js');
+      const actual = await explore('data/null-source.js');
 
       snapshot(actual);
     });
@@ -197,15 +198,14 @@ describe('api', () => {
         },
         {
           name: 'should throw when cannot locate sourcemap',
-          bundlesAndFileTokens: { code: 'data/no-map.js' },
+          bundlesAndFileTokens: { code: 'data/no-map-comment.js' },
           expectedErrorCode: 'NoSourceMap',
         },
-        // TODO: Uncomment when #136 is fixed
-        /* {
+        {
           name: 'should throw if source map reference column beyond generated last column in line',
           bundlesAndFileTokens: 'data/invalid-map-column.js',
           expectedErrorCode: 'InvalidMappingColumn',
-        }, */
+        },
         {
           name: 'should throw if source map reference more lines than available in source',
           bundlesAndFileTokens: 'data/invalid-map-line.js',
@@ -247,12 +247,12 @@ describe('api', () => {
       });
 
       it('should not throw if at least one result is successful', async () => {
-        await expect(explore(['data/foo.min.js', 'data/no-map.js'])).to.not.be.rejected.then(
-          result => {
-            expect(result.bundles.length).to.eq(1);
-            expect(result.errors.length).to.eq(2);
-          }
-        );
+        await expect(
+          explore(['data/foo.min.js', 'data/no-map-comment.js'])
+        ).to.not.be.rejected.then(result => {
+          expect(result.bundles.length).to.eq(1);
+          expect(result.errors.length).to.eq(2);
+        });
       });
 
       it('should not throw when analyzing source map referencing eol', async () => {
@@ -279,7 +279,7 @@ describe('api', () => {
       it('should add warning about unmapped bytes', async () => {
         const result = await explore('data/with-unmapped.js');
 
-        const warning = result.errors[0];
+        const warning = result.errors[1];
 
         expect(warning.isWarning).to.equal(true);
         expect(warning.code).to.equal('UnmappedBytes');
@@ -323,11 +323,7 @@ describe('api', () => {
         expected: [
           {
             code: 'data/big.js',
-            map: 'data/big.js.map',
-          },
-          {
-            code: 'data/foo.1234.js',
-            map: 'data/foo.1234.js.map',
+            map: undefined,
           },
           {
             code: 'data/foo.min.js',
@@ -347,47 +343,47 @@ describe('api', () => {
           },
           { code: 'data/map-reference-eol.js', map: undefined },
           {
-            code: 'data/no-map.js',
-            map: 'data/no-map.js.map',
+            code: 'data/no-map-comment.js',
+            map: 'data/no-map-comment.js.map',
           },
-          { code: 'data/no-source.js', map: 'data/no-source.js.map' },
+          { code: 'data/null-source.js', map: undefined },
           {
             code: 'data/one-source.js',
             map: undefined,
           },
           {
             code: 'data/with-unmapped.js',
-            map: 'data/with-unmapped.js.map',
+            map: undefined,
           },
         ],
       },
       {
         name: 'should expand glob including .map files',
-        fileTokens: ['data/foo.1*.js'],
+        fileTokens: ['data/foo.*.js'],
         expected: [
           {
-            code: 'data/foo.1234.js',
-            map: 'data/foo.1234.js.map',
+            code: 'data/foo.min.js',
+            map: 'data/foo.min.js.map',
           },
         ],
       },
       {
         name: 'should expand glob into code and map files',
-        fileTokens: ['data/foo.1*.js?(.map)'],
+        fileTokens: ['data/foo.*.js?(.map)'],
         expected: [
           {
-            code: 'data/foo.1234.js',
-            map: 'data/foo.1234.js.map',
+            code: 'data/foo.min.js',
+            map: 'data/foo.min.js.map',
           },
         ],
       },
       {
         name: 'should expand multiple globs',
-        fileTokens: ['data/foo.1*.js', 'data/foo.mi?.js'],
+        fileTokens: ['data/inline-*.js', 'data/foo.mi?.js'],
         expected: [
           {
-            code: 'data/foo.1234.js',
-            map: 'data/foo.1234.js.map',
+            code: 'data/inline-map.js',
+            map: undefined,
           },
           {
             code: 'data/foo.min.js',
