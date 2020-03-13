@@ -1,5 +1,5 @@
 import glob from 'glob';
-import { orderBy, partition, flatMap, isString } from 'lodash';
+import { partition, flatMap, isString, toPairs, fromPairs, sortBy } from 'lodash';
 
 import { exploreBundle, UNMAPPED_KEY, SPECIAL_FILENAMES } from './explore';
 import { AppError, getErrorMessage } from './app-error';
@@ -50,7 +50,7 @@ export async function explore(
 
   addCoverageRanges(bundles, options.coverage);
 
-  const unsortedResults = await Promise.all(
+  const results = await Promise.all(
     bundles.map(bundle =>
       exploreBundle(bundle, options).catch<ExploreErrorResult>(error =>
         onExploreError(bundle, error)
@@ -58,7 +58,6 @@ export async function explore(
     )
   );
 
-  const results = orderBy(unsortedResults, result => result.bundleName);
   const exploreResult = getExploreResult(results, options);
 
   // Reject if none of results is successful
@@ -112,6 +111,13 @@ function onExploreError(bundle: Bundle, error: NodeJS.ErrnoException): ExploreEr
   };
 }
 
+function sort(bundles: ExploreBundleResult[]): ExploreBundleResult[] {
+  return sortBy(bundles, bundle => bundle.bundleName).map(bundle => ({
+    ...bundle,
+    files: fromPairs(sortBy(toPairs(bundle.files), 0)),
+  }));
+}
+
 function getExploreResult(
   results: (ExploreBundleResult | ExploreErrorResult)[],
   options: ExploreOptions
@@ -121,12 +127,14 @@ function getExploreResult(
     (result): result is ExploreBundleResult => 'files' in result
   );
 
+  const sortedBundles = sort(bundles);
+
   errors.push(...getPostExploreErrors(bundles));
 
   return {
-    bundles,
+    bundles: sortedBundles,
     errors,
-    ...(bundles.length > 0 && { output: formatOutput(bundles, options) }),
+    ...(bundles.length > 0 && { output: formatOutput(sortedBundles, options) }),
   };
 }
 
