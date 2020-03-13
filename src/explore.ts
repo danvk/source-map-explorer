@@ -145,7 +145,7 @@ function isReferencingEOL(context: ComputeFileSizesContext, maxColumnIndex: numb
     return false;
   }
 
-  // Don't check the same source twice. This covers most case even though not 100% reliable
+  // Don't check the same source twice. It covers most cases even though not 100% reliable
   if (context.mapReferenceEOLSources.has(source)) {
     return true;
   }
