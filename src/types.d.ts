@@ -59,6 +59,8 @@ export interface ExploreOptions {
   coverage?: string;
   /** Calculate gzip size. Setting it to `true` will also set `onlyMapped` to `true` */
   gzip?: boolean;
+  /** Sort filenames */
+  sort?: boolean;
 }
 
 export interface ExploreResult {

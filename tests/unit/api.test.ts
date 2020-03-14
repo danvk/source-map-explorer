@@ -69,6 +69,25 @@ describe('api', () => {
       snapshot(actual);
     });
 
+    it('should sort bundles by name', async () => {
+      const actual = await explore([
+        'data/with-unmapped.js',
+        'data/one-source.js',
+        'data/null-source.js',
+        'data/inline-map.js',
+      ]);
+
+      snapshot(actual);
+    });
+
+    it('should sort filenames', async () => {
+      const actual = await explore('data/null-source.js', {
+        sort: true,
+      });
+
+      snapshot(actual);
+    });
+
     it('should accept buffer with inline map', async () => {
       const actual = await explore({ code: fs.readFileSync('data/inline-map.js') });
 
