@@ -132,7 +132,7 @@ source-map-explorer foo.min.js --tsv result.tsv
 
 * `--gzip`: Calculate gzip size. It also sets `onlyMapped` flag
 
-* `--sort`: Sorts filename in result
+* `--sort`: Sort filenames
 
 <details>
 <summary>Examples</summary>
