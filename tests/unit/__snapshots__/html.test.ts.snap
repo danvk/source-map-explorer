@@ -180,3 +180,94 @@ exports['html getWebTreeMapData should not create node for zero size files 1'] =
     }
   ]
 }
+
+exports['html getWebTreeMapData should not split webpack:/// when collapsing non-contributing nodes 1'] = {
+  "name": "/ \u2022 28 B \u2022 100.0%",
+  "data": {
+    "$area": 28
+  },
+  "children": [
+    {
+      "name": "webpack:/// \u2022 6 B \u2022 21.4%",
+      "data": {
+        "$area": 6
+      },
+      "children": [
+        {
+          "name": "a/b/c.js \u2022 1 B \u2022 3.6%",
+          "data": {
+            "$area": 1
+          }
+        },
+        {
+          "name": "d \u2022 5 B \u2022 17.9%",
+          "data": {
+            "$area": 5
+          },
+          "children": [
+            {
+              "name": "e.js \u2022 2 B \u2022 7.1%",
+              "data": {
+                "$area": 2
+              }
+            },
+            {
+              "name": "f.js \u2022 3 B \u2022 10.7%",
+              "data": {
+                "$area": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "d \u2022 15 B \u2022 53.6%",
+      "data": {
+        "$area": 15
+      },
+      "children": [
+        {
+          "name": "webpack:/// \u2022 9 B \u2022 32.1%",
+          "data": {
+            "$area": 9
+          },
+          "children": [
+            {
+              "name": "g \u2022 9 B \u2022 32.1%",
+              "data": {
+                "$area": 9
+              },
+              "children": [
+                {
+                  "name": "h.js \u2022 4 B \u2022 14.3%",
+                  "data": {
+                    "$area": 4
+                  }
+                },
+                {
+                  "name": "i.js \u2022 5 B \u2022 17.9%",
+                  "data": {
+                    "$area": 5
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "j/i.js \u2022 6 B \u2022 21.4%",
+          "data": {
+            "$area": 6
+          }
+        }
+      ]
+    },
+    {
+      "name": "z \u2022 7 B \u2022 25.0%",
+      "data": {
+        "$area": 7
+      }
+    }
+  ]
+}

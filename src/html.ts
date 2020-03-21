@@ -91,9 +91,27 @@ function getNodePath(parts: string[], depthIndex: number): string {
   return parts.slice(0, depthIndex + 1).join('/');
 }
 
+const WEBPACK_FILENAME_PREFIX = 'webpack:///';
+const WEBPACK_FILENAME_PREFIX_LENGTH = WEBPACK_FILENAME_PREFIX.length;
+
+function splitFilename(file: string): string[] {
+  const webpackPrefixIndex = file.indexOf(WEBPACK_FILENAME_PREFIX);
+
+  // Treat webpack file prefix as a filename part
+  if (webpackPrefixIndex !== -1) {
+    return [
+      ...file.substring(0, webpackPrefixIndex).split('/'),
+      WEBPACK_FILENAME_PREFIX,
+      ...file.substring(webpackPrefixIndex + WEBPACK_FILENAME_PREFIX_LENGTH).split('/'),
+    ].filter(Boolean);
+  }
+
+  return file.split('/');
+}
+
 function getTreeNodesMap(fileDataMap: FileDataMap): TreeNodesMap {
   let partsSourceTuples = Object.keys(fileDataMap).map<[string[], string]>(file => [
-    file.split('/'),
+    splitFilename(file),
     file,
   ]);
 
