@@ -20,6 +20,20 @@ describe('html', () => {
       snapshot(getWebTreeMapData(fileDataMap));
     });
 
+    it('should not split webpack:/// when collapsing non-contributing nodes', () => {
+      const fileDataMap: FileDataMap = {
+        'webpack:///a/b/c.js': { size: 1 },
+        'webpack:///d/e.js': { size: 2 },
+        'webpack:///d/f.js': { size: 3 },
+        'd/webpack:///g/h.js': { size: 4 },
+        'd/webpack:///g/i.js': { size: 5 },
+        'd/j/i.js': { size: 6 },
+        z: { size: 7 },
+      };
+
+      snapshot(getWebTreeMapData(fileDataMap));
+    });
+
     it('should not create node for zero size files', () => {
       const fileDataMap: FileDataMap = {
         'a/b/c.js': { size: 1 },
