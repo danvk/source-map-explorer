@@ -38,9 +38,7 @@ describe('CLI', () => {
   it('should output result as tsv', async () => {
     const result = await execute(SCRIPT_PATH, ['data/inline-map.js', '--tsv']);
 
-    expect(result)
-      .to.have.string('Source\tSize')
-      .and.have.string('src/bar.js\t104');
+    expect(result).to.have.string('Source\tSize').and.have.string('src/bar.js\t104');
   });
 
   it('should output result as tsv excluding source map bytes', async () => {
@@ -59,9 +57,7 @@ describe('CLI', () => {
   it('should output result as tsv excluding unmapped bytes', async () => {
     const result = await execute(SCRIPT_PATH, ['data/with-unmapped.js', '--tsv', '--only-mapped']);
 
-    expect(result)
-      .to.have.string('Source\tSize')
-      .and.not.have.string('[unmapped]\t');
+    expect(result).to.have.string('Source\tSize').and.not.have.string('[unmapped]\t');
   });
 
   it('should output multiple results as tsv', async () => {

@@ -287,5 +287,7 @@ if (require.main === module) {
       } else {
         logError('Failed to explore', error);
       }
+
+      process.exitCode = 1;
     });
 }
