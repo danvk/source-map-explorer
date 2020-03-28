@@ -83,7 +83,7 @@ export function execute(processPath: string, args: string[] = []): Promise<strin
 
   return new Promise((resolve, reject) => {
     if (childProcess.stderr) {
-      childProcess.stderr.once('data', error => {
+      childProcess.stderr.once('data', (error) => {
         reject(error.toString());
       });
     }
@@ -93,7 +93,7 @@ export function execute(processPath: string, args: string[] = []): Promise<strin
     // Collect output
     if (childProcess.stdout) {
       childProcess.stdout.pipe(
-        concat(result => {
+        concat((result) => {
           resolve(result.toString());
         })
       );

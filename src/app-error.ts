@@ -1,6 +1,6 @@
 import { formatPercent } from './helpers';
 
-import { ErrorCode } from './types';
+import type { ErrorCode } from './types';
 
 // If we need advanced error consider using https://github.com/joyent/node-verror
 export class AppError extends Error {
@@ -107,8 +107,9 @@ Check that you are using the correct source map.`;
       const { generatedLine, generatedColumn, maxColumn } = context;
 
       // Add 1 since generatedColumn is 0-based
-      return `Your source map refers to generated column ${generatedColumn +
-        1} on line ${generatedLine}, but the source only contains ${maxColumn} column(s) on that line.
+      return `Your source map refers to generated column ${
+        generatedColumn + 1
+      } on line ${generatedLine}, but the source only contains ${maxColumn} column(s) on that line.
 Check that you are using the correct source map.`;
     }
 

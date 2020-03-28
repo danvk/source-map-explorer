@@ -2,7 +2,7 @@ import snapshot from '@smpx/snap-shot-it';
 
 import { getWebTreeMapData } from '../../src/html';
 
-import { FileDataMap } from '../../src/types';
+import type { FileDataMap } from '../../src/types';
 
 describe('html', () => {
   describe('getWebTreeMapData', () => {

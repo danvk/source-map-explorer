@@ -3,7 +3,7 @@ import { URL } from 'url';
 import { getFileContent, detectEOL } from './helpers';
 import { AppError } from './app-error';
 
-import { Bundle, Coverage, ColumnsRange, MappingRange, FileDataMap } from './types';
+import type { Bundle, Coverage, ColumnsRange, MappingRange, FileDataMap } from './types';
 
 /**
  * Convert one-line coverage ranges (exclusive) into per line ranges (inclusive)
@@ -18,7 +18,7 @@ function convertRangesToLinesRanges(coverage: Coverage): ColumnsRange[][] {
   // Current line offset
   let offset = 0;
 
-  const lineRanges = lines.map(line => {
+  const lineRanges = lines.map((line) => {
     const lineLength = line.length;
 
     if (lineLength === 0) {

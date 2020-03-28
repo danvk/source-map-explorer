@@ -6,7 +6,7 @@ import snapshot from '@smpx/snap-shot-it';
 import { explore, getBundles } from '../../src/api';
 import { setTestFolder, mockEOL } from '../test-helpers';
 
-import { BundlesAndFileTokens, ExploreOptions, Bundle } from '../../src/types';
+import type { BundlesAndFileTokens, ExploreOptions, Bundle } from '../../src/types';
 
 describe('api', () => {
   mockEOL();
@@ -234,7 +234,7 @@ describe('api', () => {
 
       bundleErrorTests.forEach(({ name, bundlesAndFileTokens, options, expectedErrorCode }) => {
         it(name, async () => {
-          await expect(explore(bundlesAndFileTokens, options)).to.be.rejected.then(result => {
+          await expect(explore(bundlesAndFileTokens, options)).to.be.rejected.then((result) => {
             const error = result.errors[0];
 
             expect(error.code).to.equal(expectedErrorCode);
@@ -259,7 +259,7 @@ describe('api', () => {
 
       appErrorTests.forEach(({ name, bundlesAndFileTokens, options, expectedErrorCode }) => {
         it(name, async () => {
-          await expect(explore(bundlesAndFileTokens, options)).to.be.rejected.then(error => {
+          await expect(explore(bundlesAndFileTokens, options)).to.be.rejected.then((error) => {
             expect(error.code).to.equal(expectedErrorCode);
           });
         });
@@ -268,7 +268,7 @@ describe('api', () => {
       it('should not throw if at least one result is successful', async () => {
         await expect(
           explore(['data/foo.min.js', 'data/no-map-comment.js'])
-        ).to.not.be.rejected.then(result => {
+        ).to.not.be.rejected.then((result) => {
           expect(result.bundles.length).to.eq(1);
           expect(result.errors.length).to.eq(2);
         });

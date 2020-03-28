@@ -6,7 +6,7 @@ import { AppError, getErrorMessage } from './app-error';
 import { formatOutput, saveOutputToFile } from './output';
 import { addCoverageRanges } from './coverage';
 
-import {
+import type {
   Bundle,
   BundlesAndFileTokens,
   ExploreBundleResult,
@@ -51,8 +51,8 @@ export async function explore(
   addCoverageRanges(bundles, options.coverage);
 
   const results = await Promise.all(
-    bundles.map(bundle =>
-      exploreBundle(bundle, options).catch<ExploreErrorResult>(error =>
+    bundles.map((bundle) =>
+      exploreBundle(bundle, options).catch<ExploreErrorResult>((error) =>
         onExploreError(bundle, error)
       )
     )
@@ -74,15 +74,17 @@ export async function explore(
  * Expand list of file tokens into a list of bundles
  */
 export function getBundles(fileTokens: string[]): Bundle[] {
-  const filenames = flatMap(fileTokens, filePath =>
+  const filenames = flatMap(fileTokens, (filePath) =>
     glob.hasMagic(filePath) ? expandGlob(filePath) : filePath
   );
 
-  const [mapFilenames, codeFilenames] = partition(filenames, filename => filename.endsWith('.map'));
+  const [mapFilenames, codeFilenames] = partition(filenames, (filename) =>
+    filename.endsWith('.map')
+  );
 
-  return codeFilenames.map<Bundle>(code => ({
+  return codeFilenames.map<Bundle>((code) => ({
     code,
-    map: mapFilenames.find(filename => filename === `${code}.map`),
+    map: mapFilenames.find((filename) => filename === `${code}.map`),
   }));
 }
 
@@ -112,7 +114,7 @@ function onExploreError(bundle: Bundle, error: NodeJS.ErrnoException): ExploreEr
 }
 
 function sortFilenames(bundles: ExploreBundleResult[]): ExploreBundleResult[] {
-  return bundles.map(bundle => ({
+  return bundles.map((bundle) => ({
     ...bundle,
     files: fromPairs(sortBy(toPairs(bundle.files), 0)),
   }));
@@ -127,7 +129,7 @@ function getExploreResult(
     (result): result is ExploreBundleResult => 'files' in result
   );
 
-  let sortedBundles = sortBy(bundles, bundle => bundle.bundleName);
+  let sortedBundles = sortBy(bundles, (bundle) => bundle.bundleName);
 
   if (options.sort) {
     sortedBundles = sortFilenames(sortedBundles);
@@ -153,7 +155,7 @@ function getPostExploreErrors(exploreBundleResults: ExploreBundleResult[]): Expl
     // Check if source map contains only one file - this make result useless when exploring single bundle
     if (isSingleBundle) {
       const filenames = Object.keys(files).filter(
-        filename => !SPECIAL_FILENAMES.includes(filename)
+        (filename) => !SPECIAL_FILENAMES.includes(filename)
       );
 
       if (filenames.length === 1) {

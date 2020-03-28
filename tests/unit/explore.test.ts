@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { adjustSourcePaths } from '../../src/explore';
 
-import { FileDataMap, ExploreOptions } from '../../src/types';
+import type { FileDataMap, ExploreOptions } from '../../src/types';
 
 interface AdjustSourcePathsTest {
   name: string;

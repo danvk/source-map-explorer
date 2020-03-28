@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import { explore, UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY } from '../../dist';
 
-import {
+import type {
   ExploreErrorResult,
   ExploreResult,
   ExploreOptions,

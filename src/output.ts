@@ -5,7 +5,7 @@ import fs from 'fs';
 import { generateHtml } from './html';
 import { AppError } from './app-error';
 
-import { ExploreBundleResult, ExploreOptions, ExploreResult } from './types';
+import type { ExploreBundleResult, ExploreOptions, ExploreResult } from './types';
 
 export function formatOutput(
   results: ExploreBundleResult[],

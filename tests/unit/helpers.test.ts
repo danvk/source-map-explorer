@@ -9,7 +9,7 @@ import {
   mergeRanges,
 } from '../../src/helpers';
 
-import { MappingRange } from '../../src/types';
+import type { MappingRange } from '../../src/types';
 
 describe('helpers', () => {
   describe('formatBytes', () => {

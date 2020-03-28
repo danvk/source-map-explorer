@@ -3,7 +3,7 @@ import rewiremock from '../rewiremock';
 
 import { setCoveredSizes, getColorByPercent } from '../../src/coverage';
 
-import { Bundle, Coverage, CoverageRange, MappingRange, FileDataMap } from '../../src/types';
+import type { Bundle, Coverage, CoverageRange, MappingRange, FileDataMap } from '../../src/types';
 
 describe('coverage', () => {
   describe('addCoverageRanges', () => {
@@ -40,7 +40,7 @@ describe('coverage', () => {
 
       const coverageFileContent = JSON.stringify(coverages);
 
-      const { addCoverageRanges } = rewiremock.proxy('../src/coverage', r => ({
+      const { addCoverageRanges } = rewiremock.proxy('../src/coverage', (r) => ({
         './helpers': r.callThrough().with({
           getFileContent: () => coverageFileContent,
         }),
@@ -63,7 +63,7 @@ describe('coverage', () => {
 
       const coverageFileContent = JSON.stringify(coverages);
 
-      const { addCoverageRanges } = rewiremock.proxy('../src/coverage', r => ({
+      const { addCoverageRanges } = rewiremock.proxy('../src/coverage', (r) => ({
         './helpers': r.callThrough().with({
           getFileContent: () => coverageFileContent,
         }),
@@ -152,7 +152,7 @@ describe('coverage', () => {
       }));
       const coverageFileContent = JSON.stringify(coverages);
 
-      const { addCoverageRanges } = rewiremock.proxy('../src/coverage', r => ({
+      const { addCoverageRanges } = rewiremock.proxy('../src/coverage', (r) => ({
         './helpers': r.callThrough().with({
           getFileContent: () => coverageFileContent,
         }),

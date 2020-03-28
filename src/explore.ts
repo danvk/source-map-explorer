@@ -17,7 +17,7 @@ import {
 import { AppError } from './app-error';
 import { setCoveredSizes } from './coverage';
 
-import {
+import type {
   Bundle,
   CoverageRange,
   ExploreBundleResult,

@@ -7,7 +7,7 @@ import escapeHtml from 'escape-html';
 import { formatBytes, getCommonPathPrefix, getFileContent, formatPercent } from './helpers';
 import { getColorByPercent } from './coverage';
 
-import { ExploreOptions, ExploreBundleResult, FileData, FileDataMap } from './types';
+import type { ExploreOptions, ExploreBundleResult, FileData, FileDataMap } from './types';
 
 /**
  * Generate HTML file content for specified files
@@ -27,7 +27,7 @@ export function generateHtml(
   }
 
   // Get bundles info to generate select element
-  const bundles = exploreResults.map(data => ({
+  const bundles = exploreResults.map((data) => ({
     name: data.bundleName,
     size: formatBytes(data.totalBytes),
   }));
@@ -63,7 +63,7 @@ function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleR
   const files: FileDataMap = {};
 
   // Remove any common prefix to keep the visualization as simple as possible.
-  const commonPrefix = getCommonPathPrefix(exploreResults.map(r => r.bundleName));
+  const commonPrefix = getCommonPathPrefix(exploreResults.map((r) => r.bundleName));
 
   for (const result of exploreResults) {
     totalBytes += result.totalBytes;
@@ -110,7 +110,7 @@ function splitFilename(file: string): string[] {
 }
 
 function getTreeNodesMap(fileDataMap: FileDataMap): TreeNodesMap {
-  let partsSourceTuples = Object.keys(fileDataMap).map<[string[], string]>(file => [
+  let partsSourceTuples = Object.keys(fileDataMap).map<[string[], string]>((file) => [
     splitFilename(file),
     file,
   ]);
@@ -208,12 +208,12 @@ function addNode(parts: string[], fileData: FileData, treeData: WebTreeMapNode):
 
   setNodeData(node, fileData);
 
-  parts.forEach(part => {
+  parts.forEach((part) => {
     if (!node.children) {
       node.children = [];
     }
 
-    let child = node.children.find(child => child.name === part);
+    let child = node.children.find((child) => child.name === part);
 
     if (!child) {
       child = newNode(part);
@@ -239,7 +239,7 @@ function addSizeToTitle(node: WebTreeMapNode, total: number): void {
   node.name = titleParts.join(' • ');
 
   if (node.children) {
-    node.children.forEach(child => {
+    node.children.forEach((child) => {
       addSizeToTitle(child, total);
     });
   }

@@ -10,8 +10,8 @@ import { groupBy, isString } from 'lodash';
 import { explore } from './api';
 import { AppError, getErrorMessage } from './app-error';
 
-import { ErrorContext } from './app-error';
-import { ExploreOptions, ReplaceMap, ExploreResult } from './types';
+import type { ErrorContext } from './app-error';
+import type { ExploreOptions, ReplaceMap, ExploreResult } from './types';
 
 /** Parsed CLI arguments */
 interface Arguments {
@@ -123,7 +123,7 @@ function parseArguments(): Arguments {
     .parserConfiguration({
       'boolean-negation': false, // Allow --no-root
     })
-    .check(argv => {
+    .check((argv) => {
       if (argv.replace && argv.with && argv.replace.length !== argv.with.length) {
         throw new Error('--replace flags must be paired with --with flags');
       }
@@ -135,7 +135,7 @@ function parseArguments(): Arguments {
   // Trim extra quotes
   const quoteRegex = /'/g;
 
-  argv._ = argv._.map(path => path.replace(quoteRegex, ''));
+  argv._ = argv._.map((path) => path.replace(quoteRegex, ''));
 
   return argv;
 }
@@ -265,7 +265,7 @@ if (require.main === module) {
   const options = getExploreOptions(argv);
 
   explore(argv._, options)
-    .then(result => {
+    .then((result) => {
       if (isOutputFormatSpecified && options.output) {
         const filename = options.output.filename;
 
@@ -281,7 +281,7 @@ if (require.main === module) {
         });
       }
     })
-    .catch(error => {
+    .catch((error) => {
       if (error.errors) {
         outputErrors(error);
       } else {
