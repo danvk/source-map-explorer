@@ -278,6 +278,16 @@ describe('api', () => {
         await expect(explore('data/map-reference-eol.js')).to.not.be.rejected;
       });
 
+      it('should not throw InvalidMappingColumn if noBorderChecks is true', async () => {
+        await expect(explore('data/invalid-map-column.js', { noBorderChecks: true })).to.not.be
+          .rejected;
+      });
+
+      it('should not throw InvalidMappingLine if noBorderChecks is true', async () => {
+        await expect(explore('data/invalid-map-line.js', { noBorderChecks: true })).to.not.be
+          .rejected;
+      });
+
       it('should add "one source" source map warning when exploring single bundle', async () => {
         const result = await explore('data/one-source.js');
 

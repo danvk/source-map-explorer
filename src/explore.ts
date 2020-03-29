@@ -230,6 +230,10 @@ function computeFileSizes(
     const line = lines[lineIndex];
 
     if (line === undefined) {
+      if (options.noBorderChecks) {
+        return;
+      }
+
       throw new AppError({
         code: 'InvalidMappingLine',
         generatedLine,
@@ -242,7 +246,9 @@ function computeFileSizes(
     context.line = line;
     context.source = source;
 
-    checkInvalidMappingColumn(context);
+    if (!options.noBorderChecks) {
+      checkInvalidMappingColumn(context);
+    }
 
     const start = generatedColumn;
     const end = lastGeneratedColumn === null ? line.length - 1 : lastGeneratedColumn;

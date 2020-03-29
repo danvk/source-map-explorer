@@ -126,7 +126,9 @@ source-map-explorer foo.min.js --tsv result.tsv
 
     These are regular expressions.
 
-* `--no-root`: By default, source-map-explorer finds common prefixes between all source files and eliminates them, since they add complexity to the visualization with no real benefit. But if you want to disable this behavior, set the `--no-root` flag.
+* `--no-root`: By default, `source-map-explorer` finds common prefixes between all source files and eliminates them, since they add complexity to the visualization with no real benefit. But if you want to disable this behavior, set the `--no-root` flag.
+
+* `--no-border-checks`: Disable invalid mapping column/line checks. By default, when a source map references column/line with bigger index than available in the source `source-map-explorers` throws an error indicating that specified source map might be wrong for the source.
 
 * `--coverage`: If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed
 
@@ -145,7 +147,7 @@ source-map-explorer -h
 ```
 Analyze and debug space usage through source maps.
 Usage:
-source-map-explorer script.js [script.js.map] [--json [result.json] | --html [result.html] | --tsv [result.csv]] [-m | --only-mapped] [--exclude-source-map] [--gzip] [--sort] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--coverage coverage.json] [--version] [--help | -h]
+source-map-explorer script.js [script.js.map] [--json [result.json] | --html [result.html] | --tsv [result.csv]] [-m | --only-mapped] [--exclude-source-map] [--no-border-checks] [--gzip] [--sort] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--coverage coverage.json] [--version] [--help | -h]
 
 Output:
   --json  If filename specified save output as JSON to specified file otherwise output to stdout.  [string]
@@ -162,6 +164,7 @@ Options:
   --only-mapped, -m     Exclude "unmapped" bytes from the output. This will result in total counts less than the file size  [boolean]
   --exclude-source-map  Exclude source map comment size from output  [boolean]
   --no-root             To simplify the visualization, source-map-explorer will remove any prefix shared by all sources. If you wish to disable this behavior, set --no-root.  [boolean]
+  --no-border-checks    Disable invalid mapping column/line checks.  [boolean]
   --coverage            If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed
 [string]
   --gzip                Calculate gzip size. It also sets onlyMapped flag  [boolean]
@@ -329,6 +332,7 @@ with-unmapped.js
     * `format`: [string] - `'json'`, `'tsv'` or `'html'`
     * `filename`: [string] - Filename to save output to
 * `noRoot`: [boolean] (default `false`) - See `--no-root` option above for details
+* `noBorderChecks`: [boolean] - Disable invalid mapping column/line checks. See `--no-border-checks` above.
 * `replaceMap`: <[Object]<{ [from: [string]]: [string] }>> - Mapping for replacement, see `--replace`, `--with` options above for details.
 * `coverage`: [string] - If the path to a valid a chrome code coverage JSON export is supplied, the tree map will be colorized according to which percentage of the modules code was executed
 * `gzip`: [boolean] - Calculate gzip size. It also sets `onlyMapped` flag

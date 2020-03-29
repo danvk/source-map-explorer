@@ -54,6 +54,8 @@ export interface ExploreOptions {
   };
   /** Disable removing prefix shared by all sources */
   noRoot?: boolean;
+  /** Disable invalid mapping column/line checks. */
+  noBorderChecks?: boolean;
   /** Replace "this" by "that" map */
   replaceMap?: ReplaceMap;
   coverage?: string;

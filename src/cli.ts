@@ -24,6 +24,7 @@ interface Arguments {
   noRoot?: boolean;
   replace?: string[];
   with?: string[];
+  noBorderChecks?: boolean;
   coverage?: string;
   gzip?: boolean;
   sort?: boolean;
@@ -36,7 +37,7 @@ function parseArguments(): Arguments {
     .usage('Analyze and debug space usage through source maps.')
     .usage('Usage:')
     .usage(
-      '$0 script.js [script.js.map] [--json [result.json] | --html [result.html] | --tsv [result.csv]] [-m | --only-mapped] [--exclude-source-map] [--gzip] [--sort] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--coverage coverage.json] [--version] [--help | -h]'
+      '$0 script.js [script.js.map] [--json [result.json] | --html [result.html] | --tsv [result.csv]] [-m | --only-mapped] [--exclude-source-map] [--no-border-checks] [--gzip] [--sort] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--coverage coverage.json] [--version] [--help | -h]'
     )
     .example('$0 script.js script.js.map', 'Explore bundle')
     .example('$0 script.js', 'Explore bundle with inline source map')
@@ -94,6 +95,11 @@ function parseArguments(): Arguments {
         array: true,
         description: 'See --replace.',
         implies: 'replace',
+      },
+
+      'no-border-checks': {
+        type: 'boolean',
+        description: 'Disable invalid mapping column/line checks.',
       },
 
       coverage: {
@@ -173,6 +179,7 @@ function getExploreOptions(argv: Arguments): ExploreOptions {
     onlyMapped,
     excludeSourceMap: excludeSourceMapComment,
     noRoot,
+    noBorderChecks,
     coverage,
     gzip,
     sort,
@@ -198,6 +205,7 @@ function getExploreOptions(argv: Arguments): ExploreOptions {
     onlyMapped,
     excludeSourceMapComment,
     noRoot,
+    noBorderChecks,
     coverage,
     gzip,
     sort,
