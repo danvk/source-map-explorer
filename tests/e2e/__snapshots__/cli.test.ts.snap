@@ -21,7 +21,7 @@ exports['CLI should output multiple bundles result as html 1'] = `
     #content {
       display: flex;
       width: 100%;
-      flex-direction: column;
+      flex-direction: row;
       padding: 15px;
     }
 
@@ -53,7 +53,7 @@ exports['CLI should output multiple bundles result as html 1'] = `
     <div id="header">
       
         <label for="bundle-select">Bundle:&nbsp;</label>
-        <select id="bundle-select">
+        <select id="bundle-select" size="3">">
           <option value="0">[combined] (3.63 KB)</option>
           <option value="1">data/foo.min.js (718 B)</option>
           <option value="2">data/inline-map.js (2.93 KB)</option>
@@ -124,7 +124,7 @@ exports['CLI should output result as html 1'] = `
     #content {
       display: flex;
       width: 100%;
-      flex-direction: column;
+      flex-direction: row;
       padding: 15px;
     }
 
