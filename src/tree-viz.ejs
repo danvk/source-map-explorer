@@ -20,7 +20,7 @@
     #content {
       display: flex;
       width: 100%;
-      flex-direction: column;
+      flex-direction: row;
       padding: 15px;
     }
 
@@ -52,7 +52,7 @@
     <div id="header">
       <% if(bundles.length > 1) {%>
         <label for="bundle-select">Bundle:&nbsp;</label>
-        <select id="bundle-select">
+        <select id="bundle-select" size="<%= Math.min(bundles.length, 20) %>">">
         <%_ bundles.forEach((bundle, index) => { _%>
           <option value="<%= index %>"><%= bundle.name %> (<%= bundle.size %>)</option>
         <%_ }); _%>
