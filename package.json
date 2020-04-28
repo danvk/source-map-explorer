@@ -19,7 +19,7 @@
     "test": "npm-run-all test:unit test:e2e test:perf",
     "coverage": "nyc --reporter=lcov --reporter=text npm run test:unit",
     "test:update-snapshots": "cross-env SNAPSHOT_UPDATE=1 npm run test",
-    "test:generate-data": "ts-node tests/generate-data/index.ts",
+    "test:generate-data": "ts-node --dir tests generate-data/index.ts",
     "build:clean": "rimraf lib/**/* bin/**/*",
     "build:compile": "tsc --build",
     "build:copy": "copyfiles -u 2 src/lib/vendor/*.* src/lib/tree-viz.ejs src/lib/types.d.ts lib",
