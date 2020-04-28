@@ -3,10 +3,10 @@ import fs from 'fs';
 import rimraf from 'rimraf';
 import snapshot from '@smpx/snap-shot-it';
 
-import { explore, getBundles } from '../../src/api';
+import { explore, getBundles } from '../../src/lib/api';
 import { setTestFolder, mockEOL } from '../test-helpers';
 
-import type { BundlesAndFileTokens, ExploreOptions, Bundle } from '../../src/types';
+import type { BundlesAndFileTokens, ExploreOptions, Bundle } from '../../src/lib/types';
 
 describe('api', () => {
   mockEOL();

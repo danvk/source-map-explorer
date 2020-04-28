@@ -1,9 +1,7 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "rootDir": "."
-  },
-  "include": ["src", "tests"],
-  "exclude": ["src/vendor", "tests/data"]
+  "files": [],
+  "references": [
+    { "path": "./src/cli" },
+    { "path": "./src/lib" }
+  ]
 }

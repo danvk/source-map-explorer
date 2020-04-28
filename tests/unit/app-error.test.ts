@@ -1,8 +1,8 @@
 import snapshot from '@smpx/snap-shot-it';
 
-import { getErrorMessage } from '../../src/app-error';
+import { getErrorMessage } from '../../src/lib/app-error';
 
-import { ErrorContext } from '../../src/app-error';
+import type { ErrorContext } from '../../src/lib/app-error';
 
 describe('app-error', () => {
   describe('getErrorMessage', () => {
@@ -30,7 +30,7 @@ describe('app-error', () => {
       { code: 'UnknownCode' },
     ];
 
-    tests.forEach(context => {
+    tests.forEach((context) => {
       it(`should create message for '${context.code}'`, () => {
         snapshot(getErrorMessage(context as ErrorContext));
       });

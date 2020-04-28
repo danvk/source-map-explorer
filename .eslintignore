@@ -2,7 +2,8 @@
 **/*.js
 !**/*.ts
 node_modules
-dist
+/bin
+/lib
 tests/data
 tests/generate-data/src
 *vendor*

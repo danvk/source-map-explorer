@@ -7,9 +7,9 @@ import {
   getOccurrencesCount,
   isEOLAtPosition,
   mergeRanges,
-} from '../../src/helpers';
+} from '../../src/lib/helpers';
 
-import type { MappingRange } from '../../src/types';
+import type { MappingRange } from '../../src/lib/types';
 
 describe('helpers', () => {
   describe('formatBytes', () => {

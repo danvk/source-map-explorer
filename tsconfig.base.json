@@ -6,7 +6,6 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "declaration": true,
-    "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
     "noImplicitAny": false

@@ -7,14 +7,15 @@ module.exports = {
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: './tsconfig.json',
+    project: ['./src/cli/tsconfig.json', './src/lib/tsconfig.json', './tests/tsconfig.json'],
   },
   plugins: ['prettier', '@typescript-eslint'],
   extends: [
-    'plugin:@typescript-eslint/recommended',
     'eslint:recommended',
-    'plugin:prettier/recommended',
+    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:@typescript-eslint/recommended',
     'prettier/@typescript-eslint',
+    'plugin:prettier/recommended',
   ],
   rules: {
     'func-style': ['error', 'declaration'],
@@ -27,10 +28,9 @@ module.exports = {
       { blankLine: 'always', prev: ['const', 'let'], next: '*' },
       { blankLine: 'any', prev: ['const', 'let'], next: ['const', 'let'] },
     ],
-    'no-console': 0,
+    'no-console': 'off',
     'no-use-before-define': ['error', { functions: false, classes: true, variables: true }],
     yoda: 'error',
-    'no-unused-vars': 0, // Duplicates @typescript-eslint/no-unused-vars
     // TypeScript specific
     '@typescript-eslint/explicit-function-return-type': [
       'error',

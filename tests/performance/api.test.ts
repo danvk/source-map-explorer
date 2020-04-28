@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { PerformanceObserver, performance } from 'perf_hooks';
 
-import { explore } from '../../src/api';
+import { explore } from '../../src/lib/api';
 import { setTestFolder } from '../test-helpers';
 
 // Set to value actual for CI (not your local environment)
@@ -12,7 +12,7 @@ describe('api', () => {
     setTestFolder();
 
     it(`should explore big file in less than ${BIG_FILE_EXPLORE_WITH_HTML_MS}ms`, async () => {
-      const obs = new PerformanceObserver(items => {
+      const obs = new PerformanceObserver((items) => {
         const duration = items.getEntries()[0].duration;
 
         expect(duration).to.be.lessThan(BIG_FILE_EXPLORE_WITH_HTML_MS);

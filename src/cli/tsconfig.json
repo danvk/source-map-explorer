@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "../../bin",
+    "removeComments": true,
+    "sourceMap": true,
+    "inlineSources": true
+  },
+  "references": [
+    { "path": "../lib" }
+  ]
+}

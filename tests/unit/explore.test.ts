@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 
-import { adjustSourcePaths } from '../../src/explore';
+import { adjustSourcePaths } from '../../src/lib/explore';
 
-import type { FileDataMap, ExploreOptions } from '../../src/types';
+import type { FileDataMap, ExploreOptions } from '../../src/lib/types';
 
 interface AdjustSourcePathsTest {
   name: string;

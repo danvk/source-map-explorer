@@ -7,11 +7,11 @@ import open from 'open';
 import chalk from 'chalk';
 import { groupBy, isString } from 'lodash';
 
-import { explore } from './api';
-import { AppError, getErrorMessage } from './app-error';
+import { explore } from '../lib/api';
+import { AppError, getErrorMessage } from '../lib/app-error';
 
-import type { ErrorContext } from './app-error';
-import type { ExploreOptions, ReplaceMap, ExploreResult } from './types';
+import type { ErrorContext } from '../lib/app-error';
+import type { ExploreOptions, ReplaceMap, ExploreResult } from '../lib/types';
 
 /** Parsed CLI arguments */
 interface Arguments {

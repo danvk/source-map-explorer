@@ -31,4 +31,8 @@ node_modules
 # IDE
 .vscode
 
+# Build artifacts
 dist
+/bin
+/lib
+*.tsbuildinfo

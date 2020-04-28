@@ -1,9 +1,15 @@
 import { expect } from 'chai';
 import rewiremock from '../rewiremock';
 
-import { setCoveredSizes, getColorByPercent } from '../../src/coverage';
+import { setCoveredSizes, getColorByPercent } from '../../src/lib/coverage';
 
-import type { Bundle, Coverage, CoverageRange, MappingRange, FileDataMap } from '../../src/types';
+import type {
+  Bundle,
+  Coverage,
+  CoverageRange,
+  MappingRange,
+  FileDataMap,
+} from '../../src/lib/types';
 
 describe('coverage', () => {
   describe('addCoverageRanges', () => {
@@ -40,7 +46,7 @@ describe('coverage', () => {
 
       const coverageFileContent = JSON.stringify(coverages);
 
-      const { addCoverageRanges } = rewiremock.proxy('../src/coverage', (r) => ({
+      const { addCoverageRanges } = rewiremock.proxy('../src/lib/coverage', (r) => ({
         './helpers': r.callThrough().with({
           getFileContent: () => coverageFileContent,
         }),
@@ -63,7 +69,7 @@ describe('coverage', () => {
 
       const coverageFileContent = JSON.stringify(coverages);
 
-      const { addCoverageRanges } = rewiremock.proxy('../src/coverage', (r) => ({
+      const { addCoverageRanges } = rewiremock.proxy('../src/lib/coverage', (r) => ({
         './helpers': r.callThrough().with({
           getFileContent: () => coverageFileContent,
         }),
@@ -152,7 +158,7 @@ describe('coverage', () => {
       }));
       const coverageFileContent = JSON.stringify(coverages);
 
-      const { addCoverageRanges } = rewiremock.proxy('../src/coverage', (r) => ({
+      const { addCoverageRanges } = rewiremock.proxy('../src/lib/coverage', (r) => ({
         './helpers': r.callThrough().with({
           getFileContent: () => coverageFileContent,
         }),
@@ -179,7 +185,7 @@ describe('coverage', () => {
 
       const coverageFileContent = JSON.stringify(coverages);
 
-      const { addCoverageRanges } = rewiremock.proxy('../src/coverage', {
+      const { addCoverageRanges } = rewiremock.proxy('../src/lib/coverage', {
         './helpers': {
           getFileContent: () => coverageFileContent,
         },

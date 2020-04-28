@@ -5,7 +5,7 @@ import snapshot from '@smpx/snap-shot-it';
 import { execute, setTestFolder } from '../test-helpers';
 
 // Test compiled source
-const SCRIPT_PATH = path.resolve(__dirname, '../../dist/cli.js');
+const SCRIPT_PATH = path.resolve(__dirname, '../../bin/cli.js');
 
 describe('CLI', () => {
   setTestFolder();

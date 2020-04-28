@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-import { explore, UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY } from '../../dist';
+import { explore, UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY } from '../../lib';
 
 import type {
   ExploreErrorResult,
@@ -8,7 +8,7 @@ import type {
   ExploreOptions,
   ExploreBundleResult,
   Bundle,
-} from '../../dist/types';
+} from '../../lib/types';
 
 // Full example
 

@@ -2,17 +2,17 @@
   "name": "source-map-explorer",
   "version": "2.4.2",
   "description": "Analyze and debug space usage through source maps",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "bin": {
-    "source-map-explorer": "dist/cli.js",
-    "sme": "dist/cli.js"
+    "source-map-explorer": "bin/cli.js",
+    "sme": "bin/cli.js"
   },
   "engines": {
     "node": ">=10"
   },
   "scripts": {
     "build": "npm-run-all build:*",
-    "watch": "chokidar src/*.* -c \"npm run build\" --silent --initial --debounce=700",
+    "watch": "chokidar src/**/*.* -c \"npm run build\" --silent --initial --debounce=700",
     "test:unit": "mocha --config tests/.mocharc.unit.js",
     "test:e2e": "mocha --config tests/.mocharc.e2e.js",
     "test:perf": "mocha --config tests/.mocharc.perf.js",
@@ -20,13 +20,13 @@
     "coverage": "nyc --reporter=lcov --reporter=text npm run test:unit",
     "test:update-snapshots": "cross-env SNAPSHOT_UPDATE=1 npm run test",
     "test:generate-data": "ts-node tests/generate-data/index.ts",
-    "build:clean": "rimraf dist/**/*",
-    "build:compile": "tsc --project tsconfig.build.json",
-    "build:copy": "copyfiles -u 1 src/vendor/*.* src/tree-viz.ejs src/types.d.ts dist",
-    "build:format": "prettier dist/*.js --write",
+    "build:clean": "rimraf lib/**/* bin/**/*",
+    "build:compile": "tsc --build",
+    "build:copy": "copyfiles -u 2 src/lib/vendor/*.* src/lib/tree-viz.ejs src/lib/types.d.ts lib",
+    "build:format": "prettier lib/*.js bin/*.js --write",
     "pretest:e2e": "npm run build",
     "coverage:ci": "nyc npm run test:unit && nyc report --reporter=text-lcov | coveralls",
-    "lint": "eslint src/**/*.* tests/*.* --fix",
+    "lint": "eslint src/**/*.* tests/**/*.* --fix",
     "update-dependencies": "npx npm-check-updates -u && npm i",
     "prepublishOnly": "npm run build"
   },
@@ -64,7 +64,9 @@
   },
   "homepage": "https://github.com/danvk/source-map-explorer#readme",
   "files": [
-    "dist"
+    "bin",
+    "lib",
+    "!*.tsbuildinfo"
   ],
   "dependencies": {
     "btoa": "^1.2.1",

@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": ".",
+    "outDir": "../../lib",
+    "removeComments": true,
+    "sourceMap": true,
+    "inlineSources": true
+  },
+  "exclude": ["vendor"]
+}
