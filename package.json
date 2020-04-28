@@ -13,9 +13,9 @@
   "scripts": {
     "build": "npm-run-all build:*",
     "watch": "chokidar src/*.* -c \"npm run build\" --silent --initial --debounce=700",
-    "test:unit": "mocha --config .mocharc.unit.js",
-    "test:e2e": "mocha --config .mocharc.e2e.js",
-    "test:perf": "mocha --config .mocharc.perf.js",
+    "test:unit": "mocha --config tests/.mocharc.unit.js",
+    "test:e2e": "mocha --config tests/.mocharc.e2e.js",
+    "test:perf": "mocha --config tests/.mocharc.perf.js",
     "test": "npm-run-all test:unit test:e2e test:perf",
     "coverage": "nyc --reporter=lcov --reporter=text npm run test:unit",
     "test:update-snapshots": "cross-env SNAPSHOT_UPDATE=1 npm run test",
