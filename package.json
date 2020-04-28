@@ -4,7 +4,8 @@
   "description": "Analyze and debug space usage through source maps",
   "main": "dist/index.js",
   "bin": {
-    "source-map-explorer": "dist/cli.js"
+    "source-map-explorer": "dist/cli.js",
+    "sme": "dist/cli.js"
   },
   "engines": {
     "node": ">=10"
