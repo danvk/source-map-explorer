@@ -1,3 +1,7 @@
+# Before you start
+
+Create an issue describing improvement/bug.
+
 # Commit message
 
 Use the following format
@@ -11,7 +15,7 @@ Summary (#<Issue ID>)
 
 # Commits squashing
 
-Squash your commit once your PR is reviewed. This will keep issue related chnages within one commit.
+Squash your commit once your PR is reviewed. This will keep issue related changes within one commit.
 
 # Comments
 
