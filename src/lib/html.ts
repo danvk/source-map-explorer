@@ -3,6 +3,7 @@ import ejs from 'ejs';
 import fs from 'fs';
 import path from 'path';
 import escapeHtml from 'escape-html';
+import { cloneDeep } from 'lodash';
 
 import { formatBytes, getCommonPathPrefix, getFileContent, formatPercent } from './helpers';
 import { getColorByPercent } from './coverage';
@@ -21,6 +22,22 @@ export function generateHtml(
     webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
   };
 
+  // Get webtreemap data to update map on bundle select
+  let treeData = exploreResults.map<WebTreeData>((data) => ({
+    name: data.bundleName,
+    data: getWebTreeMapData(data.files),
+  }));
+
+  if (treeData.length > 1) {
+    treeData = [makeMergedTreeDataMap(cloneDeep(treeData))].concat(treeData);
+  }
+  const treeDataMap = treeData.reduce<Record<string, WebTreeData>>((result, data, index) => {
+    result[index] = data;
+
+    return result;
+  }, {});
+  const template = getFileContent(path.join(__dirname, 'tree-viz.ejs'));
+
   // Create a combined bundle if applicable
   if (exploreResults.length > 1) {
     exploreResults = [makeMergedBundle(exploreResults)].concat(exploreResults);
@@ -31,20 +48,6 @@ export function generateHtml(
     name: data.bundleName,
     size: formatBytes(data.totalBytes),
   }));
-
-  // Get webtreemap data to update map on bundle select
-  const treeDataMap = exploreResults.reduce<Record<string, { name: string; data: WebTreeMapNode }>>(
-    (result, data, index) => {
-      result[index] = {
-        name: data.bundleName,
-        data: getWebTreeMapData(data.files),
-      };
-
-      return result;
-    },
-    {}
-  );
-  const template = getFileContent(path.join(__dirname, 'tree-viz.ejs'));
 
   return ejs.render(template, {
     options,
@@ -82,6 +85,32 @@ function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleR
     eolBytes: 0,
     sourceMapCommentBytes: 0,
     files,
+  };
+}
+
+/**
+ * Create a combined tree data where each of the inputs is a separate node under the root
+ */
+function makeMergedTreeDataMap(treeData: WebTreeData[]): WebTreeData {
+  const data: WebTreeMapNode = newNode('/');
+
+  data.children = [];
+
+  for (const result of treeData) {
+    const childTree = result.data;
+
+    childTree._name = result.name;
+
+    data.data['$area'] += childTree.data['$area'];
+
+    data.children.push(childTree);
+  }
+
+  addSizeToTitle(data, data.data['$area']);
+
+  return {
+    name: '[combined]',
+    data,
   };
 }
 
@@ -152,12 +181,18 @@ function getTreeNodesMap(fileDataMap: FileDataMap): TreeNodesMap {
 
 interface WebTreeMapNode {
   name: string;
+  _name: string;
   data: {
     $area: number;
     coveredSize?: number;
     backgroundColor?: string;
   };
   children?: WebTreeMapNode[];
+}
+
+interface WebTreeData {
+  name: string;
+  data: WebTreeMapNode;
 }
 
 /**
@@ -177,8 +212,11 @@ export function getWebTreeMapData(files: FileDataMap): WebTreeMapNode {
 }
 
 function newNode(name: string): WebTreeMapNode {
+  name = escapeHtml(name);
+
   return {
-    name: escapeHtml(name),
+    name,
+    _name: name,
     data: {
       $area: 0,
     },
@@ -229,7 +267,7 @@ function addNode(parts: string[], fileData: FileData, treeData: WebTreeMapNode):
 function addSizeToTitle(node: WebTreeMapNode, total: number): void {
   const { $area: size, coveredSize } = node.data;
 
-  const titleParts = [node.name, formatBytes(size), `${formatPercent(size, total, 1)}%`];
+  const titleParts = [node._name, formatBytes(size), `${formatPercent(size, total, 1)}%`];
 
   // Add coverage label to leaf nodes only
   if (coveredSize !== undefined && node.children === undefined) {
