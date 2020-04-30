@@ -95,7 +95,7 @@ function makeMergedTreeDataMap(treeData: WebTreeData[]): WebTreeData {
   for (const result of treeData) {
     const childTree = result.data;
 
-    childTree._name = result.name;
+    childTree.originalName = result.name;
 
     data.data['$area'] += childTree.data['$area'];
 
@@ -177,7 +177,7 @@ function getTreeNodesMap(fileDataMap: FileDataMap): TreeNodesMap {
 
 interface WebTreeMapNode {
   name: string;
-  _name: string;
+  originalName: string;
   data: {
     $area: number;
     coveredSize?: number;
@@ -212,7 +212,7 @@ function newNode(name: string): WebTreeMapNode {
 
   return {
     name,
-    _name: name,
+    originalName: name,
     data: {
       $area: 0,
     },
@@ -263,7 +263,7 @@ function addNode(parts: string[], fileData: FileData, treeData: WebTreeMapNode):
 function addSizeToTitle(node: WebTreeMapNode, total: number): void {
   const { $area: size, coveredSize } = node.data;
 
-  const titleParts = [node._name, formatBytes(size), `${formatPercent(size, total, 1)}%`];
+  const titleParts = [node.originalName, formatBytes(size), `${formatPercent(size, total, 1)}%`];
 
   // Add coverage label to leaf nodes only
   if (coveredSize !== undefined && node.children === undefined) {
