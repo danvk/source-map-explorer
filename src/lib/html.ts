@@ -31,11 +31,7 @@ export function generateHtml(
   if (treeData.length > 1) {
     treeData = [makeMergedTreeDataMap(cloneDeep(treeData))].concat(treeData);
   }
-  const treeDataMap = treeData.reduce<Record<string, WebTreeData>>((result, data, index) => {
-    result[index] = data;
-
-    return result;
-  }, {});
+  const treeDataMap = { ...treeData };
   const template = getFileContent(path.join(__dirname, 'tree-viz.ejs'));
 
   // Create a combined bundle if applicable
