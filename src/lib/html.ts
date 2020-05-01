@@ -98,16 +98,47 @@ function makeMergedTreeDataMap(treeData: WebTreeData[]): WebTreeData {
     childTree.originalName = result.name;
 
     data.data['$area'] += childTree.data['$area'];
-
     data.children.push(childTree);
   }
 
+  removeSameRootPaths(data.children);
   addSizeToTitle(data, data.data['$area']);
 
   return {
     name: '[combined]',
     data,
   };
+}
+
+/**
+ * Find and remove the same root paths
+ * @param nodes
+ */
+function removeSameRootPaths(nodes: WebTreeMapNode[]): void {
+  if (nodes.length > 0) {
+    const sameParts = splitFilename(nodes[0].originalName);
+
+    for (const childTree of nodes) {
+      const parts = splitFilename(childTree.originalName);
+
+      for (let i = sameParts.length - 1; i >= 0; i--) {
+        if (parts.length <= i || sameParts[i] !== parts[i]) {
+          sameParts.pop();
+        } else {
+          break;
+        }
+      }
+    }
+
+    if (sameParts.length > 0) {
+      for (const childTree of nodes) {
+        let parts = splitFilename(childTree.originalName);
+
+        parts = parts.slice(sameParts.length);
+        childTree.originalName = getNodePath(parts, parts.length - 1);
+      }
+    }
+  }
 }
 
 type TreeNodesMap = { [source: string]: string[] };
