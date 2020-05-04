@@ -10,19 +10,12 @@ import { getColorByPercent } from './coverage';
 
 import type { ExploreOptions, ExploreBundleResult, FileData, FileDataMap } from './types';
 
-/**
- * Generate HTML file content for specified files
- */
-export function generateHtml(
-  exploreResults: ExploreBundleResult[],
-  options: ExploreOptions
-): string {
-  const assets = {
-    webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
-    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
-  };
+const COMBINED_BUNDLE_NAME = '[combined]';
 
-  // Get webtreemap data to update map on bundle select
+/**
+ * Get webtreemap data to update map on bundle select
+ */
+function getTreeDataMap(exploreResults: ExploreBundleResult[]): { [id: number]: WebTreeData } {
   let treeData = exploreResults.map<WebTreeData>((data) => ({
     name: data.bundleName,
     data: getWebTreeMapData(data.files),
@@ -36,20 +29,41 @@ export function generateHtml(
     addSizeToTitle(webTreeData.data, webTreeData.data.data['$area']);
   }
 
-  const treeDataMap = { ...treeData };
+  return { ...treeData };
+}
 
-  const template = getFileContent(path.join(__dirname, 'tree-viz.ejs'));
+/**
+ * Generate HTML file content for specified files
+ */
+export function generateHtml(
+  exploreResults: ExploreBundleResult[],
+  options: ExploreOptions
+): string {
+  const assets = {
+    webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
+    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
+  };
 
-  // Create a combined bundle if applicable
-  if (exploreResults.length > 1) {
-    exploreResults = [makeMergedBundle(exploreResults)].concat(exploreResults);
-  }
+  const treeDataMap = getTreeDataMap(exploreResults);
 
   // Get bundles info to generate select element
-  const bundles = exploreResults.map((data) => ({
+  let bundles = exploreResults.map((data) => ({
     name: data.bundleName,
     size: formatBytes(data.totalBytes),
   }));
+
+  // Create a combined bundle if applicable
+  if (exploreResults.length > 1) {
+    bundles = [
+      {
+        name: COMBINED_BUNDLE_NAME,
+        size: formatBytes(exploreResults.reduce((total, result) => total + result.totalBytes, 0)),
+      },
+      ...bundles,
+    ];
+  }
+
+  const template = getFileContent(path.join(__dirname, 'tree-viz.ejs'));
 
   return ejs.render(template, {
     options,
@@ -58,36 +72,6 @@ export function generateHtml(
     webtreemapJs: assets.webtreemapJs,
     webtreemapCss: assets.webtreemapCss,
   });
-}
-
-/**
- * Create a combined result where each of the inputs is a separate node under the root
- */
-function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleResult {
-  let totalBytes = 0;
-  const files: FileDataMap = {};
-
-  // Remove any common prefix to keep the visualization as simple as possible.
-  const commonPrefix = getCommonPathPrefix(exploreResults.map((r) => r.bundleName));
-
-  for (const result of exploreResults) {
-    totalBytes += result.totalBytes;
-
-    const prefix = result.bundleName.slice(commonPrefix.length);
-
-    Object.entries(result.files).forEach(([fileName, size]) => {
-      files[`${prefix}/${fileName}`] = size;
-    });
-  }
-
-  return {
-    bundleName: '[combined]',
-    totalBytes,
-    mappedBytes: 0,
-    eolBytes: 0,
-    sourceMapCommentBytes: 0,
-    files,
-  };
 }
 
 /**
@@ -110,7 +94,7 @@ export function makeMergedTreeDataMap(treeData: WebTreeData[]): WebTreeData {
   removeSameRootPaths(data.children);
 
   return {
-    name: '[combined]',
+    name: COMBINED_BUNDLE_NAME,
     data,
   };
 }
