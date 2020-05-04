@@ -29,9 +29,15 @@ export function generateHtml(
   }));
 
   if (treeData.length > 1) {
-    treeData = [makeMergedTreeDataMap(cloneDeep(treeData))].concat(treeData);
+    treeData = [makeMergedTreeDataMap(cloneDeep(treeData)), ...treeData];
   }
+
+  for (const webTreeData of treeData) {
+    addSizeToTitle(webTreeData.data, webTreeData.data.data['$area']);
+  }
+
   const treeDataMap = { ...treeData };
+
   const template = getFileContent(path.join(__dirname, 'tree-viz.ejs'));
 
   // Create a combined bundle if applicable
@@ -87,7 +93,7 @@ function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleR
 /**
  * Create a combined tree data where each of the inputs is a separate node under the root
  */
-function makeMergedTreeDataMap(treeData: WebTreeData[]): WebTreeData {
+export function makeMergedTreeDataMap(treeData: WebTreeData[]): WebTreeData {
   const data: WebTreeMapNode = newNode('/');
 
   data.children = [];
@@ -95,14 +101,13 @@ function makeMergedTreeDataMap(treeData: WebTreeData[]): WebTreeData {
   for (const result of treeData) {
     const childTree = result.data;
 
-    childTree.originalName = result.name;
+    childTree.name = result.name;
 
     data.data['$area'] += childTree.data['$area'];
     data.children.push(childTree);
   }
 
   removeSameRootPaths(data.children);
-  addSizeToTitle(data, data.data['$area']);
 
   return {
     name: '[combined]',
@@ -115,10 +120,10 @@ function makeMergedTreeDataMap(treeData: WebTreeData[]): WebTreeData {
  */
 function removeSameRootPaths(nodes: WebTreeMapNode[]): void {
   if (nodes.length > 0) {
-    const sameParts = splitFilename(nodes[0].originalName);
+    const sameParts = splitFilename(nodes[0].name);
 
     for (const childTree of nodes) {
-      const parts = splitFilename(childTree.originalName);
+      const parts = splitFilename(childTree.name);
 
       for (let i = sameParts.length - 1; i >= 0; i--) {
         if (parts.length <= i || sameParts[i] !== parts[i]) {
@@ -131,10 +136,10 @@ function removeSameRootPaths(nodes: WebTreeMapNode[]): void {
 
     if (sameParts.length > 0) {
       for (const childTree of nodes) {
-        let parts = splitFilename(childTree.originalName);
+        let parts = splitFilename(childTree.name);
 
         parts = parts.slice(sameParts.length);
-        childTree.originalName = getNodePath(parts, parts.length - 1);
+        childTree.name = getNodePath(parts, parts.length - 1);
       }
     }
   }
@@ -207,7 +212,6 @@ function getTreeNodesMap(fileDataMap: FileDataMap): TreeNodesMap {
 
 interface WebTreeMapNode {
   name: string;
-  originalName: string;
   data: {
     $area: number;
     coveredSize?: number;
@@ -216,7 +220,7 @@ interface WebTreeMapNode {
   children?: WebTreeMapNode[];
 }
 
-interface WebTreeData {
+export interface WebTreeData {
   name: string;
   data: WebTreeMapNode;
 }
@@ -232,17 +236,12 @@ export function getWebTreeMapData(files: FileDataMap): WebTreeMapNode {
     addNode(treeNodesMap[source], files[source], treeData);
   }
 
-  addSizeToTitle(treeData, treeData.data['$area']);
-
   return treeData;
 }
 
 function newNode(name: string): WebTreeMapNode {
-  name = escapeHtml(name);
-
   return {
-    name,
-    originalName: name,
+    name: escapeHtml(name),
     data: {
       $area: 0,
     },
@@ -293,7 +292,7 @@ function addNode(parts: string[], fileData: FileData, treeData: WebTreeMapNode):
 function addSizeToTitle(node: WebTreeMapNode, total: number): void {
   const { $area: size, coveredSize } = node.data;
 
-  const titleParts = [node.originalName, formatBytes(size), `${formatPercent(size, total, 1)}%`];
+  const titleParts = [node.name, formatBytes(size), `${formatPercent(size, total, 1)}%`];
 
   // Add coverage label to leaf nodes only
   if (coveredSize !== undefined && node.children === undefined) {
@@ -301,7 +300,6 @@ function addSizeToTitle(node: WebTreeMapNode, total: number): void {
   }
 
   node.name = titleParts.join(' • ');
-  delete node.originalName;
 
   if (node.children) {
     node.children.forEach((child) => {

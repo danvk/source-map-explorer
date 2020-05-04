@@ -1,10 +1,59 @@
 import snapshot from '@smpx/snap-shot-it';
 
-import { getWebTreeMapData } from '../../src/lib/html';
+import { getWebTreeMapData, makeMergedTreeDataMap, WebTreeData } from '../../src/lib/html';
 
 import type { FileDataMap } from '../../src/lib/types';
 
 describe('html', () => {
+  describe('makeMergedTreeDataMap', () => {
+    it('should return merged webtreemap data', () => {
+      const fileDataMaps: WebTreeData[] = [
+        {
+          name: 'dist/a.js',
+          data: {
+            name: 'src',
+            data: {
+              $area: 10,
+            },
+            children: [
+              {
+                name: 'a1.js',
+                data: { $area: 7 },
+              },
+              {
+                name: 'a2.js',
+                data: { $area: 3 },
+              },
+            ],
+          },
+        },
+        {
+          name: 'dist/b.js',
+          data: {
+            name: 'src/b',
+            data: { $area: 13 },
+            children: [
+              {
+                name: 'b1.js',
+                data: { $area: 1 },
+              },
+              {
+                name: 'b2.js',
+                data: { $area: 4 },
+              },
+              {
+                name: 'b3.js',
+                data: { $area: 8 },
+              },
+            ],
+          },
+        },
+      ];
+
+      snapshot(makeMergedTreeDataMap(fileDataMaps));
+    });
+  });
+
   describe('getWebTreeMapData', () => {
     it('should collapse non-contributing nodes', () => {
       const fileDataMap: FileDataMap = {
