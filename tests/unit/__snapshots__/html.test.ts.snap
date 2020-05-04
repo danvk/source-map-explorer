@@ -1,6 +1,5 @@
 exports['html getWebTreeMapData should add coverage data and background color 1'] = {
   "name": "/ \u2022 21 B \u2022 100.0%",
-  "originalName": "/",
   "data": {
     "$area": 21,
     "coveredSize": 9,
@@ -9,7 +8,6 @@ exports['html getWebTreeMapData should add coverage data and background color 1'
   "children": [
     {
       "name": "a/b/c.js \u2022 1 B \u2022 4.8% \u2022 Coverage: 100.0%",
-      "originalName": "a/b/c.js",
       "data": {
         "$area": 1,
         "coveredSize": 1,
@@ -18,7 +16,6 @@ exports['html getWebTreeMapData should add coverage data and background color 1'
     },
     {
       "name": "d \u2022 14 B \u2022 66.7%",
-      "originalName": "d",
       "data": {
         "$area": 14,
         "coveredSize": 8,
@@ -27,7 +24,6 @@ exports['html getWebTreeMapData should add coverage data and background color 1'
       "children": [
         {
           "name": "e.js \u2022 2 B \u2022 9.5% \u2022 Coverage: 50.0%",
-          "originalName": "e.js",
           "data": {
             "$area": 2,
             "coveredSize": 1,
@@ -36,7 +32,6 @@ exports['html getWebTreeMapData should add coverage data and background color 1'
         },
         {
           "name": "f.js \u2022 3 B \u2022 14.3% \u2022 Coverage: 66.7%",
-          "originalName": "f.js",
           "data": {
             "$area": 3,
             "coveredSize": 2,
@@ -45,7 +40,6 @@ exports['html getWebTreeMapData should add coverage data and background color 1'
         },
         {
           "name": "g/h.js \u2022 4 B \u2022 19.0% \u2022 Coverage: 75.0%",
-          "originalName": "g/h.js",
           "data": {
             "$area": 4,
             "coveredSize": 3,
@@ -54,7 +48,6 @@ exports['html getWebTreeMapData should add coverage data and background color 1'
         },
         {
           "name": "j/k.js \u2022 5 B \u2022 23.8% \u2022 Coverage: 40.0%",
-          "originalName": "j/k.js",
           "data": {
             "$area": 5,
             "coveredSize": 2,
@@ -65,7 +58,6 @@ exports['html getWebTreeMapData should add coverage data and background color 1'
     },
     {
       "name": "z \u2022 6 B \u2022 28.6% \u2022 Coverage: 0.0%",
-      "originalName": "z",
       "data": {
         "$area": 6,
         "coveredSize": 0,
@@ -77,56 +69,48 @@ exports['html getWebTreeMapData should add coverage data and background color 1'
 
 exports['html getWebTreeMapData should collapse non-contributing nodes 1'] = {
   "name": "/ \u2022 28 B \u2022 100.0%",
-  "originalName": "/",
   "data": {
     "$area": 28
   },
   "children": [
     {
       "name": "a/b/c.js \u2022 1 B \u2022 3.6%",
-      "originalName": "a/b/c.js",
       "data": {
         "$area": 1
       }
     },
     {
       "name": "d \u2022 20 B \u2022 71.4%",
-      "originalName": "d",
       "data": {
         "$area": 20
       },
       "children": [
         {
           "name": "e.js \u2022 2 B \u2022 7.1%",
-          "originalName": "e.js",
           "data": {
             "$area": 2
           }
         },
         {
           "name": "f.js \u2022 3 B \u2022 10.7%",
-          "originalName": "f.js",
           "data": {
             "$area": 3
           }
         },
         {
           "name": "g \u2022 9 B \u2022 32.1%",
-          "originalName": "g",
           "data": {
             "$area": 9
           },
           "children": [
             {
               "name": "h.js \u2022 4 B \u2022 14.3%",
-              "originalName": "h.js",
               "data": {
                 "$area": 4
               }
             },
             {
               "name": "i.js \u2022 5 B \u2022 17.9%",
-              "originalName": "i.js",
               "data": {
                 "$area": 5
               }
@@ -135,7 +119,6 @@ exports['html getWebTreeMapData should collapse non-contributing nodes 1'] = {
         },
         {
           "name": "j/i.js \u2022 6 B \u2022 21.4%",
-          "originalName": "j/i.js",
           "data": {
             "$area": 6
           }
@@ -144,7 +127,6 @@ exports['html getWebTreeMapData should collapse non-contributing nodes 1'] = {
     },
     {
       "name": "z \u2022 7 B \u2022 25.0%",
-      "originalName": "z",
       "data": {
         "$area": 7
       }
@@ -154,49 +136,42 @@ exports['html getWebTreeMapData should collapse non-contributing nodes 1'] = {
 
 exports['html getWebTreeMapData should not create node for zero size files 1'] = {
   "name": "/ \u2022 15 B \u2022 100.0%",
-  "originalName": "/",
   "data": {
     "$area": 15
   },
   "children": [
     {
       "name": "a/b/c.js \u2022 1 B \u2022 6.7%",
-      "originalName": "a/b/c.js",
       "data": {
         "$area": 1
       }
     },
     {
       "name": "d \u2022 14 B \u2022 93.3%",
-      "originalName": "d",
       "data": {
         "$area": 14
       },
       "children": [
         {
           "name": "e.js \u2022 2 B \u2022 13.3%",
-          "originalName": "e.js",
           "data": {
             "$area": 2
           }
         },
         {
           "name": "f.js \u2022 3 B \u2022 20.0%",
-          "originalName": "f.js",
           "data": {
             "$area": 3
           }
         },
         {
           "name": "g/h.js \u2022 4 B \u2022 26.7%",
-          "originalName": "g/h.js",
           "data": {
             "$area": 4
           }
         },
         {
           "name": "j/k.js \u2022 5 B \u2022 33.3%",
-          "originalName": "j/k.js",
           "data": {
             "$area": 5
           }
@@ -208,42 +183,36 @@ exports['html getWebTreeMapData should not create node for zero size files 1'] =
 
 exports['html getWebTreeMapData should not split webpack:/// when collapsing non-contributing nodes 1'] = {
   "name": "/ \u2022 28 B \u2022 100.0%",
-  "originalName": "/",
   "data": {
     "$area": 28
   },
   "children": [
     {
       "name": "webpack:/// \u2022 6 B \u2022 21.4%",
-      "originalName": "webpack:///",
       "data": {
         "$area": 6
       },
       "children": [
         {
           "name": "a/b/c.js \u2022 1 B \u2022 3.6%",
-          "originalName": "a/b/c.js",
           "data": {
             "$area": 1
           }
         },
         {
           "name": "d \u2022 5 B \u2022 17.9%",
-          "originalName": "d",
           "data": {
             "$area": 5
           },
           "children": [
             {
               "name": "e.js \u2022 2 B \u2022 7.1%",
-              "originalName": "e.js",
               "data": {
                 "$area": 2
               }
             },
             {
               "name": "f.js \u2022 3 B \u2022 10.7%",
-              "originalName": "f.js",
               "data": {
                 "$area": 3
               }
@@ -254,35 +223,30 @@ exports['html getWebTreeMapData should not split webpack:/// when collapsing non
     },
     {
       "name": "d \u2022 15 B \u2022 53.6%",
-      "originalName": "d",
       "data": {
         "$area": 15
       },
       "children": [
         {
           "name": "webpack:/// \u2022 9 B \u2022 32.1%",
-          "originalName": "webpack:///",
           "data": {
             "$area": 9
           },
           "children": [
             {
               "name": "g \u2022 9 B \u2022 32.1%",
-              "originalName": "g",
               "data": {
                 "$area": 9
               },
               "children": [
                 {
                   "name": "h.js \u2022 4 B \u2022 14.3%",
-                  "originalName": "h.js",
                   "data": {
                     "$area": 4
                   }
                 },
                 {
                   "name": "i.js \u2022 5 B \u2022 17.9%",
-                  "originalName": "i.js",
                   "data": {
                     "$area": 5
                   }
@@ -293,7 +257,6 @@ exports['html getWebTreeMapData should not split webpack:/// when collapsing non
         },
         {
           "name": "j/i.js \u2022 6 B \u2022 21.4%",
-          "originalName": "j/i.js",
           "data": {
             "$area": 6
           }
@@ -302,7 +265,6 @@ exports['html getWebTreeMapData should not split webpack:/// when collapsing non
     },
     {
       "name": "z \u2022 7 B \u2022 25.0%",
-      "originalName": "z",
       "data": {
         "$area": 7
       }

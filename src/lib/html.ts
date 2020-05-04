@@ -112,7 +112,6 @@ function makeMergedTreeDataMap(treeData: WebTreeData[]): WebTreeData {
 
 /**
  * Find and remove the same root paths
- * @param nodes
  */
 function removeSameRootPaths(nodes: WebTreeMapNode[]): void {
   if (nodes.length > 0) {
@@ -302,6 +301,7 @@ function addSizeToTitle(node: WebTreeMapNode, total: number): void {
   }
 
   node.name = titleParts.join(' • ');
+  delete node.originalName;
 
   if (node.children) {
     node.children.forEach((child) => {
