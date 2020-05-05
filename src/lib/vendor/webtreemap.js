@@ -61,6 +61,14 @@ function focus(tree) {
   layout(tree, level, width, height);
 }
 
+window.onkeydown = function (e) {
+  if (e.key == 'Escape') {
+    if (focused && focused.parent) {
+      focus(focused.parent)
+    };
+  }
+};
+
 function makeDom(tree, level) {
   var dom = document.createElement('div');
   dom.style.zIndex = 1;
