@@ -3,11 +3,34 @@ import ejs from 'ejs';
 import fs from 'fs';
 import path from 'path';
 import escapeHtml from 'escape-html';
+import { cloneDeep } from 'lodash';
 
 import { formatBytes, getCommonPathPrefix, getFileContent, formatPercent } from './helpers';
 import { getColorByPercent } from './coverage';
 
 import type { ExploreOptions, ExploreBundleResult, FileData, FileDataMap } from './types';
+
+const COMBINED_BUNDLE_NAME = '[combined]';
+
+/**
+ * Get webtreemap data to update map on bundle select
+ */
+function getTreeDataMap(exploreResults: ExploreBundleResult[]): { [id: number]: WebTreeData } {
+  let treeData = exploreResults.map<WebTreeData>((data) => ({
+    name: data.bundleName,
+    data: getWebTreeMapData(data.files),
+  }));
+
+  if (treeData.length > 1) {
+    treeData = [makeMergedTreeDataMap(cloneDeep(treeData)), ...treeData];
+  }
+
+  for (const webTreeData of treeData) {
+    addSizeToTitle(webTreeData.data, webTreeData.data.data['$area']);
+  }
+
+  return { ...treeData };
+}
 
 /**
  * Generate HTML file content for specified files
@@ -21,29 +44,25 @@ export function generateHtml(
     webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
   };
 
-  // Create a combined bundle if applicable
-  if (exploreResults.length > 1) {
-    exploreResults = [makeMergedBundle(exploreResults)].concat(exploreResults);
-  }
+  const treeDataMap = getTreeDataMap(exploreResults);
 
   // Get bundles info to generate select element
-  const bundles = exploreResults.map((data) => ({
+  let bundles = exploreResults.map((data) => ({
     name: data.bundleName,
     size: formatBytes(data.totalBytes),
   }));
 
-  // Get webtreemap data to update map on bundle select
-  const treeDataMap = exploreResults.reduce<Record<string, { name: string; data: WebTreeMapNode }>>(
-    (result, data, index) => {
-      result[index] = {
-        name: data.bundleName,
-        data: getWebTreeMapData(data.files),
-      };
+  // Create a combined bundle if applicable
+  if (exploreResults.length > 1) {
+    bundles = [
+      {
+        name: COMBINED_BUNDLE_NAME,
+        size: formatBytes(exploreResults.reduce((total, result) => total + result.totalBytes, 0)),
+      },
+      ...bundles,
+    ];
+  }
 
-      return result;
-    },
-    {}
-  );
   const template = getFileContent(path.join(__dirname, 'tree-viz.ejs'));
 
   return ejs.render(template, {
@@ -56,32 +75,34 @@ export function generateHtml(
 }
 
 /**
- * Create a combined result where each of the inputs is a separate node under the root
+ * Create a combined tree data where each of the inputs is a separate node under the root
  */
-function makeMergedBundle(exploreResults: ExploreBundleResult[]): ExploreBundleResult {
-  let totalBytes = 0;
-  const files: FileDataMap = {};
+export function makeMergedTreeDataMap(treeData: WebTreeData[]): WebTreeData {
+  const data: WebTreeMapNode = newNode('/');
 
-  // Remove any common prefix to keep the visualization as simple as possible.
-  const commonPrefix = getCommonPathPrefix(exploreResults.map((r) => r.bundleName));
+  data.children = [];
 
-  for (const result of exploreResults) {
-    totalBytes += result.totalBytes;
+  for (const result of treeData) {
+    const childTree = result.data;
 
-    const prefix = result.bundleName.slice(commonPrefix.length);
+    childTree.name = result.name;
 
-    Object.entries(result.files).forEach(([fileName, size]) => {
-      files[`${prefix}/${fileName}`] = size;
-    });
+    data.data['$area'] += childTree.data['$area'];
+    data.children.push(childTree);
+  }
+
+  const commonPrefix = getCommonPathPrefix(data.children.map((node) => node.name));
+  const commonPrefixLength = commonPrefix.length;
+
+  if (commonPrefixLength > 0) {
+    for (const node of data.children) {
+      node.name = node.name.slice(commonPrefixLength);
+    }
   }
 
   return {
-    bundleName: '[combined]',
-    totalBytes,
-    mappedBytes: 0,
-    eolBytes: 0,
-    sourceMapCommentBytes: 0,
-    files,
+    name: COMBINED_BUNDLE_NAME,
+    data,
   };
 }
 
@@ -160,6 +181,11 @@ interface WebTreeMapNode {
   children?: WebTreeMapNode[];
 }
 
+export interface WebTreeData {
+  name: string;
+  data: WebTreeMapNode;
+}
+
 /**
  * Convert file size map to webtreemap data
  */
@@ -170,8 +196,6 @@ export function getWebTreeMapData(files: FileDataMap): WebTreeMapNode {
   for (const source in files) {
     addNode(treeNodesMap[source], files[source], treeData);
   }
-
-  addSizeToTitle(treeData, treeData.data['$area']);
 
   return treeData;
 }
