@@ -9,9 +9,8 @@ export function generateOneSource(): void {
     {
       mangle: false,
       compress: false,
-      output: {
+      format: {
         beautify: true,
-        // eslint-disable-next-line @typescript-eslint/camelcase
         indent_level: 2,
       },
       sourceMap: {

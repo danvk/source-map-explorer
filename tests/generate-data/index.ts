@@ -10,15 +10,19 @@ import { generateNullSource } from './build/null-source';
 import { generateOneSource } from './build/one-source';
 import { generateWithUnmapped } from './build/with-unmapped';
 
-createBundle().then(() => {
-  generateBig();
-  generateFooMin();
-  generateInlineMap();
-  generateInvalidMapColumn();
-  generateInvalidMapLine();
-  generateMapReferenceEOL();
-  generateNoMapComment();
-  generateNullSource();
-  generateOneSource();
-  generateWithUnmapped();
-});
+createBundle()
+  .then(() => {
+    generateBig();
+    generateFooMin();
+    generateInlineMap();
+    generateInvalidMapColumn();
+    generateInvalidMapLine();
+    generateMapReferenceEOL();
+    generateNoMapComment();
+    generateNullSource();
+    generateOneSource();
+    generateWithUnmapped();
+  })
+  .catch((error) => {
+    console.error('Failed to create bundle', error);
+  });

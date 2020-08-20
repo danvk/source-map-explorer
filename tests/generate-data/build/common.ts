@@ -31,29 +31,33 @@ export function saveTestDataFile(filename: string, content: string): void {
   fs.writeFileSync(path.join(destination, filename), content);
 }
 
-export function createBundleWithTerser(
+export async function createBundleWithTerser(
   distFilename: string,
   options: Terser.MinifyOptions,
   srcFilename?: string
-): void {
+): Promise<void> {
   const source = getFileContent(srcFilename || `dist/${BUNDLE_FILE_NAME}`);
   const files = srcFilename ? { [srcFilename]: source } : source;
 
-  const result = Terser.minify(files, options);
+  try {
+    const result = await Terser.minify(files, options);
 
-  const sourceMapFilename =
-    typeof options.sourceMap === 'object' &&
-    options.sourceMap.url !== 'inline' &&
-    options.sourceMap.url;
+    const sourceMapFilename =
+      typeof options.sourceMap === 'object' &&
+      options.sourceMap.url !== 'inline' &&
+      options.sourceMap.url;
 
-  if (result.code) {
-    saveTestDataFile(distFilename, result.code);
+    if (result.code) {
+      saveTestDataFile(distFilename, result.code);
 
-    if (typeof result.map === 'string' && sourceMapFilename) {
-      saveTestDataFile(sourceMapFilename, result.map);
+      if (typeof result.map === 'string' && sourceMapFilename) {
+        saveTestDataFile(sourceMapFilename, result.map);
+      }
+    } else {
+      console.error(`Unable to generate "${distFilename}". Code is empty`);
     }
-  } else {
-    console.error(`Unable to generate "${distFilename}"`, result.error);
+  } catch (error) {
+    console.error(`Unable to generate "${distFilename}"`, error);
   }
 }
 
@@ -73,7 +77,6 @@ export function createBundleWithWebpack(srcFilename: string, distFilename: strin
             terserOptions: {
               output: {
                 comments: false,
-                // eslint-disable-next-line @typescript-eslint/camelcase
                 ascii_only: true,
               },
               sourceMap: true,
