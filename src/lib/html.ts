@@ -47,20 +47,17 @@ export function generateHtml(
   const treeDataMap = getTreeDataMap(exploreResults);
 
   // Get bundles info to generate select element
-  let bundles = exploreResults.map((data) => ({
+  const bundles = exploreResults.map((data) => ({
     name: data.bundleName,
     size: formatBytes(data.totalBytes),
   }));
 
   // Create a combined bundle if applicable
   if (exploreResults.length > 1) {
-    bundles = [
-      {
-        name: COMBINED_BUNDLE_NAME,
-        size: formatBytes(exploreResults.reduce((total, result) => total + result.totalBytes, 0)),
-      },
-      ...bundles,
-    ];
+    bundles.unshift({
+      name: COMBINED_BUNDLE_NAME,
+      size: formatBytes(exploreResults.reduce((total, result) => total + result.totalBytes, 0)),
+    });
   }
 
   const template = getFileContent(path.join(__dirname, 'tree-viz.ejs'));
