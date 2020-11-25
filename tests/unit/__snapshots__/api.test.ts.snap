@@ -357,29 +357,32 @@ exports['api explore should give name to "null" source a name 1'] = {
   "bundles": [
     {
       "bundleName": "data/null-source.js",
-      "totalBytes": 7854,
-      "mappedBytes": 1004,
-      "unmappedBytes": 13,
+      "totalBytes": 2641,
+      "mappedBytes": 211,
+      "unmappedBytes": 21,
       "eolBytes": 1,
-      "sourceMapCommentBytes": 6836,
+      "sourceMapCommentBytes": 2408,
       "files": {
-        "webpack:///webpack/bootstrap": {
-          "size": 897
-        },
-        "[no source]": {
-          "size": 32
-        },
-        "webpack:///tests/generate-data/src/foo.js": {
-          "size": 35
-        },
-        "webpack:///tests/generate-data/src/bar.js": {
+        "webpack://source-map-explorer/tests/generate-data/src/bar.js": {
           "size": 40
         },
+        "[no source]": {
+          "size": 17
+        },
+        "webpack://source-map-explorer/tests/generate-data/src/foo.js": {
+          "size": 38
+        },
+        "webpack://source-map-explorer/webpack/bootstrap": {
+          "size": 109
+        },
+        "webpack://source-map-explorer/webpack/startup": {
+          "size": 7
+        },
         "[sourceMappingURL]": {
-          "size": 6836
+          "size": 2408
         },
         "[unmapped]": {
-          "size": 13
+          "size": 21
         },
         "[EOLs]": {
           "size": 1
@@ -392,7 +395,7 @@ exports['api explore should give name to "null" source a name 1'] = {
       "bundleName": "data/null-source.js",
       "isWarning": true,
       "code": "UnmappedBytes",
-      "message": "Unable to map 13/7854 bytes (0.17%)"
+      "message": "Unable to map 21/2641 bytes (0.80%)"
     }
   ]
 }
@@ -429,29 +432,32 @@ exports['api explore should sort bundles by name 1'] = {
     },
     {
       "bundleName": "data/null-source.js",
-      "totalBytes": 7854,
-      "mappedBytes": 1004,
-      "unmappedBytes": 13,
+      "totalBytes": 2641,
+      "mappedBytes": 211,
+      "unmappedBytes": 21,
       "eolBytes": 1,
-      "sourceMapCommentBytes": 6836,
+      "sourceMapCommentBytes": 2408,
       "files": {
-        "webpack:///webpack/bootstrap": {
-          "size": 897
-        },
-        "[no source]": {
-          "size": 32
-        },
-        "webpack:///tests/generate-data/src/foo.js": {
-          "size": 35
-        },
-        "webpack:///tests/generate-data/src/bar.js": {
+        "webpack://source-map-explorer/tests/generate-data/src/bar.js": {
           "size": 40
         },
+        "[no source]": {
+          "size": 17
+        },
+        "webpack://source-map-explorer/tests/generate-data/src/foo.js": {
+          "size": 38
+        },
+        "webpack://source-map-explorer/webpack/bootstrap": {
+          "size": 109
+        },
+        "webpack://source-map-explorer/webpack/startup": {
+          "size": 7
+        },
         "[sourceMappingURL]": {
-          "size": 6836
+          "size": 2408
         },
         "[unmapped]": {
-          "size": 13
+          "size": 21
         },
         "[EOLs]": {
           "size": 1
@@ -520,7 +526,7 @@ exports['api explore should sort bundles by name 1'] = {
       "bundleName": "data/null-source.js",
       "isWarning": true,
       "code": "UnmappedBytes",
-      "message": "Unable to map 13/7854 bytes (0.17%)"
+      "message": "Unable to map 21/2641 bytes (0.80%)"
     },
     {
       "bundleName": "data/inline-map.js",
@@ -535,32 +541,35 @@ exports['api explore should sort filenames 1'] = {
   "bundles": [
     {
       "bundleName": "data/null-source.js",
-      "totalBytes": 7854,
-      "mappedBytes": 1004,
-      "unmappedBytes": 13,
+      "totalBytes": 2641,
+      "mappedBytes": 211,
+      "unmappedBytes": 21,
       "eolBytes": 1,
-      "sourceMapCommentBytes": 6836,
+      "sourceMapCommentBytes": 2408,
       "files": {
         "[EOLs]": {
           "size": 1
         },
         "[no source]": {
-          "size": 32
+          "size": 17
         },
         "[sourceMappingURL]": {
-          "size": 6836
+          "size": 2408
         },
         "[unmapped]": {
-          "size": 13
+          "size": 21
         },
-        "webpack:///tests/generate-data/src/bar.js": {
+        "webpack://source-map-explorer/tests/generate-data/src/bar.js": {
           "size": 40
         },
-        "webpack:///tests/generate-data/src/foo.js": {
-          "size": 35
+        "webpack://source-map-explorer/tests/generate-data/src/foo.js": {
+          "size": 38
         },
-        "webpack:///webpack/bootstrap": {
-          "size": 897
+        "webpack://source-map-explorer/webpack/bootstrap": {
+          "size": 109
+        },
+        "webpack://source-map-explorer/webpack/startup": {
+          "size": 7
         }
       }
     }
@@ -570,7 +579,7 @@ exports['api explore should sort filenames 1'] = {
       "bundleName": "data/null-source.js",
       "isWarning": true,
       "code": "UnmappedBytes",
-      "message": "Unable to map 13/7854 bytes (0.17%)"
+      "message": "Unable to map 21/2641 bytes (0.80%)"
     }
   ]
 }

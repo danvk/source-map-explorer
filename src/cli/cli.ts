@@ -230,7 +230,10 @@ async function writeHtmlToTempFile(html?: string): Promise<void> {
     if (childProcess.stderr) {
       // Catch error output from child process
       childProcess.stderr.once('data', (error: Buffer) => {
-        logError({ code: 'CannotOpenTempFile', tempFile, error });
+        // TODO: Figure out why `#< CLIXML` ends up in stderr. Maybe we should simply ignore it
+        if (error.toString().trim() !== '#< CLIXML') {
+          logError({ code: 'CannotOpenTempFile', tempFile, error });
+        }
       });
     }
   } catch (error) {

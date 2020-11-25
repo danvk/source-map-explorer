@@ -87,8 +87,10 @@ export function createBundleWithWebpack(srcFilename: string, distFilename: strin
       },
     },
     (err, stats) => {
-      if (err || stats.hasErrors()) {
-        console.error(`Unable to generate "${distFilename}"`, err || stats.compilation.errors);
+      const error = err ? err : stats && stats.hasErrors() ? stats.compilation.errors : null;
+
+      if (error) {
+        console.error(`Unable to generate "${distFilename}"`, error);
       }
     }
   );

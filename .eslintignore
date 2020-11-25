@@ -1,9 +1,0 @@
-**/*.*
-**/*.js
-!**/*.ts
-node_modules
-/bin
-/lib
-tests/data
-tests/generate-data/src
-*vendor*

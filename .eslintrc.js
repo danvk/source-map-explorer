@@ -1,5 +1,16 @@
 module.exports = {
   root: true,
+  "ignorePatterns": [
+    "**/*.*",
+    "**/*.js",
+    "!**/*.ts",
+    "node_modules",
+    "/bin",
+    "/lib",
+    "tests/data",
+    "tests/generate-data/src",
+    "*vendor*",
+  ],
   env: {
     commonjs: true,
     node: true,
@@ -29,7 +40,6 @@ module.exports = {
       { blankLine: 'any', prev: ['const', 'let'], next: ['const', 'let'] },
     ],
     'no-console': 'off',
-    'no-use-before-define': ['error', { functions: false, classes: true, variables: true }],
     yoda: 'error',
     // TypeScript specific
     '@typescript-eslint/explicit-function-return-type': [
