@@ -134,6 +134,75 @@ exports['html getWebTreeMapData should collapse non-contributing nodes 1'] = {
   ]
 }
 
+exports['html getWebTreeMapData should merge mixed paths 1'] = {
+  "name": "/",
+  "data": {
+    "$area": 21
+  },
+  "children": [
+    {
+      "name": "c:",
+      "data": {
+        "$area": 21
+      },
+      "children": [
+        {
+          "name": "a/b/c.js",
+          "data": {
+            "$area": 1
+          }
+        },
+        {
+          "name": "d",
+          "data": {
+            "$area": 20
+          },
+          "children": [
+            {
+              "name": "e.js",
+              "data": {
+                "$area": 2
+              }
+            },
+            {
+              "name": "f.js",
+              "data": {
+                "$area": 3
+              }
+            },
+            {
+              "name": "g",
+              "data": {
+                "$area": 9
+              },
+              "children": [
+                {
+                  "name": "h.js",
+                  "data": {
+                    "$area": 4
+                  }
+                },
+                {
+                  "name": "i.js",
+                  "data": {
+                    "$area": 5
+                  }
+                }
+              ]
+            },
+            {
+              "name": "j/i.js",
+              "data": {
+                "$area": 6
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
 exports['html getWebTreeMapData should not create node for zero size files 1'] = {
   "name": "/",
   "data": {

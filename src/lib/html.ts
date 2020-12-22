@@ -111,6 +111,7 @@ function getNodePath(parts: string[], depthIndex: number): string {
 
 const WEBPACK_FILENAME_PREFIX = 'webpack:///';
 const WEBPACK_FILENAME_PREFIX_LENGTH = WEBPACK_FILENAME_PREFIX.length;
+const PATH_SEPARATOR_REGEX = /[\\/]/;
 
 function splitFilename(file: string): string[] {
   const webpackPrefixIndex = file.indexOf(WEBPACK_FILENAME_PREFIX);
@@ -124,7 +125,7 @@ function splitFilename(file: string): string[] {
     ].filter(Boolean);
   }
 
-  return file.split('/');
+  return file.split(PATH_SEPARATOR_REGEX);
 }
 
 function getTreeNodesMap(fileDataMap: FileDataMap): TreeNodesMap {
