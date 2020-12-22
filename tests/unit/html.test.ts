@@ -108,5 +108,18 @@ describe('html', () => {
 
       snapshot(getWebTreeMapData(fileDataMap));
     });
+
+    it('should merge mixed paths', () => {
+      const fileDataMap: FileDataMap = {
+        'c:/a/b/c.js': { size: 1 },
+        'c:\\d\\e.js': { size: 2 },
+        'c:/d/f.js': { size: 3 },
+        'c:\\d\\g\\h.js': { size: 4 },
+        'c:/d/g/i.js': { size: 5 },
+        'c:\\d\\j\\i.js': { size: 6 },
+      };
+
+      snapshot(getWebTreeMapData(fileDataMap));
+    });
   });
 });
