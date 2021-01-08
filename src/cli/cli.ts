@@ -141,9 +141,12 @@ function parseArguments(): Arguments {
   // Trim extra quotes
   const quoteRegex = /'/g;
 
-  argv._ = argv._.map((path) => path.replace(quoteRegex, ''));
-
-  return argv;
+  return {
+    ...argv,
+    _: argv._.filter((arg): arg is string => typeof arg === 'string').map((path) =>
+      path.replace(quoteRegex, '')
+    ),
+  };
 }
 
 export function logError(message: string | ErrorContext, error?: Error): void {
