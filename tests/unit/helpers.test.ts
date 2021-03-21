@@ -14,10 +14,10 @@ import type { MappingRange } from '../../src/lib/types';
 describe('helpers', () => {
   describe('formatBytes', () => {
     const tests: { bytes: number; expected: string }[] = [
-      { bytes: 0, expected: '0 B' },
-      { bytes: 1024, expected: '1 KB' },
-      { bytes: 27291, expected: '26.65 KB' },
-      { bytes: 6232294, expected: '5.94 MB' },
+      { bytes: 0, expected: '0B' },
+      { bytes: 1024, expected: '1K' },
+      { bytes: 27291, expected: '26.7K' },
+      { bytes: 6232294, expected: '5.94M' },
     ];
 
     tests.forEach(({ bytes, expected }) => {
