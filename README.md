@@ -571,8 +571,8 @@ source-map-explorer path/to/foo.min.js{,.map}
 - [Standard](https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit)
 - [Anatomy of source maps](https://www.bugsnag.com/blog/source-maps)
 
-[demo]: https://cdn.rawgit.com/danvk/source-map-explorer/08b0e130cb9345f9061760bf8a8d9136ea60b457/demo.html
-[another demo]: https://cdn.rawgit.com/danvk/source-map-explorer/08b0e130cb9345f9061760bf8a8d9136ea60b457/demo-bug.html
+[demo]: https://rawcdn.githack.com/danvk/source-map-explorer/08b0e130cb9345f9061760bf8a8d9136ea60b457/demo.html
+[another demo]: https://rawcdn.githack.com/danvk/source-map-explorer/08b0e130cb9345f9061760bf8a8d9136ea60b457/demo-bug.html
 [browserify]: http://browserify.org/
 [uglify]: https://github.com/mishoo/UglifyJS2
 [exorcist]: https://github.com/thlorenz/exorcist
