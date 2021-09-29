@@ -23,6 +23,7 @@ This will open up a visualization of how the space is used in your minified bund
 
 <img src="screenshot.png">
 
+## Demo
 Here's a [demo][] with a more complex bundle.
 
 Here's [another demo][] where you can see a bug: there are two copies of React
@@ -571,8 +572,8 @@ source-map-explorer path/to/foo.min.js{,.map}
 - [Standard](https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit)
 - [Anatomy of source maps](https://www.bugsnag.com/blog/source-maps)
 
-[demo]: https://rawcdn.githack.com/danvk/source-map-explorer/08b0e130cb9345f9061760bf8a8d9136ea60b457/demo.html
-[another demo]: https://rawcdn.githack.com/danvk/source-map-explorer/08b0e130cb9345f9061760bf8a8d9136ea60b457/demo-bug.html
+[demo]: https://rawcdn.githack.com/danvk/source-map-explorer/0de56022dc1290c61aa42294f1ccfce64d220fa5/examples/demo.html
+[another demo]: https://rawcdn.githack.com/danvk/source-map-explorer/0de56022dc1290c61aa42294f1ccfce64d220fa5/examples/demo-bug.html
 [browserify]: http://browserify.org/
 [uglify]: https://github.com/mishoo/UglifyJS2
 [exorcist]: https://github.com/thlorenz/exorcist
