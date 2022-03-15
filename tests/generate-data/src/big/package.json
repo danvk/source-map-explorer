@@ -9,7 +9,7 @@
   "dependencies": {
     "core-js": "^3.6.5",
     "jquery": "^3.5.0",
-    "lodash-es": "^4.17.15",
+    "lodash-es": "^4.17.21",
     "moment": "^2.24.0",
     "phaser": "^3.23.0",
     "pixi.js": "^5.2.3",
