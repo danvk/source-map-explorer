@@ -1,6 +1,6 @@
 {
   "name": "source-map-explorer",
-  "version": "2.5.2",
+  "version": "2.5.3",
   "description": "Analyze and debug space usage through source maps",
   "main": "lib/index.js",
   "bin": {
@@ -8,7 +8,7 @@
     "sme": "bin/cli.js"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "scripts": {
     "build": "npm-run-all build:*",
