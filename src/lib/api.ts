@@ -79,19 +79,19 @@ export function getBundles(fileTokens: string[]): Bundle[] {
   );
 
   const [mapFilenames, codeFilenames] = partition(filenames, (filename) =>
-    filename.endsWith('.map')
+    filename.endsWith('.map') || filename.endsWith('.sourcemap')
   );
 
-  return codeFilenames.map<Bundle>((code) => ({
-    code,
-    map: mapFilenames.find((filename) => filename === `${code}.map`),
+  return codeFilenames.map<Bundle>((codeFilename) => ({
+    code: codeFilename,
+    map: mapFilenames.find((mapFilename) => mapFilename.startsWith(codeFilename)),
   }));
 }
 
 function expandGlob(pattern: string): string[] {
   // Make sure pattern match `.map` files as well
   if (pattern.endsWith('.js')) {
-    pattern = `${pattern}?(.map)`;
+    pattern = `${pattern}?(.?(source)map)`;
   }
 
   return glob.sync(pattern);
