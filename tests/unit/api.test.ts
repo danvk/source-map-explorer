@@ -351,6 +351,10 @@ describe('api', () => {
         fileTokens: ['data/*.*'],
         expected: [
           {
+            code: 'data/baz.min.js',
+            map: 'data/baz.min.js.sourcemap',
+          },
+          {
             code: 'data/big.js',
             map: undefined,
           },
@@ -393,6 +397,17 @@ describe('api', () => {
           {
             code: 'data/foo.min.js',
             map: 'data/foo.min.js.map',
+          },
+        ],
+      },
+
+      {
+        name: 'should expand glob including .sourcemap files',
+        fileTokens: ['data/baz.*.js'],
+        expected: [
+          {
+            code: 'data/baz.min.js',
+            map: 'data/baz.min.js.sourcemap',
           },
         ],
       },
