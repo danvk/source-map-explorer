@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request: # run on all PRs, not just PRs to a particular branch
+
+jobs:
+  basics:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: git clone
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 100
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: latest
+
+    - run: npm ci
+
+    - run: npm run test:e2e
+      name: Build and test CLI
+
+    # TODO: enable once coveralls is hooked up with GHA
+    # - run: npm run coverage:ci
+
+    - run: npm run test:unit
+
