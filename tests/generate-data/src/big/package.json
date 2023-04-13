@@ -13,7 +13,7 @@
     "moment": "^2.24.0",
     "phaser": "^3.23.0",
     "pixi.js": "^5.2.3",
-    "three": "^0.115.0"
+    "three": "^0.137.0"
   },
   "devDependencies": {}
 }
