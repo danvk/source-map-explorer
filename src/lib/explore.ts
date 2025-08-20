@@ -179,7 +179,9 @@ function checkInvalidMappingColumn(context: ComputeFileSizesContext): void {
   const { line, generatedLine, generatedColumn } = context;
   const maxColumnIndex = line.length - 1;
 
-  if (generatedColumn > maxColumnIndex) {
+  if (generatedColumn === Infinity) {
+    context.generatedColumn = maxColumnIndex;
+  } else if (generatedColumn > maxColumnIndex) {
     if (isReferencingEOL(context, maxColumnIndex)) {
       return;
     }
