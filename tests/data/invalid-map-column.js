@@ -1,2 +1,0 @@
-console.log('hello joyful world');
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImludmFsaWQtbWFwLWNvbHVtbi5qcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSxPQUFPLENBQUMsR0FBRyxDQUFDLHFCQUFxQixDQUFDIiwiZmlsZSI6ImludmFsaWQtbWFwLWNvbHVtbi5qcyIsInNvdXJjZVJvb3QiOiIifQ==
